@@ -1,0 +1,104 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var email = Context.Session.GetString("email");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DemoCrudMvc</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="~/DemoCrudMvc.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div id="loader">
+        <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div class="bg-light">
+        <nav class="navbar navbar-expand-sm navbar-light" id="neubar">
+            <div class="container">
+                <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management</a>
+
+                <div class=" collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ms-auto ">
+                    
+                        @if(email == null)
+                        {
+                            <li class="nav-item fs-5"> 
+                                <a class="nav-link" asp-action="Index" asp-controller="Login">Login</a>
+                            </li>
+                        }
+                        @if (email != null)
+                        {
+
+                            <li class="nav-item  fs-5">
+                                <a class="navbar-brand mx-2" asp-action="Product" asp-controller="Home">Products</a>
+                            </li>
+                        }
+                        @if (email != null)
+                        {
+
+                            <li class="nav-item  fs-5">
+                                <a class="navbar-brand mx-2" asp-action="Index" asp-controller="Category">Category</a>
+                            </li>
+                        }
+                        @if (email != null)
+                        {
+                            <li class="nav-item fs-5">
+                                <a class="navbar-brand mx-3" asp-action="LogOut" asp-controller="Login">Logout</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+
+
+        $(window).on('ready', function () {
+            console.log("hiilo")
+            $('#loader').fadeIn();
+        });
+
+        $(window).on('load', function () {
+            console.log("hii")
+            $('#loader').fadeOut();
+        });
+        $(document).ajaxStart(function () {
+            console.log("sdfs")
+            $('#loader').fadeIn();
+        });
+
+        $(document).ajaxStop(function () {
+            console.log("stop Ajax")
+            $('#loader').fadeOut();
+        });
+
+    </script>
+</body>
+</html>

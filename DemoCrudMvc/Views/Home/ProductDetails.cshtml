@@ -1,0 +1,41 @@
+﻿@model DAL.DataModels.Product
+@{
+    ViewData["Title"] = "ProductDetails";
+}
+
+<div class="container mt-5 mb-5 d-flex">
+    <div class="d-flex">
+        <div class="d-flex flex-column gap-3">
+            @foreach (var item in Model.ProductPhotos)
+            {
+                <div onclick="ChangeImage('~/uploads/@item.PhotoName')">
+                    <img src="~/uploads/@item.PhotoName" width="100" />
+                </div>
+            }
+        </div>
+    </div>
+    <div class="image-gallery mx-5">
+        <img id="mainImage" src="~/uploads/@Model.FeaturePhoto" width="400" />
+    </div>
+    <div class="d-flex flex-column">
+        <div>@Model.ProductName</div>
+        <div>@Html.Raw(@Model.Description)</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        function ChangeImage(imageItem) {
+            var resolvedUrl = '@Url.Content("~/uploads/")' + imageItem.split('/').pop();
+            document.getElementById('mainImage').src = resolvedUrl;
+
+        }
+
+        // Ensure all elements are ready and attach the event listeners
+        document.querySelectorAll('.d-flex div[onclick]').forEach(div => {
+            div.addEventListener('click', function () {
+                ChangeImage(this.getAttribute('onclick').split("'")[1]);
+            });
+        });
+    });
+</script>

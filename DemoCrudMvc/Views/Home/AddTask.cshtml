@@ -1,0 +1,147 @@
+﻿@model DAL.ViewModals.ProductVM
+@{
+    ViewData["Title"] = "AddTask";
+}
+
+<form asp-action="TaskAdd" asp-controller="Home" class="container border rounded-3 p-3 p-md-5 mb-3 mt-5 d-flex flex-column gap-4 bg-white" method="post" enctype="multipart/form-data">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col-12 col-md-12 d-flex justify-content-between">
+            <h5 class="fw-semibold">Add Product Form</h5>
+            <div class="d-flex justify-content-end">
+
+            <a asp-controller="Home" asp-action="Product" asp-area=""
+               class="btn btn-outline-info d-flex align-items-center">
+                <span class="material-symbols-outlined"> chevron_left </span> Back
+            </a>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="text"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="ProductName" />
+                <label for="floatingInput" asp-for="ProductName">Product Name</label>
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+        </div>
+    
+        <div class="col">
+            <div class="form-floating">
+                <select class="form-select " aria-label="Default select example" id="cancelReason" asp-for="CategoryName">
+
+                    <option selected disabled>Select The Category</option>
+
+                    @foreach (var region in @ViewBag.Categorys)
+                    {
+                        <option value="@region.CategoryName">@region.CategoryName</option>
+                    }
+
+
+                </select>
+                <label for="floatingInput">Category</label>
+
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="number"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="Price" />
+                <label for="floatingInput" asp-for="Price">Price</label>
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="number"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="Quantity" />
+                <label for="floatingInput" asp-for="Quantity">Quantity</label>
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+        </div> 
+        <div class="col">
+            <div class="form-floating">
+                <input type="date"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="DatePicker" />
+                <label for="floatingInput" asp-for="DatePicker">Date</label>
+                <span asp-validation-for="DatePicker" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group input-group-lg">
+                <div id="fileName" class="form-control fs-6 align-middle">
+                    Select Files
+                </div>
+                <input type="file" asp-for="Files" class="form-control" id="fileInput" hidden multiple accept=".png,.jpeg,.jpg"/>
+                <label class="input-group-text btn btn-info text-light" for="fileInput">
+                    <span class="material-symbols-outlined me-2">
+                        cloud_upload
+                    </span>
+                    <span class="d-none d-md-inline">Upload</span>
+                </label>
+                <span asp-validation-for="Files" class="text-danger"></span>
+            </div>
+        </div>
+      
+    </div>
+    <div class="row">
+        <div class="form-floating ">
+            <label for="floatingInput" asp-for="ProductDescription">Description</label>
+            <textarea asp-for="ProductDescription" class="form-control"></textarea>
+            <span asp-validation-for="ProductDescription" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="d-flex gap-3 align-items-center justify-content-end">
+            <div class="d-flex justify-content-end">
+
+            <button class="btn btn-info text-light" type="submit" id="submit">
+                Submit
+            </button>
+            </div>
+            <button type="reset" class="btn btn-outline-info d-flex align-items-center" id="cancelButton">
+                Cancel
+            </button>
+        </div>
+
+    </div>
+</form>
+
+<script>
+    document.getElementById("fileInput").onchange = function () {
+        let path = this.value.substr(this.value.lastIndexOf(`\\`) + 1);
+        document.getElementById("fileName").innerText = path;
+    };
+
+</script>
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/a4s2zqwprgzsqt9omrxac7hh1f1z2n8bdzypc8zi8szlo7a8/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+    tinymce.init({
+        selector: 'textarea',
+            branding: false,
+        plugins: ' anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate  tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
+        toolbar: ' undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+        tinycomments_mode: 'embedded',
+        tinycomments_author: 'Author name',
+
+        mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'munavvarpopatiya777@gmail.com' },
+        ],
+    });
+</script>

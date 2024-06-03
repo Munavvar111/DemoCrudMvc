@@ -1,0 +1,258 @@
+﻿@model List<DAL.ViewModals.CategoryVM>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="mt-2">
+        <table class="table table-bordered mt-2"  >
+
+            <thead class="table-secondary">
+                <tr>
+                    <th scope="col"> CategoryId <i class="bi bi-sort-up" onclick="HandleChagne('CategoryId')"></i></th>
+                    <th scope="col">CategoryName <i class="bi bi-sort-up" onclick="HandleChagne('CategoryName')"></i></th>
+                    <th scope="col"> Description<i class="bi bi-sort-up" onclick="HandleChagne('Description')"></i></th>
+
+                    <th scope="col">Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+
+                        var rowStyle = item.IsCategoryDeleted ? "background-color: #ffffe0;" : "";
+
+                        <tr class="align-middle" style="@rowStyle">
+                            <td style="@rowStyle">@item.CategoriesID</td>
+                            <td style="@rowStyle">@item.CategoriesName</td>
+                            <td style="@rowStyle">@item.CategoriesDescription </td>
+
+
+                            <td style="@rowStyle">
+                                <div class="d-flex  gap-2">
+                                    <a class="btn btn-info fw-bolder text-white @(item.IsCategoryDeleted ? "disabled" : "")"
+                                       asp-action="UpdateCategory"
+                                       asp-route-id="@item.CategoriesID">
+                                        Update
+                                    </a>
+
+                                    @if (item.IsCategoryDeleted)
+                                    {
+
+                                        <a class="btn btn-success fw-bolder text-white" onclick="restoreCategory(@item.CategoriesID)">Restore</a>
+                                    }
+                                    else
+                                    {
+
+                                        <a class="btn btn-danger fw-bolder text-white" onclick="deleteCategory(@item.CategoriesID)">Delete</a>
+                                    }
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="ms-3 fw-semibold">
+                Page @(ViewBag.CurrentPage) out of @ViewBag.TotalPages
+            </div>
+            <nav id="pagination" aria-label="Page navigation" class="me-3">
+                <ul class="pagination pagination-sm m-0">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="previous" data-page="@(ViewBag.CurrentPage - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="visually-hidden">Previous</span>
+                            </a>
+                        </li>
+                    }
+                    @for (int z = 1; z <= ViewBag.TotalPages; z++)
+                    {
+                        <li class="page-item @(z == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="#" id="current_@z" data-page="@z" aria-label="Page @z">
+                                @z
+                            </a>
+                        </li>
+                    }
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="next" data-page="@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="visually-hidden">Next</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+}
+else
+{
+    <h5 class="ms-3">No Records Found.</h5>
+}
+<div class="modal fade" id="category-modal" tabindex="-1" aria-labelledby="category-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="category-modal-label">Set Another Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="categoryIdInput" class="d-none" />
+                <div class="form-floating">
+
+                    <select id="new-category-select" class="form-select">
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
+                </select>
+                <span class="text-danger" id="categorySelect"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="setNewCategory()">Save</button>
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function deleteCategory(categoryId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this Category!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Category/IsCategoryUsedInProduct",
+                    data: { categoryId: categoryId },
+                    success: function (data) {
+                        console.log(data)
+                        if (data.isUsed) {
+                            // Open modal to set another category
+                            $("#category-modal").modal("show");
+                            $("#category-modal").find(".modal-body").data("categoryId", categoryId);
+                            $("#category-modal").find("#categoryIdInput").val(categoryId);
+                            $("#new-category-select option[value='" + categoryId + "']").remove();
+
+
+                        } else {
+                            $.ajax({
+                                type: "POST",
+                                url: "/Category/DeleteCategory",
+                                data: { categoryId: categoryId },
+                                success: function () {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'The Category has been deleted.',
+                                        'success'
+                                    ).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire(
+                    'Cancelled',
+                    'The Category is safe :)',
+                    'error'
+                )
+            }
+        })
+    }
+    function setNewCategory() {
+        var newCategoryId = $("#new-category-select").val();
+        if (newCategoryId == null) {
+            $('#categorySelect').text("You Can Not Delete This Category")
+            return
+        }
+        var categoryId = $("#categoryIdInput").val();
+        
+            $.ajax({
+                type: "POST",
+                url: "/Category/SetNewCategory",
+                data: { categoryId: categoryId, newCategoryId: newCategoryId },
+                success: function () {
+                    // Refresh page or update UI
+                    $("#category-modal").modal("hide");
+                Swal.fire(
+                    'Deleted!',
+                    'The Category has been deleted and Update from The Product.',
+                    'success'
+                ).then(() => {
+                    window.location.reload();
+                });
+                }
+            });
+    }
+
+    function restoreCategory(categoryId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will recover this product!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Recover it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+
+                $.ajax({
+                    url: '/Category/restoreCategory/' + categoryId,
+                    type: 'POST',
+                    success: function (response) {
+                        Swal.fire(
+                            'Restored!',
+                            'The Category has been Restore.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the error
+                    }
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire(
+                    'Cancelled',
+                    'The product is Not Restore :)',
+                    'error'
+                )
+            }
+        })
+    }
+
+
+
+</script>

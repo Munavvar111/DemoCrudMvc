@@ -1,0 +1,78 @@
+﻿@model DAL.ViewModals.loginVM
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+@if (TempData.ContainsKey("Error"))
+{
+<script>
+        $('#loader').fadeIn().promise().done(function () {
+                Swal.fire({
+                title: 'Error!',
+                text: '@TempData["Error"]',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+</script>
+}
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+<script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+</script>
+}
+<div class="container1">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="text-center">Login To Your Account</h1>
+            <form asp-action="Login" method="post">
+                <div class="input-group mb-3">
+                    <div class="form-floating flex-grow-1">
+                        <input asp-for="Email" type="email" class="form-control" id="floatingInputGroup1" />
+                        <label for="floatingInputGroup1 " asp-for="Email">Email</label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <span class="input-group-text ">
+                        <span class="material-symbols-outlined text-secondary">
+                            account_circle
+                        </span>
+                    </span>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="form-floating flex-grow-1 ">
+                        <input asp-for="Passwordhash" type="password" class="form-control" id="password" />
+                        <label for="password" asp-for="Passwordhash">Password</label>
+                        <span asp-validation-for="Passwordhash" class="text-danger"></span>
+                    </div>
+                    <span class="input-group-text" id="passwordBtn">
+                        <span class="material-symbols-outlined text-secondary">
+                            visibility
+                        </span>
+                    </span>
+                </div>
+
+                <button type="submit" class="btn btn-info w-100 text-white">
+                    Log In
+                </button>
+                <div class="d-flex justify-content-center">
+
+                <span class="align-items-center justify-content-center m-auto text-center">
+                    Or
+                </span>
+                </div>
+                <a class="btn btn-info w-100 text-white" asp-action="Registration" asp-controller="Login">
+                    Registration
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

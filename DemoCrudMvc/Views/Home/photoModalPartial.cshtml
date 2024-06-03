@@ -1,0 +1,79 @@
+﻿
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel">Photo Gallery</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="photoCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.FileNames.Count; i++)
+                            {
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="~/uploads/@Model.FileNames[i]" class="d-block w-100 zoomable-image" alt="Photo">
+                                    <div class="d-flex justify-content-center">
+
+                                        <button type="button" class="btn btn-danger btn-sm delete-photo-btn" data-photo-id="@Model.FileNames[i]">Delete</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+
+    document.querySelectorAll('.delete-photo-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            let photoId = this.getAttribute('data-photo-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/DeletPhoto",
+                        data: { PhotoId: photoId },
+                        success: function (data) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Your photo has been deleted.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        }
+
+                    })
+                }
+                else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'The Photo is Not Deleted :)',
+                        'error'
+                    )
+                }
+            });
+        });
+    });
+</script>

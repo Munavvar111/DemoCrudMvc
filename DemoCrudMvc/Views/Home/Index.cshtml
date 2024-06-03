@@ -1,0 +1,149 @@
+﻿@model List<DAL.DataModels.Product>;
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+@{
+
+}
+@if (TempData.ContainsKey("Error"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Error!',
+                text: '@TempData["Error"]',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+<div class="container-fluid bg-white mt-3">
+    <div class="mt-5">
+    </div>
+    <div class="container-fluid mt-4">
+        <div class="row gap-3">
+            @foreach (var product in Model)
+            {
+                <div class="card col-md-3">
+
+                    <div class="card-image">
+
+                        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                @{
+                                    var i = 0;
+                                }
+                                @foreach (var photo in product.ProductPhotos)
+                                {
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img class="d-block w-100" src="~/uploads/@photo.PhotoName" alt="First slide">
+                                    </div>
+                                    i++;
+                                }
+                            </div>
+                            @* <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                        </a> *@
+                        </div>
+                    </div>
+
+                    <div class="card-inner">
+                        <span>@product.Category.CategoryName</span>
+                        <h5 class="mb-0">@product.ProductName</h5>
+                        <div class="price">
+                            <span>$@product.Price</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <a class="btn btn-success text-uppercase btn-sm details" asp-action="ProductDetails" asp-controller="Home" asp-route-id="@product.ProductId">Details</a>
+                            <div class="d-flex flex-row">
+
+                                <span class="wishlist" onclick="ChangeCart()">
+                                    <i class="fa fa-heart"></i>
+                                </span>
+                                    <span class="cart"><i class="fa fa-shopping-cart"></i></span>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    function ChangeCart(product) {
+        localStorage.setItem("productId", product)
+    }
+    function incrementQuantity(productId, maxQuantity) {
+        console.log(maxQuantity)
+        var quantityInput = document.getElementById('quantity-' + productId);
+        var incrementButton = document.getElementById('increment-btn-' + productId);
+        var QuantityError = document.getElementById('quantityProduct-' + productId);
+        var currentQuantity = parseInt(quantityInput.value);
+
+        if (currentQuantity < maxQuantity) {
+            quantityInput.value = currentQuantity + 1;
+            if (currentQuantity + 1 >= maxQuantity) {
+                incrementButton.disabled = true;
+
+            }
+        }
+    }
+
+    function decrementQuantity(productId) {
+        var quantityInput = document.getElementById('quantity-' + productId);
+        var incrementButton = document.getElementById('increment-btn-' + productId);
+        var currentQuantity = parseInt(quantityInput.value);
+
+        if (currentQuantity > 0) {
+            quantityInput.value = currentQuantity - 1;
+            incrementButton.disabled = false;
+        }
+    }
+</script>
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img src="" class="img-fluid" id="modalImage">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var myModal = document.getElementById('imageModal');
+    myModal.addEventListener('show.bs.modal', function (event) {
+        var imageFilename = event.relatedTarget.getAttribute('data-image');
+        var imagePath = '@Url.Content("~/uploads/")'; // Assuming you're using Razor syntax
+        var modalImage = myModal.querySelector('#modalImage');
+        modalImage.src = imagePath + imageFilename;
+    });
+</script>

@@ -1,0 +1,94 @@
+﻿@model DAL.ViewModals.RegistrationVM;
+@{
+    ViewData["Title"] = "Registration";
+}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+@if (TempData.ContainsKey("Error"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Error!',
+                text: '@TempData["Error"]',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+<div class="container1">
+    <div class="card">
+        <div class="card-body">
+
+            
+            <h3 class="fw-semibold">Create Account</h3>
+
+            <form class="w-100 needs-validation" method="post" asp-action="Registration" asp-controller="Login">
+                <div class="input-group mb-3 has-validation">
+
+                    <div class="form-floating flex-grow-1">
+                        <input type="email"
+                               class="form-control"
+                               id="floatingInputGroup1"
+                               asp-for="Email" />
+                        <label for="floatingInputGroup1" asp-for="Email">Email</label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="input-group mb-3 has-validation">
+                    <div class="form-floating flex-grow-1 ">
+                        <input type="password"
+                               class="form-control"
+                               id="password"
+                               asp-for="Passwordhash" />
+                        <label for="password" asp-for="Passwordhash">Password</label>
+                        <span class="text-danger" asp-validation-for="Passwordhash"></span>
+                    </div>
+
+                </div>
+                <div class="input-group mb-3">
+                    <div class="form-floating flex-grow-1 ">
+                        <input type="password"
+                               class="form-control"
+                               id="cpassword"
+                               placeholder="*****"
+                               asp-for="ConfirmPasswordhash" />
+                        <label for="cpassword" asp-for="ConfirmPasswordhash">Confirm Password</label>
+                        <span class="text-danger" asp-validation-for="ConfirmPasswordhash"></span>
+
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-info w-100 text-white">
+                    Create
+                </button>
+                <div class="d-flex align-items-center justify-content-center">
+
+                <span class="text-center">or</span>
+                </div>
+                <a asp-action="Index" class="btn btn-info w-100 text-white" asp-controller="Login">
+                    Login
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

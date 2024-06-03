@@ -1,0 +1,410 @@
+﻿@{
+    ViewData["Title"] = "updateProduct";
+}
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+ *@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+@if (TempData.ContainsKey("Error"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Error!',
+                text: '@TempData["Error"]',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+
+@model DAL.ViewModals.ProductVM
+
+<form asp-action="ProductUpdate" asp-route-id="@Model.ProductId" asp-controller="Home" class="container border rounded-3 p-3 mt-5 p-md-5 mb-3 d-flex flex-column gap-4 bg-white" method="post" enctype="multipart/form-data">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col-12 col-md-12 d-flex justify-content-between">
+            <h5 class="fw-semibold">Update Product Form</h5>
+            <a asp-controller="Home" asp-action="Product" asp-area="" class="btn btn-outline-info d-flex align-items-center">
+                <span class="material-symbols-outlined fw-bolder"> chevron_left </span> Back
+            </a>
+        </div>
+
+        <div class="col">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" asp-for="ProductName" />
+                <label for="floatingInput" asp-for="ProductName">Product Name</label>
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="form-floating">
+                <select class="form-select" aria-label="Default select example" id="cancelReason" asp-for="CategoryName">
+                    <option selected disabled>Select The Category</option>
+                    @foreach (var region in @ViewBag.Categorys)
+                    {
+                        <option value="@region.CategoryName">@region.CategoryName</option>
+                    }
+                </select>
+                <label for="floatingInput">Category</label>
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="number" class="form-control" id="floatingInput" placeholder="name@example.com" asp-for="Price" />
+                <label for="floatingInput" asp-for="Price">Price</label>
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="number"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="Quantity" />
+                <label for="floatingInput" asp-for="Quantity">Quantity</label>
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <input type="date"
+                       class="form-control"
+                       id="floatingInput"
+                       placeholder="name@example.com"
+                       asp-for="DatePicker"
+                       value="@Model.DatePicker.ToString("yyyy-MM-dd")" />
+                <label for="floatingInput" asp-for="DatePicker">Date</label>
+                <span asp-validation-for="DatePicker" class="text-danger"></span>
+            </div>
+        </div>
+
+        <input class="d-none" asp-for="filename" />
+        <div class="col">
+            <div class="input-group input-group-lg">
+                <div id="fileName" class="form-control fs-6 align-middle">Select Files</div>
+                <input type="file" asp-for="Files" class="form-control" id="fileInput" hidden multiple accept=".png,.jpeg,.jpg,.jfif" />
+                <label class="input-group-text btn btn-info text-light" for="fileInput">
+                    <span class="material-symbols-outlined me-2">cloud_upload</span>
+                    <span class="d-none d-md-inline">Upload</span>
+                </label>
+            </div>
+        </div>
+
+        @*  <div class="col">
+        <button class="btn btn-info" type="button" data-bs-toggle="modal" data-bs-target="#photoModal">
+        <div class="d-flex text-white fw-bolder gap-3">
+        <span class="text-white">View Product Photo</span>
+        <span class="material-symbols-outlined">visibility</span>
+        </div>
+        </button>
+        </div> *@
+    </div>
+    <input class="d-none" asp-for="UniqueNo" />
+    @* <div class="row">
+        <span class="fw-2"> Description</span>
+        <div class="form-floating border border-1 ">
+            @Html.Raw(Model.ProductDescription)
+        </div>
+    </div> *@
+    <div class="row">
+        <div class="form-floating ">
+            <label for="floatingInput" asp-for="ProductDescription">Description</label>
+            <textarea asp-for="ProductDescription" class="form-control"></textarea>
+            <span asp-validation-for="ProductDescription" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="container mt-5 row">
+            <h5>View Product Photo</h5>
+            <div class="row">
+                @if (Model.FileNames != null && Model.FileNames.Count > 0)
+                {
+                    @for (var i = 0; i < Model.FileNames.Count; i++)
+                    {
+                        <div class="col-6 col-md-4 col-lg-3 mb-4">
+                            <div class="card">
+                                <div class="d-flex justify-content-center mb-2">
+                                    @if(Model.FileNames.Count>1){
+
+                                    <button type="button" class="btn btn-danger delete-photo-carousel mt-2" data-index="@i" data-filename="@Model.FileNames[i]">Delete</button>
+                                    }
+                                </div>
+                                <img src="~/uploads/@Model.FileNames[i]" class="card-img-top img-thumbnail" alt="Product Image" data-bs-toggle="modal" data-bs-target="#photoModal" data-image="@Model.FileNames[i]">
+                                <div>
+
+                                    <input type="radio" class="feature-photo-radio" name="featurePhoto" value="@Model.FileNames[i]" id="Photo_@i" @(Model.featurePhoto == Model.FileNames[i] ? "checked" : "") />
+                                    <label for="Photo_@i">Select Featured Photo</label>
+                                </div>
+                            </div>
+
+                        </div>
+                    }
+                }
+            </div>
+            <div class="d-flex gap-3 align-items-center justify-content-end">
+                <button class="btn btn-info text-light fw-bolder" type="submit" id="submit">Update Product</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photoModalLabel">Product Photos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        @for (var i = 0; i < Model.FileNames.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="true" aria-label="Slide @i"></button>
+                        }
+                    </div>
+                    <div class="carousel-inner">
+                        @for (var i = 0; i < Model.FileNames.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                                <img src="~/uploads/@Model.FileNames[i]" class="d-block w-100" alt="Product Image">
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const photoModal = document.getElementById('photoModal');
+        const carousel = new bootstrap.Carousel(document.getElementById('carouselExampleIndicators'));
+
+        photoModal.addEventListener('show.bs.modal', function (event) {
+            let image = event.relatedTarget.getAttribute('data-image');
+            let index = Array.from(document.querySelectorAll('[data-image]')).findIndex(img => img.getAttribute('data-image') === image);
+
+            carousel.to(index);
+        });
+
+        function handleDelete(button, isCarousel = false) {
+            const index = button.getAttribute('data-index');
+            const filename = button.getAttribute('data-filename');
+
+            // SweetAlert confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send a request to the server to delete the photo
+                    fetch(`/Home/DeletPhoto?filename=${filename}`, {
+                        method: 'POST',
+                    })
+                        .then(response => response.json()) // Parse the JSON from the response
+                        .then(data => {
+                            console.log(data);
+                            if (data.success) {
+                                console.log("Photo deleted successfully");
+
+
+                                document.querySelectorAll('.delete-photo-carousel').forEach(button => {
+                                    button.addEventListener('click', function () {
+                                        const filename = this.getAttribute('data-filename');
+                                        console.log("Filename from button data-filename attribute:", filename);  // Debugging line
+
+                                        // Escape the filename for use in a CSS selector
+                                        const escapedFilename = CSS.escape(filename);
+                                        console.log("Escaped filename for selector:", escapedFilename);  // Debugging line
+
+                                        const carouselItem = document.querySelector(`.carousel-item[data-filename="${escapedFilename}"]`);
+                                        console.log("Selected carousel item:", carouselItem);  // Debugging line
+
+                                        if (carouselItem) {
+                                            console.log("Element found:", carouselItem);
+                                            // Perform your deletion logic here, e.g., remove the carousel item
+                                            // carouselItem.remove(); // Uncomment this line to actually remove the item
+                                        } else {
+                                            console.log("Element not found");
+                                        }
+                                    });
+                                });
+
+                                // Remove the image from the main container
+                                document.querySelectorAll(`[data-image="${filename}"]`).forEach(img => {
+                                    const col = img.closest('.col-6');
+                                    if (col) col.remove();
+                                });
+
+                                // If deletion is from modal carousel, remove from there too
+                                if (isCarousel) {
+                                    console.log(isCarousel)
+                                    console.log(document.querySelector(`.carousel-item`))
+                                    const carouselItem = document.querySelector(`.carousel-item[data-filename="${filename}"]`);
+                                    console.log(carouselItem)
+                                    if (carouselItem) carouselItem.remove();
+                                }
+
+                                // Show success message
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Your photo has been deleted.',
+                                    'success'
+                                ).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'There was a problem deleting your photo.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem deleting your photo.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+
+        // Add event listeners for delete buttons in the main container
+        document.querySelectorAll('.delete-photo').forEach(button => {
+            button.addEventListener('click', function () {
+                handleDelete(this);
+            });
+        });
+
+        // Add event listeners for delete buttons in the carousel
+        document.querySelectorAll('.delete-photo-carousel').forEach(button => {
+            button.addEventListener('click', function () {
+                handleDelete(this, true);
+            });
+        });
+    });
+
+</script>
+
+<script>
+    document.getElementById("fileInput").onchange = function () {
+        let path = this.value.substr(this.value.lastIndexOf(`\\`) + 1);
+        document.getElementById("fileName").innerText = path;
+    };
+
+    // document.addEventListener('click', function (event) {
+    //     if (event.target.matches('.img-thumbnail')) {
+    //         let imageSrc = event.target.getAttribute('data-image');
+    //         let items = document.querySelectorAll('.carousel-item');
+    //         items.forEach((item, index) => {
+    //             if (item.querySelector('img').getAttribute('src') === imageSrc) {
+    //                 let carousel = bootstrap.Carousel.getOrCreateInstance(document.querySelector('#carouselExampleIndicators'));
+    //                 carousel.to(index);
+    //                 let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('photoModal'));
+    //                 modal.show();
+    //             }
+    //         });
+    //     }
+    // });
+</script>
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.tiny.cloud/1/a4s2zqwprgzsqt9omrxac7hh1f1z2n8bdzypc8zi8szlo7a8/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        branding: false,
+        plugins: 'anchor fullscreen image autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
+        toolbar: 'undo redo  code | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+        tinycomments_mode: 'embedded',
+        images_file_types: 'jpg,svg,webp',
+        file_picker_types: 'file image media',
+        file_picker_callback: (cb, value, meta) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+
+                const reader = new FileReader();
+                reader.addEventListener('load', () => {
+                    /*
+                      Note: Now we need to register the blob in TinyMCEs image blob
+                      registry. In the next release this part hopefully won't be
+                      necessary, as we are looking to handle it internally.
+                    */
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+
+                    /* call the callback and populate the Title field with the file name */
+                    cb(blobInfo.blobUri(), { title: file.name });
+                });
+                reader.readAsDataURL(file);
+            });
+
+            input.click();
+        },
+        tinycomments_author: 'Author name',
+        mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'Email' },
+        ],
+        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        setup: function (editor) {
+            editor.on('init', function () {
+                // editor.setContent(@Model.ProductDescription);
+            });
+
+        }
+
+    });
+</script>

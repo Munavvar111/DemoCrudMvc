@@ -1,0 +1,306 @@
+﻿@model List<DAL.ViewModals.ProductVM>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="mt-2 ">
+        <table class="table table-bordered mt-2">
+
+            <thead class="table-secondary">
+                <tr>
+                    <th scope="col">
+                        <div class="d-flex">
+                            Feature Photo
+                        </div>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+
+                        ProductName <i class="bi bi-sort-up" onclick="HandleChagne('ProductName')"></i>
+                    </div>    
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+
+                        Category <i class="bi bi-sort-up" onclick="HandleChagne('Category')"></i>
+                    </div>    
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+                            Price <i class="bi bi-sort-up" onclick="HandleChagne('Price')"></i>
+                            </div>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+                            Description <i class="bi bi-sort-up" onclick="HandleChagne('Description')"></i>
+                            </div>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+                            Serial Number <i class="bi bi-sort-up" onclick="HandleChagne('SerialNo')"></i>
+                            </div>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+                            Quantity <i class="bi bi-sort-up" onclick="HandleChagne('Quantity')"></i>
+                            </div>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex">
+                            OrderDate <i class="bi bi-sort-up" onclick="HandleChagne('OrderDate')"></i>
+                            </div>
+                    </th>
+                    <th scope="col">View Photo</th>
+                    <th scope="col">Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+
+                        var rowStyle = item.IsDeleted ? "background-color: #ffffe0;" : "";
+
+                        <tr class="align-middle" style="@rowStyle">
+                            <td style="@rowStyle">
+                                <img src="~/uploads/@item.featurePhoto" width="100px" class="img-thumbnail" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="@item.featurePhoto">
+
+                                </td>
+                            <td style="@rowStyle">@item.ProductName</td>
+                            <td style="@rowStyle">@item.CategoryName </td>
+                            <td style="@rowStyle">@item.Price</td>
+                            <td style="@rowStyle" class="truncated-text">@Html.Raw(item.ProductDescription)</td>
+                            <td style="@rowStyle">@item.UniqueNo</td>
+                            <td style="@rowStyle">@item.Quantity</td>
+                            <td style="@rowStyle">@item.DatePicker.ToString("dd-MMM-yyyy")</td>
+                            <td style="@rowStyle">
+                                <button class="btn btn-info @(item.IsDeleted ? "disabled" : "")" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#photoModal"
+                                        data-product-id="@item.ProductId"
+                                        data-file-names='@Html.Raw(Json.Serialize(item.FileNames))'
+                                        onclick="setModalContent(this)">
+                                    <span class="material-symbols-outlined text-white">visibility</span>
+                                </button>
+                            </td>
+                            <td style="@rowStyle">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <a class="btn btn-info fw-bolder text-white @(item.IsDeleted ? "disabled" : "")"
+                                       asp-action="updateProduct"
+                                       asp-route-id="@item.ProductId">
+                                        Update
+                                    </a>
+
+                                    @if (item.IsDeleted)
+                                    {
+
+                                        <a class="btn btn-success fw-bolder text-white" onclick="restoreProduct(@item.ProductId)">Restore</a>
+                                    }
+                                    else
+                                    {
+
+                                        <a class="btn btn-danger fw-bolder text-white" onclick="deleteProduct(@item.ProductId)">Delete</a>
+                                    }
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="ms-3 fw-semibold">
+                Page @(ViewBag.CurrentPage) out of @ViewBag.TotalPages
+            </div>
+            <nav id="pagination" aria-label="Page navigation" class="me-3">
+                <ul class="pagination pagination-sm m-0">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="previous" data-page="@(ViewBag.CurrentPage - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="visually-hidden">Previous</span>
+                            </a>
+                        </li>
+                    }
+                    @for (int z = 1; z <= ViewBag.TotalPages; z++)
+                    {
+                        <li class="page-item @(z == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="#" id="current_@z" data-page="@z" aria-label="Page @z">
+                                @z
+                            </a>
+                        </li>
+                    }
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="next" data-page="@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="visually-hidden">Next</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+}
+
+else
+{
+    <h5 class="ms-3">No Records Found.</h5>
+}
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photoModalLabel">Photo Gallery</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="photoCarousel" class="carousel slide" data-bs-interval="false">
+                    <div class="carousel-inner"></div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img src="" class="img-fluid" id="modalImage">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setModalContent(button) {
+        const productId = button.getAttribute('data-product-id');
+        const fileNames = JSON.parse(button.getAttribute('data-file-names'));
+        const modalBody = document.querySelector('#photoCarousel .carousel-inner');
+        if (fileNames && fileNames.length > 0) {
+
+            let carouselItems = fileNames.map((fileName, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                <img src="/uploads/${fileName}" class="d-block w-100 zoomable-image" alt="Photo">
+                
+            </div>
+        `).join('');
+
+            modalBody.innerHTML = carouselItems;
+        }
+        else {
+            modalBody.innerHTML = `<div class="text-center">There are no photos available.</div>`;
+        }
+    }
+
+</script>
+<script>
+    function deleteProduct(productId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this product!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+
+                $.ajax({
+                    url: '/Home/delete/' + productId,
+                    type: 'POST',
+                    success: function (response) {
+                        Swal.fire(
+                            'Deleted!',
+                            'The product has been deleted.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the error
+                    }
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire(
+                    'Cancelled',
+                    'The product is safe :)',
+                    'error'
+                )
+            }
+        })
+    }
+
+        function restoreProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You will recover this product!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Recover it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+
+                    $.ajax({
+                        url: '/Home/restore/' + productId,
+                        type: 'POST',
+                        success: function (response) {
+                            Swal.fire(
+                                'Restored!',
+                                'The product has been Restore.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle the error
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'The product is Not Restore :)',
+                        'error'
+                    )
+                }
+            })
+        }
+</script>
+<script>
+    var myModal = document.getElementById('imageModal');
+    myModal.addEventListener('show.bs.modal', function (event) {
+        var imageFilename = event.relatedTarget.getAttribute('data-image');
+        var imagePath = '@Url.Content("~/uploads/")'; // Assuming you're using Razor syntax
+        var modalImage = myModal.querySelector('#modalImage');
+        modalImage.src = imagePath + imageFilename;
+    });
+</script>
