@@ -78,8 +78,7 @@
                             <a class="btn btn-success text-uppercase btn-sm details" asp-action="ProductDetails" asp-controller="Home" asp-route-id="@product.ProductId">Details</a>
                             <div class="d-flex flex-row">
 
-                                <span class="wishlist" onclick="ChangeCart()">
-                                    <i class="fa fa-heart"></i>
+                                <span class="wishlist" onclick="ChangeCart(@product.ProductId)"><i class="fa fa-heart"></i>
                                 </span>
                                     <span class="cart"><i class="fa fa-shopping-cart"></i></span>
 
@@ -95,9 +94,14 @@
 
 <script>
 
+        var cart = [];
     function ChangeCart(product) {
-        localStorage.setItem("productId", product)
-    }
+
+        cart = JSON.parse(localStorage.getItem('productId')) || [];
+        console.log(cart)
+        cart.push(product)
+        localStorage.setItem("productId",JSON.stringify(cart))
+    } 
     function incrementQuantity(productId, maxQuantity) {
         console.log(maxQuantity)
         var quantityInput = document.getElementById('quantity-' + productId);

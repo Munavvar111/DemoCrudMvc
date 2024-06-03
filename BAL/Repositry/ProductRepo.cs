@@ -249,7 +249,19 @@ namespace BAL.Repositry
         
             return _context.Products.Include(item=>item.Category).Include(item=>item.ProductPhotos).ToList();
         }
-       
+
+        public List<CartItems> GetCartItems(int[] id)
+        {
+            var cartItems = _context.Products.Where(item => id.Any(id => id == item.ProductId)).Select(item=>new CartItems
+            {
+                CartItemName= item.ProductName,
+                CartItemPrice= (int)item.Price,
+                CartItemQuantity= (int)item.Quantity
+            }).ToList();
+            return cartItems;
+        }
+
+
     }
 
 }

@@ -265,7 +265,15 @@ namespace DemoCrudMvc.Controllers
             //vm.FileNames = productDetails.ProductPhotos..ToList();
             return View(productDetails);
         }
-
+        public IActionResult AddToCart()    
+        {
+            return View();
+        }
+        public IActionResult GetCartDetails(int[] id)
+        {
+            var CartId = _product.GetCartItems(id);
+            return PartialView("CartPartial",CartId);
+        }
 
     }
 }

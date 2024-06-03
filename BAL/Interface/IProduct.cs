@@ -35,5 +35,7 @@ namespace BAL.Interface
         public bool IsRestore(int id);
 
         public List<Product> GetAllProducts();
+
+        public List<CartItems> GetCartItems(int[] id);    
     }
 }

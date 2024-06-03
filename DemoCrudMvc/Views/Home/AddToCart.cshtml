@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "AddToCart";
+}
+
+<h1>AddToCart</h1>
+<div id="AddToCartPartial">
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var Id = JSON.parse(localStorage.getItem('productId'))
+        console.log(typeof Id)
+        GetData(Id);
+    });
+    function GetData(Id) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetCartDetails",
+            traditional: true,
+            data: { Id: Id },
+            success: function (data) {
+                console.log(data)
+                $('#AddToCartPartial').html(data);
+            }
+        })
+    }
+</script>
