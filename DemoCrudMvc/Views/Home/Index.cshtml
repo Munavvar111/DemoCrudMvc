@@ -66,8 +66,8 @@
             @foreach (var product in Model)
             {
                 <div class="card col-md-3 shadow-lg">
-                    <div class="card-image">
-                        <div class="image-slider" id="slider-@product.ProductId">
+                    <div class="card-image bg-light">
+                        <div class="image-slider bg-light" id="slider-@product.ProductId">
                             @foreach (var photo in product.ProductPhotos)
                             {
                                 <img class="slider-image @(photo == product.ProductPhotos.First() ? "active" : "")" src="~/uploads/@photo.PhotoName" alt="@product.ProductName">
