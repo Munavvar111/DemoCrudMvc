@@ -8,7 +8,7 @@ namespace DAL.ViewModals
 {
     public class CartItems
     {
-        public string CartItemId { get; set; }
+        public int ProductId { get; set; }
 
         public string CartItemName { get; set; }    
 
@@ -17,5 +17,7 @@ namespace DAL.ViewModals
         public int CartItemQuantity { get; set; }   
 
         public int CartItemCount { get; set;}
+
+        public string CartFileName { get; set; }    
     }
 }

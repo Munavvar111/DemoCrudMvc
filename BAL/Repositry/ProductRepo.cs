@@ -256,7 +256,11 @@ namespace BAL.Repositry
             {
                 CartItemName= item.ProductName,
                 CartItemPrice= (int)item.Price,
-                CartItemQuantity= (int)item.Quantity
+                CartItemQuantity= (int)item.Quantity,
+                ProductId=item.ProductId,
+                CartFileName= item.FeaturePhoto,
+                
+
             }).ToList();
             return cartItems;
         }
