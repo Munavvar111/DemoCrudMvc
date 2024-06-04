@@ -91,7 +91,15 @@
                             Quantity:
                             <input type="number" id="quantity" name="quantity" value="1" min="1">
                         </div> *@
+                        @if (Model.Quantity == 0)
+                        {
+                            <span class="text-danger">Its Out Of Stocks</span>
+                        }
+                        else
+                        {
+                            
                         <button class="btn btn-info mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
+                        }
                     </div>
                 </div>
             </div>

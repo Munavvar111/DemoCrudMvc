@@ -84,8 +84,15 @@
                         <div class="mt-3 d-flex justify-content-between align-items-center">
                             <a class="btn btn-success text-uppercase btn-sm details" asp-action="ProductDetails" asp-controller="Home" asp-route-id="@product.ProductId">Details</a>
                             <div class="d-flex flex-row">
-                                <span class="wishlist" onclick="ChangeCart(@product.ProductId)"><i class="fa fa-heart"></i></span>
-                                <span class="cart ml-2"><i class="fa fa-shopping-cart"></i></span>
+                                @if (product.Quantity == 0)
+                                {
+                                 <span class="text-danger">Its Out Of Stocks</span>   
+                                }
+                                else
+                                {
+                                    <span class="cart ml-2  onclick=" ChangeCart(@product.ProductId)""><i class="fa fa-shopping-cart"></i></span>
+
+                                }
                             </div>
                         </div>
                     </div>
@@ -125,11 +132,30 @@
             cart = [];
         }
 
-        // Add the new product to the cart
-        cart.push(product);
+        const productIndex = cart.findIndex(item => item === product);
+        console.log(productIndex)
 
-        // Save the updated cart back to localStorage
-        localStorage.setItem('productId', JSON.stringify(cart));
+        // If the product does not exist in the cart, add it
+        if (productIndex === -1) {
+            cart.push(product);
+            // Save the updated cart back to localStorage
+            localStorage.setItem('productId', JSON.stringify(cart));
+            $.ajax({
+                method: "POST",
+                url: "/Home/CartViewBag",
+                success: function (data) {
+                    var products = JSON.parse(localStorage.getItem('productId'));
+                    var count = products ? products.length : 0;
+                    $('#cartCount').text(count);
+                }
+            })
+        } else {
+            Swal.fire(
+                'In Cart!',
+                'Your photo has been Send In Cart.',
+                'success'
+            )
+        }
     }
     function incrementQuantity(productId, maxQuantity) {
         console.log(maxQuantity)

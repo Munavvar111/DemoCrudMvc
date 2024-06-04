@@ -2,7 +2,16 @@
 
 @{
     var email = Context.Session.GetString("email");
+    var count = Context.Session.GetInt32("CurrentCart");
 }
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var products = JSON.parse(localStorage.getItem('productId'));
+        var count = products ? products.length : 0;
+        console.log(count)
+        document.getElementById("cartCount").textContent = count;
+    });
+    </script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,8 +68,11 @@
                         } 
                         
                             <li class="nav-item fs-5">
-                                <a class="navbar-brand mx-3" asp-action="AddToCart" asp-controller="Home">AddToCart</a>
-                            </li>
+                            <a class="navbar-brand mx-3" asp-action="AddToCart" asp-controller="Home">
+                                <i class="bi bi-cart fs-3"></i>
+                                <span id="cartCount" class="cart-count"></span>
+                            </a>
+                        </li>
                         
                     </ul>
                 </div>

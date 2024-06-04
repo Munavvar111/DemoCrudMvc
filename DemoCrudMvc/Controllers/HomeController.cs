@@ -22,6 +22,11 @@ namespace DemoCrudMvc.Controllers
         public IActionResult Index()
         {
             var product=_product.GetAllProducts();
+            var a=HttpContext.Session.GetInt32("CurrentCart");
+            if (a == null)
+            {
+                HttpContext.Session.SetInt32("CurrentCart", 0);
+            }
             return View(product);
         }
 
@@ -302,6 +307,17 @@ namespace DemoCrudMvc.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult CartViewBag()
+        {
+            var currentCount = HttpContext.Session.GetInt32("CurrentCart");
+
+            
+            // Increment the CartCount by one
+            ViewBag.CartCount = currentCount + 1;
+            HttpContext.Session.SetInt32("CurrentCart", (int)(currentCount + 1));
+
+            return Json(new { newCount = ViewBag.CartCount });
+        }
 
     }
 }
