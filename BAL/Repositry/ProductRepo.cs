@@ -254,9 +254,9 @@ namespace BAL.Repositry
         {
             var cartItems = _context.Products.Where(item => id.Any(id => id == item.ProductId)).Select(item=>new CartItems
             {
-                CartItemName= item.ProductName,
+                 CartItemName= item.ProductName,
                 CartItemPrice= (int)item.Price,
-                CartItemQuantity= (int)item.Quantity,
+                CartMaxQuantity= (int)item.Quantity,
                 ProductId=item.ProductId,
                 CartFileName= item.FeaturePhoto,
                 
@@ -264,7 +264,38 @@ namespace BAL.Repositry
             }).ToList();
             return cartItems;
         }
+        public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City)
+        {
+            Customer customer = new Customer();
+            customer.FirstName = FirstName;
+            customer.LastName = LastName;
+            customer.Email = Email; 
+            customer.Address= Address;  
+            customer.City= City;    
+            customer.ZipCode= ZipCode;
+            _context.Customers.Add(customer);   
+            _context.SaveChanges();
+            return customer;
+        }
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId)
+        {
+            for (int i = 0; i < CartQuantity.Count; i++)
+            {
+            Order order = new Order();  
+                order.OrderPrice = (int)CartPrice[i];
+                order.OrderQuantity= (int)CartQuantity[i];  
+                order.CustomerId = CustomerId;
+                order.ProductId = ProductId[i];
+                var product = _context.Products.FirstOrDefault(item => item.ProductId == ProductId[i]);
+                product.Quantity = product.Quantity - CartQuantity[i];
+                _context.Products.Update(product);
 
+                _context.Orders.Add(order); 
+                _context.SaveChanges();
+            }
+           
+            return true;
+        }
 
     }
 

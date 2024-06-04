@@ -274,6 +274,34 @@ namespace DemoCrudMvc.Controllers
             var CartId = _product.GetCartItems(id);
             return PartialView("CartPartial",CartId);
         }
+        public IActionResult UpdateCartItem(int quantity,int totalPrice,int productId)
+        {
+            return PartialView();   
+        }
+
+        [HttpPost]
+        public IActionResult CheckOut(List<int> productID,List<int> CartPrice,List<int> CartQuantity,List<string> Cartname)
+        {
+            List<CartItems> cartItems = new List<CartItems>();
+            for (int i = 0; i < productID.Count; i++)
+            {
+                CartItems cartItem = new CartItems(); // Instantiate a new CartItems object
+                cartItem.ProductId = productID[i];
+                cartItem.CartItemQuantity = CartQuantity[i];
+                cartItem.CartItemName= Cartname[i]; 
+                cartItem.CartItemPrice = CartPrice[i];
+                cartItem.CartFileName = _product.getProductPhoto(productID[i]).FirstOrDefault().PhotoName;
+
+                cartItems.Add(cartItem);
+            }
+            return View(cartItems);
+        }
+        public IActionResult PlaceOrder(string FirstName,string LastName,string Email,string Address,int ZipCode,string City,List<int> CartQuantity, List<int> CartPrice,List<int> ProductId) {
+            var customerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
+            var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId);
+            return RedirectToAction("Index");
+        }
+
 
     }
 }

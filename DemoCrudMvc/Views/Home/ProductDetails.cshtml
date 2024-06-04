@@ -68,7 +68,7 @@
         <div class="card-body ">
             <div class="row gap-3">
                 <div class="col-md-2">
-                    <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-column gap-3    ">
                         @foreach (var item in Model.ProductPhotos)
                         {
                             <div class="thumbnail" onclick="SetMainImage('@Url.Content("~/uploads/" + @item.PhotoName)')">
@@ -87,11 +87,11 @@
                         <div class="product-name">@Model.ProductName</div>
                         <div class="product-description">@Html.Raw(@Model.Description)</div>
                         <div class="product-price">Price: $@Model.Price</div>
-                        <div class="product-quantity">
+                        @* <div class="product-quantity">
                             Quantity:
                             <input type="number" id="quantity" name="quantity" value="1" min="1">
-                        </div>
-                        <button class="btn btn-primary mt-3" onclick="addToCart()">Add to Cart</button>
+                        </div> *@
+                        <button class="btn btn-info mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
                     </div>
                 </div>
             </div>
@@ -103,10 +103,29 @@
 
 
 <script>
+    function addToCart(ProductId) {
+        console.log(ProductId)
+        let cart = JSON.parse(localStorage.getItem('productId'));
+
+        
+        // If cart is null (i.e., nothing in localStorage), initialize it as an empty array
+        if (!Array.isArray(cart)) {
+            cart = [];
+        }
+
+        // Add the new product to the cart
+        cart.push(ProductId);
+
+        // Save the updated cart back to localStorage
+        localStorage.setItem('productId', JSON.stringify(cart));
+        window.location='/Home/AddToCart'
+    }
     document.addEventListener('DOMContentLoaded', (event) => {
         function SetMainImage(imageSrc) {
             document.getElementById('mainImage').src = imageSrc;
         }
+
+        
 
         function OpenModal() {
             const mainImageSrc = document.getElementById('mainImage').src;

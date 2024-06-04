@@ -18,6 +18,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
+    public virtual DbSet<Order> Orders { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductPhoto> ProductPhotos { get; set; }
@@ -35,6 +39,28 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.CategoryId).HasName("Category_pkey");
 
             entity.Property(e => e.CategoryId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("Customer_pkey");
+
+            entity.Property(e => e.CustomerId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("Order_pkey");
+
+            entity.Property(e => e.OrderId).UseIdentityAlwaysColumn();
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Order_CustomerId_fkey");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Orders)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Order_ProductId_fkey");
         });
 
         modelBuilder.Entity<Product>(entity =>

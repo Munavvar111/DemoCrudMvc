@@ -36,6 +36,10 @@ namespace BAL.Interface
 
         public List<Product> GetAllProducts();
 
-        public List<CartItems> GetCartItems(int[] id);    
+        public List<CartItems> GetCartItems(int[] id);
+
+        public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City);
+
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId);
     }
 }

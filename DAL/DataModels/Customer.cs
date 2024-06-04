@@ -4,24 +4,31 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace DemoCrudMvc.DataModels;
+namespace DAL.DataModels;
 
-[Table("User")]
-public partial class User
+[Table("Customer")]
+public partial class Customer
 {
     [Key]
-    [Column("userID", TypeName = "character varying")]
-    public string UserId { get; set; } = null!;
+    public int CustomerId { get; set; }
 
     [Column(TypeName = "character varying")]
     public string? FirstName { get; set; }
 
     [Column(TypeName = "character varying")]
-    public string? Lastname { get; set; }
+    public string? LastName { get; set; }
 
     [Column(TypeName = "character varying")]
     public string Email { get; set; } = null!;
 
+    public long? ZipCode { get; set; }
+
     [Column(TypeName = "character varying")]
-    public string Password { get; set; } = null!;
+    public string? Address { get; set; }
+
+    [Column(TypeName = "character varying")]
+    public string? City { get; set; }
+
+    [InverseProperty("Customer")]
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

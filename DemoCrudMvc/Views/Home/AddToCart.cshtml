@@ -2,7 +2,6 @@
     ViewData["Title"] = "AddToCart";
 }
 
-<h1>AddToCart</h1>
 <div id="AddToCartPartial">
 </div>
 
@@ -22,7 +21,6 @@
             traditional: true,
             data: { Id: Id },
             success: function (data) {
-                console.log(data)
                 $('#AddToCartPartial').html(data);
             }
         })

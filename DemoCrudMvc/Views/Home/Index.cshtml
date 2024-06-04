@@ -22,26 +22,26 @@
 
 <style>
     .image-slider {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-bottom: 75%; /* Adjust based on the aspect ratio of your images */
-    overflow: hidden;
-}
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 75%; /* Adjust based on the aspect ratio of your images */
+        overflow: hidden;
+    }
 
-.slider-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
+    .slider-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
 
-.slider-image.active {
-    opacity: 1;
-}
+        .slider-image.active {
+            opacity: 1;
+        }
 
 </style>
 @if (TempData.ContainsKey("SuccessMessage"))
@@ -58,7 +58,7 @@
         });
     </script>
 }
-<div class="container-fluid mt-3" >
+<div class="container-fluid mt-3">
     <div class="mt-5">
     </div>
     <div class="container-fluid mt-4">
@@ -75,6 +75,7 @@
                         </div>
                     </div>
                     <div class="card-inner p-3">
+                        @* <input type="text" asp-for="@"> *@
                         <span class="text-muted">@product.Category.CategoryName</span>
                         <h5 class="mb-0">@product.ProductName</h5>
                         <div class="price mt-2">
@@ -113,14 +114,23 @@
 
 <script>
 
-        var cart = [];
     function ChangeCart(product) {
 
-        cart = JSON.parse(localStorage.getItem('productId')) || [];
-        console.log(cart)
-        cart.push(product)
-        localStorage.setItem("productId",JSON.stringify(cart))
-    } 
+        
+        // Retrieve and parse the cart from localStorage
+        let cart = JSON.parse(localStorage.getItem('productId'));
+
+        // If cart is null (i.e., nothing in localStorage), initialize it as an empty array
+        if (!Array.isArray(cart)) {
+            cart = [];
+        }
+
+        // Add the new product to the cart
+        cart.push(product);
+
+        // Save the updated cart back to localStorage
+        localStorage.setItem('productId', JSON.stringify(cart));
+    }
     function incrementQuantity(productId, maxQuantity) {
         console.log(maxQuantity)
         var quantityInput = document.getElementById('quantity-' + productId);

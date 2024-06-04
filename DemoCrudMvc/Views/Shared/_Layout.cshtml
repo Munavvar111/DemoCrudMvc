@@ -23,7 +23,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <div class="bg-light">
+    <div class="">
         <nav class="navbar navbar-expand-sm navbar-light" id="neubar">
             <div class="container">
                 <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management</a>
@@ -56,7 +56,12 @@
                             <li class="nav-item fs-5">
                                 <a class="navbar-brand mx-3" asp-action="LogOut" asp-controller="Login">Logout</a>
                             </li>
-                        }
+                        } 
+                        
+                            <li class="nav-item fs-5">
+                                <a class="navbar-brand mx-3" asp-action="AddToCart" asp-controller="Home">AddToCart</a>
+                            </li>
+                        
                     </ul>
                 </div>
             </div>
