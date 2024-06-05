@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProduct,ProductRepo>();
 builder.Services.AddScoped<ICategory,CategoryRepo>();	
+builder.Services.AddScoped<IEmailService,EmailRepo>();
+builder.Services.AddScoped<IOrder,OrderRepo>();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(1); // Set your desired timeout

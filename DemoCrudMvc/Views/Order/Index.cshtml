@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+@if (TempData.ContainsKey("Error"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Error!',
+                text: '@TempData["Error"]',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+    <script>
+        $('#loader').fadeIn().promise().done(function () {
+            Swal.fire({
+                title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+}
+
+<div class="container d-flex justify-content-between mb-3">
+</div>
+<div class="d-flex justify-content-end container">
+
+    <div class="input-group input-group-height w-25">
+
+        <input class="form-control" type="search" placeholder="Search Products" aria-label="Search" id="searchInput">
+    </div>
+</div>
+<div id="OrderPartial" class="container-fluid ">
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    var currentPage = 1;
+    var pageSize = 10;
+
+    $(document).ready(function () {
+
+
+
+        $(document).on("click", "#pagination a.page-link", function () {
+            console.log("Pagination link clicked!");
+            var id = $(this).attr("id");
+            currentPage = $("#" + id).data("page");
+            filterTable(currentPage, pageSize);
+        });
+
+
+        filterTable(currentPage, pageSize)
+    });
+    const debounce = (func, delay) => {
+        let debounceTimer
+        return function () {
+            const context = this
+            const args = arguments
+            clearTimeout(debounceTimer)
+            debounceTimer
+                = setTimeout(() => func.apply(context, args), delay)
+        }
+    }
+    $("#searchInput").on("input", debounce(function () {
+        console.log("inputchange")
+        currentPage = 1;
+        filterTable(currentPage, pageSize);
+    }, 500));
+
+    function filterTable(currentPage, pageSize) {
+        var searchValue = $("#searchInput").val();
+
+        $.ajax({
+            type: "GET",
+            url: "/Order/GetOrderDetail",
+            traditional: true,
+            data: { searchValue, currentPage, pageSize, Change, boolvalue },
+            success: function (data) {
+                $('#OrderPartial').html(data);
+            }
+
+        })
+    }
+    var Change = 'ProductId';
+    var boolvalue = true;
+    function HandleChagne(data) {
+        console.log(data)
+        Change = data;
+        boolvalue = !boolvalue;
+        filterTable(currentPage, pageSize);
+    }
+</script>

@@ -94,7 +94,6 @@ h1 {
 }
  .card{
 
-        background-color: #fff;
         position: relative;
         width: 350px;
         border: none;
@@ -193,17 +192,10 @@ h1 {
 
         width: 40px;
      height: 40px;
-     border-radius: 50%;
-     color: #fff;
-         background: green;
-     display: flex;
-     justify-content: center;
-     align-items: center;
+  
      cursor: pointer;
      transition: 0.5s all;
-     margin-left: 5px;
-     font-size: 15px;
-
+     
    }
 
 

@@ -11,11 +11,12 @@ namespace DemoCrudMvc.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProduct _product;
+        private readonly IEmailService _emailService;
 
-
-        public HomeController(ILogger<HomeController> logger, IProduct product)
+        public HomeController(ILogger<HomeController> logger, IProduct product,IEmailService emailService)
         {
             _logger = logger;
+            _emailService = emailService;
             _product = product;
         }
 
@@ -304,6 +305,12 @@ namespace DemoCrudMvc.Controllers
         public IActionResult PlaceOrder(string FirstName,string LastName,string Email,string Address,int ZipCode,string City,List<int> CartQuantity, List<int> CartPrice,List<int> ProductId) {
             var customerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
             var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId);
+            if (orderDetails)
+            {
+                if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", "Welcome "+" "+customerId.FirstName+"-"+customerId.LastName+" here You Track Your Order")){
+                    return RedirectToAction("Index");
+                }
+            }
             return RedirectToAction("Index");
         }
 

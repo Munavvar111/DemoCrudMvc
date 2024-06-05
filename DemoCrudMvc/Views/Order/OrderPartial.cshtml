@@ -1,0 +1,84 @@
+﻿@model List<DAL.ViewModals.OrderVM>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="mt-2">
+        <table class="table table-bordered mt-2">
+
+            <thead class="table-secondary">
+                <tr>
+                    <th scope="col"> OrderId <i class="bi bi-sort-up" onclick="HandleChagne('OrderId')"></i></th>
+                    <th scope="col"> OrderDate<i class="bi bi-sort-up" onclick="HandleChagne('OrderDate')"></i></th>
+                    <th scope="col"> CustomerName<i class="bi bi-sort-up" onclick="HandleChagne('CustomerName')"></i></th>
+                    <th scope="col"> Address<i class="bi bi-sort-up" onclick="HandleChagne('Address')"></i></th>
+                    <th scope="col"> Status<i class="bi bi-sort-up" onclick="HandleChagne('Status')"></i></th>
+                    <th scope="col">Order Deails</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+
+
+                        <tr class="align-middle">
+                            <td>@item.UniqOrderId</td>
+                            <td>@item.OrderDate</td>
+                            <td>@item.CustomerName</td>
+                            <td>@item.Address</td>
+                            <td>@item.Status</td>
+                            <td><a class="btn btn-dark fw-bolder text-white" asp-route-id="@item.UniqOrderId" asp-action="OrderDetails">Order Details</a></td>
+                        </tr>
+
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="ms-3 fw-semibold">
+                Page @(ViewBag.CurrentPage) out of @ViewBag.TotalPages
+            </div>
+            <nav id="pagination" aria-label="Page navigation" class="me-3">
+                <ul class="pagination pagination-sm m-0">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="previous" data-page="@(ViewBag.CurrentPage - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="visually-hidden">Previous</span>
+                            </a>
+                        </li>
+                    }
+                    @for (int z = 1; z <= ViewBag.TotalPages; z++)
+                    {
+                        <li class="page-item @(z == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="#" id="current_@z" data-page="@z" aria-label="Page @z">
+                                @z
+                            </a>
+                        </li>
+                    }
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="next" data-page="@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="visually-hidden">Next</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+}
+else
+{
+    <h5 class="ms-3">No Records Found.</h5>
+}

@@ -29,7 +29,7 @@ namespace BAL.Repositry
                 IsDeleted = (bool)pro.Isdeleted,
                 Quantity = (int)pro.Quantity,
                 DatePicker = pro.DateTimePicker.Value,
-                featurePhoto=pro.FeaturePhoto,
+                featurePhoto = pro.FeaturePhoto,
                 FileNames = _context.ProductPhotos.Where(item => item.ProductId == pro.ProductId).Select(item => item.PhotoName).ToList(),
             }).Where(item => string.IsNullOrEmpty(productName) || (item.ProductName.ToLower().Contains(productName) || item.UniqueNo.Contains(productName) || item.CategoryName.ToLower().Contains(productName) || item.ProductDescription.ToLower().Contains(productName))).ToList();
 
@@ -106,7 +106,7 @@ namespace BAL.Repositry
 
         public List<Category> GetAllCategories()
         {
-            return _context.Categories.Where(item=>item.IsDeleted==false).ToList();
+            return _context.Categories.Where(item => item.IsDeleted == false).ToList();
         }
 
         public bool DeleteProduct(int id)
@@ -128,7 +128,7 @@ namespace BAL.Repositry
             product1.Description = product.ProductDescription;
             product1.Isdeleted = false;
             product1.DateTimePicker = product.DatePicker;
-            product1.Quantity=product.Quantity;
+            product1.Quantity = product.Quantity;
             product1.FeaturePhoto = product.FileNames.FirstOrDefault();
             _context.Products.Add(product1);
             _context.SaveChanges();
@@ -149,7 +149,7 @@ namespace BAL.Repositry
 
         public Product GetProductById(int id)
         {
-            return _context.Products.Include(item => item.Category).Include(item=>item.ProductPhotos).Where(item => item.ProductId == id).FirstOrDefault();
+            return _context.Products.Include(item => item.Category).Include(item => item.ProductPhotos).Where(item => item.ProductId == id).FirstOrDefault();
         }
 
         public bool UpdateProduct(int id, ProductVM product)
@@ -159,8 +159,8 @@ namespace BAL.Repositry
             updateProduct.Price = product.Price;
             updateProduct.Description = product.ProductDescription;
             updateProduct.ProductName = product.ProductName;
-            updateProduct.DateTimePicker=product.DatePicker;
-            updateProduct.Quantity=product.Quantity;
+            updateProduct.DateTimePicker = product.DatePicker;
+            updateProduct.Quantity = product.Quantity;
             updateProduct.FeaturePhoto = product.featurePhoto;
             updateProduct.CategoryId = _context.Categories.Where(item => item.CategoryName == product.CategoryName).Select(item => item.CategoryId).FirstOrDefault();
             _context.Update(updateProduct);
@@ -216,20 +216,20 @@ namespace BAL.Repositry
 
         public bool DeletePhoto(string photoId)
         {
-            var photo = _context.ProductPhotos.Include(item=>item.Product).Where(item => item.PhotoName == photoId).FirstOrDefault();
+            var photo = _context.ProductPhotos.Include(item => item.Product).Where(item => item.PhotoName == photoId).FirstOrDefault();
             var photos = _context.ProductPhotos.Where(item => item.ProductId == photo.Product.ProductId).ToList();
-            if(photos.Count>0)
+            if (photos.Count > 0)
             {
                 if (photo.Product.FeaturePhoto == photoId)
                 {
-                    photo.Product.FeaturePhoto = photos.Where(item=>item.PhotoName!=photoId).FirstOrDefault().PhotoName;
+                    photo.Product.FeaturePhoto = photos.Where(item => item.PhotoName != photoId).FirstOrDefault().PhotoName;
                 }
             }
             else
             {
                 return false;
             }
-            
+
             _context.ProductPhotos.Remove(photo);
             _context.SaveChanges();
             return true;
@@ -246,54 +246,77 @@ namespace BAL.Repositry
 
         public List<Product> GetAllProducts()
         {
-        
-            return _context.Products.Include(item=>item.Category).Include(item=>item.ProductPhotos).ToList();
+
+            return _context.Products.Include(item => item.Category).Include(item => item.ProductPhotos).ToList();
         }
 
         public List<CartItems> GetCartItems(int[] id)
         {
-            var cartItems = _context.Products.Where(item => id.Any(id => id == item.ProductId)).Select(item=>new CartItems
+            var cartItems = _context.Products.Where(item => id.Any(id => id == item.ProductId)).Select(item => new CartItems
             {
-                 CartItemName= item.ProductName,
-                CartItemPrice= (int)item.Price,
-                CartMaxQuantity= (int)item.Quantity,
-                ProductId=item.ProductId,
-                CartFileName= item.FeaturePhoto,
-                
+                CartItemName = item.ProductName,
+                CartItemPrice = (int)item.Price,
+                CartMaxQuantity = (int)item.Quantity,
+                ProductId = item.ProductId,
+                CartFileName = item.FeaturePhoto,
+
 
             }).ToList();
             return cartItems;
         }
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City)
         {
-            Customer customer = new Customer();
-            customer.FirstName = FirstName;
-            customer.LastName = LastName;
-            customer.Email = Email; 
-            customer.Address= Address;  
-            customer.City= City;    
-            customer.ZipCode= ZipCode;
-            _context.Customers.Add(customer);   
-            _context.SaveChanges();
-            return customer;
+            var email = _context.Customers.FirstOrDefault(item => item.Email == Email);
+            if (email == null)
+            {
+                Customer customer = new Customer();
+                customer.FirstName = FirstName;
+                customer.LastName = LastName;
+                customer.Email = Email;
+                customer.Address = Address;
+                customer.City = City;
+                customer.ZipCode = ZipCode;
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
+                return customer;
+            }
+            else
+            {
+                return email;
+            }
         }
         public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId)
         {
+            var uniqNumber= Guid.NewGuid().ToString();
             for (int i = 0; i < CartQuantity.Count; i++)
             {
-            Order order = new Order();  
+
+                Order order = new Order();
                 order.OrderPrice = (int)CartPrice[i];
-                order.OrderQuantity= (int)CartQuantity[i];  
+                order.OrderQuantity = (int)CartQuantity[i];
                 order.CustomerId = CustomerId;
                 order.ProductId = ProductId[i];
                 var product = _context.Products.FirstOrDefault(item => item.ProductId == ProductId[i]);
                 product.Quantity = product.Quantity - CartQuantity[i];
+                order.OrderDate = DateTime.Now;
+                order.UniqOrderId= uniqNumber;  
+                order.Status = 1;
                 _context.Products.Update(product);
+                _context.Orders.Add(order);
+                _context.SaveChanges();
 
-                _context.Orders.Add(order); 
+                OrderStatusLog orderStatusLog = new OrderStatusLog();   
+                orderStatusLog.OrderStatus = order.Status;
+                orderStatusLog.UniqOrderId=order.UniqOrderId;   
+                orderStatusLog.UpDatedDate=DateTime.Now;    
+                _context.OrderStatusLogs.Add(orderStatusLog);
                 _context.SaveChanges();
             }
-           
+           OrderProduct orderProduct= new OrderProduct();
+            orderProduct.CustomerId = CustomerId;
+            orderProduct.OrderUniqId = uniqNumber;
+            _context.OrderProducts.Add(orderProduct);
+            _context.SaveChanges();     
             return true;
         }
 

@@ -56,10 +56,6 @@
             text-align: center;
         }
 
-        .custom-product-card .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
 </style>
 
 <div class="container mt-5 mb-5 bg-white shadow-lg">
@@ -98,7 +94,7 @@
                         else
                         {
                             
-                        <button class="btn btn-info mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
+                        <button class="btn btn-warning  fw-bolder mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
                         }
                     </div>
                 </div>
@@ -116,16 +112,23 @@
         let cart = JSON.parse(localStorage.getItem('productId'));
 
         
-        // If cart is null (i.e., nothing in localStorage), initialize it as an empty array
         if (!Array.isArray(cart)) {
             cart = [];
         }
-
-        // Add the new product to the cart
-        cart.push(ProductId);
-
-        // Save the updated cart back to localStorage
-        localStorage.setItem('productId', JSON.stringify(cart));
+        const productIndex = cart.findIndex(item => item === ProductId);
+        if (productIndex === -1) {
+            cart.push(ProductId);
+            localStorage.setItem('productId', JSON.stringify(cart));
+            $.ajax({
+                method: "POST",
+                url: "/Home/CartViewBag",
+                success: function (data) {
+                    var products = JSON.parse(localStorage.getItem('productId'));
+                    var count = products ? products.length : 0;
+                    $('#cartCount').text(count);
+                }
+            })
+        }
         window.location='/Home/AddToCart'
     }
     document.addEventListener('DOMContentLoaded', (event) => {

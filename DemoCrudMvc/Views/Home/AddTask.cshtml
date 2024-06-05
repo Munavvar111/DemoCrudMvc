@@ -1,6 +1,7 @@
 ﻿@model DAL.ViewModals.ProductVM
 @{
     ViewData["Title"] = "AddTask";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <form asp-action="TaskAdd" asp-controller="Home" class="container border rounded-3 p-3 p-md-5 mb-3 mt-5 d-flex flex-column gap-4 bg-white" method="post" enctype="multipart/form-data">

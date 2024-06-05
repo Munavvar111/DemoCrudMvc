@@ -18,7 +18,7 @@
 </style>
 
 <div class="container mt-5 bg-white">
-	<h2>Shopping Cart</h2>
+	<h2 class="text-muted">Shopping Cart</h2>
 	@if (Model.Count > 0)
 	{
 
@@ -39,6 +39,7 @@
 								<input class="d-none" asp-for="@item.CartItemPrice" name="CartPrice" id="cartPrice-@item.ProductId" />
 								<h4>@item.CartItemName</h4>
 								<div class="quantity-control d-flex align-items-center">
+												<span class="text-muted fw-bolder">Qty:</span>
 									<select name="CartQuantity" class="quantity-select" id="quantity-@item.ProductId" onchange="updateQuantity('@item.ProductId', this.value, @item.CartMaxQuantity, @item.CartItemPrice)">
 										@{
 											for (int i = 1; i <= 10; i++)
@@ -50,11 +51,11 @@
 								</div>
 							</div>
 
-							<div class="d-flex align-items-end mx-3 justify-content-end" onclick="RemoveFromCard(@item.ProductId)">
+							<div class="d-flex align-items-end mx-3 justify-content-end" >
 							</div>
 						</div>
 						<div class="d-flex flex-column">
-							<div class="d-flex justify-content-end">
+							<div class="d-flex justify-content-end" onclick="RemoveFromCard(@item.ProductId)">
 
 								<i class="fa fa-trash text-danger fs-3" aria-hidden="true"></i><span> </span>
 							</div>
@@ -68,7 +69,7 @@
 			</div>
 			<div class="mt-4 d-flex justify-content-end">
 
-				<button class="btn btn-primary" type="submit">Proceed to Checkout</button>
+				<button class="btn btn-warning fw-bolder mb-3" type="submit">Proceed to Checkout</button>
 
 			</div>
 		</form>
@@ -85,7 +86,7 @@
 
 <script>
 	function RemoveFromCard(productId) {
-
+		console.log(productId)
 		let cart = JSON.parse(localStorage.getItem('productId'));
 
 

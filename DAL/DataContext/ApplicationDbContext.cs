@@ -22,6 +22,12 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Order> Orders { get; set; }
 
+    public virtual DbSet<OrderProduct> OrderProducts { get; set; }
+
+    public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
+
+    public virtual DbSet<OrderStatusLog> OrderStatusLogs { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductPhoto> ProductPhotos { get; set; }
@@ -61,6 +67,35 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.Orders)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Order_ProductId_fkey");
+
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Orders)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Order_Status_fkey");
+        });
+
+        modelBuilder.Entity<OrderProduct>(entity =>
+        {
+            entity.HasKey(e => e.OrderProductId).HasName("OrderProduct_pkey");
+
+            entity.Property(e => e.OrderProductId).UseIdentityAlwaysColumn();
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.OrderProducts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("OrderProduct_CustomerId_fkey");
+        });
+
+        modelBuilder.Entity<OrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.StatusId).HasName("OrderStatus_pkey");
+
+            entity.Property(e => e.StatusId).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<OrderStatusLog>(entity =>
+        {
+            entity.HasKey(e => e.StatusLogId).HasName("OrderStatusLog_pkey");
+
+            entity.Property(e => e.StatusLogId).UseIdentityAlwaysColumn();
         });
 
         modelBuilder.Entity<Product>(entity =>

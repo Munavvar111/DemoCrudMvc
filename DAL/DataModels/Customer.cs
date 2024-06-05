@@ -30,5 +30,8 @@ public partial class Customer
     public string? City { get; set; }
 
     [InverseProperty("Customer")]
+    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+
+    [InverseProperty("Customer")]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

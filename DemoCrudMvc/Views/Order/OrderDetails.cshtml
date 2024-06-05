@@ -1,0 +1,164 @@
+﻿@model List<DAL.ViewModals.OrderVM>
+@{
+    ViewData["Title"] = "OrderDetails";
+    var TotalPrice = 0;
+
+}
+@foreach (var item in Model)
+{
+    TotalPrice = TotalPrice + (item.Price * item.Quantity);
+}
+<div class="container-fluid row">
+
+    <div class="container mt-3 bg-white shadow-lg border-1 col-md-8">
+        <div class=" p-3 border-1">
+
+            <h4 class="">Order details<span class="rounded-circle text-muted px-1  mx-3 pe-3" style="background-color:rgba(19,33,68,.1)"> @Model.Count</span></h4>
+        </div>
+        <div class="container">
+            @foreach (var item in Model)
+            {
+                <div class="row gx-3 mb-3 d-flex align-items-center border-bottom">
+                    <div class="col-md-2 mb-3">
+                        <img src="~/uploads/@item.FileName" width="100" />
+                        <span>@item.ProductName</span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <span class="text-black fw-bolder">
+                            $ @item.Price
+                        </span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <span>
+                            @item.Quantity
+                        </span>
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <span class="text-black fw-bolder"> $ @(@item.Price * @item.Quantity)</span>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="container mt-3">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-4 ">
+                    <span class="text-muted fw-bolder">SubTotal</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="text-black fw-bolder">$@TotalPrice</span>
+                </div>
+            </div><div class="row mb-3">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-4 ">
+                    <span class="text-muted fw-bolder">Shipping Fees</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="text-black fw-bolder">$ 0.0</span>
+                </div>
+            </div><div class="row">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-4 ">
+                    <span class="text-muted fw-bolder">Amount Paid</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="text-black fw-bolder">$@TotalPrice</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-3 ">
+        <div class="bg-white shadow-lg p-3 border-1 ">
+
+            <h4 class="mb-4 border-bottom pb-3">Customers</h4>
+            <h6 class=""><span class="pt-3">Contact Info</span></h6>
+            <h6 class="text-muted mt-3">Name: @Model[0].CustomerName</h6>
+            <h6 class="text-muted mt-3 mb-3">City: @Model[0].CustomerCity</h6>
+            <div class="border-top pb-3">
+                <h6 class="mt-3"><span class="pt-3">Shipping Address</span></h6>
+                <h6 class="text-muted mt-3"> @Model[0].Address</h6>
+
+            </div>
+            <div class="border-top pb-3">
+                <h6 class="mt-3"><span class="pt-3">Billing Address</span></h6>
+                <h6 class="text-muted mt-3"> @Model[0].Address</h6>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid bg-white mt-3 p-3">
+        <h4>Shipping activity</h4>
+        @* *@
+
+        @if (Model != null && Model.Count > 0)
+        {
+            <div class="mt-2">
+                <table class="table table-bordered mt-2">
+
+                    <thead class="table-secondary">
+                        <tr>
+                            <th scope="col"> OrderId <i class="bi bi-sort-up" onclick="HandleChagne('OrderId')"></i></th>
+                            <th scope="col"> Date<i class="bi bi-sort-up" onclick="HandleChagne('OrderDate')"></i></th>
+                            <th scope="col"> OrderStatus<i class="bi bi-sort-up" onclick="HandleChagne('CustomerName')"></i></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model[0].StatusLog)
+                            {
+
+
+                                <tr class="align-middle">
+                                    <td>@item.UniqOrderId</td>
+                                    <td>@item.UpDatedDate</td>
+                                    <td>@item.OrderStatus</td>
+                               
+                                </tr>
+
+                            }
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+           
+
+        }
+        else
+        {
+            <h5 class="ms-3">No Records Found.</h5>
+        }
+</div>
+
+        <div class="container-fluid mt-3 p-3 bg-white border-1 shadow-lg">
+        <span> Change The Shipping Status</span>
+        <div class="col-md-3">
+
+            <div class="form-floating">
+                <select class="form-select " aria-label="Default select example" id="cancelReason" asp-for="@Model[0].Status">
+
+                    <option selected disabled>Select The Category</option>
+
+                    @foreach (var region in @ViewBag.Status)
+                    {
+                        <option value="@region.StatusId">@region.StatusName</option>
+                    }
+
+
+                </select>
+                <label for="floatingInput">Category</label>
+
+                <span asp-validation-for="@Model[0].Status" class="text-danger"></span>
+
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-success">Update Status</button>
+            </div>
+        </div>
+        </div>
