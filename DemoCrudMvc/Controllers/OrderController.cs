@@ -51,11 +51,13 @@ namespace DemoCrudMvc.Controllers
         {
             if (_order.IsUpdateOrderStatus(UniqId, OrderStatus))
             {
+                TempData["SuccessMessage"] = "Your Order Shipment Has Been Updated";
                 return RedirectToAction("OrderDetails", new {id=UniqId});
             }
             else
             {
-                return RedirectToAction("OrderDetails", new {id=UniqId});
+				TempData["SuccessMessage"] = "Your Order Shipment Has Not Been Updated";
+				return RedirectToAction("OrderDetails", new {id=UniqId});
 
             }
         }

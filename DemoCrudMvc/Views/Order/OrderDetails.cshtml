@@ -1,291 +1,363 @@
 ﻿@model List<DAL.ViewModals.OrderVM>
 @{
-    ViewData["Title"] = "OrderDetails";
-    var TotalPrice = 0;
+	ViewData["Title"] = "OrderDetails";
+	var TotalPrice = 0;
 
-    var statusLog = Model[0].StatusLog;
-    var totalItems = statusLog.Count;
-    var counter = 0;
-    var currentStatus = Model[0].Status;
-
-
+	var statusLog = Model[0].StatusLog;
+	var totalItems = statusLog.Count;
+	var counter = 0;
+	var currentStatus = Model[0].Status;
 }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+@if (TempData.ContainsKey("SuccessMessage"))
+{
+	<script>
+		$('#loader').fadeIn().promise().done(function () {
+			Swal.fire({
+				title: 'Success!',
+				text: '@TempData["SuccessMessage"]',
+				icon: 'success',
+				showConfirmButton: false,
+				timer: 1500
+			})
+		});
+	</script>
+}
+@if (TempData.ContainsKey("Error"))
+{
+	<script>
+		$('#loader').fadeIn().promise().done(function () {
+			Swal.fire({
+				title: 'Error!',
+				text: '@TempData["Error"]',
+				icon: 'error',
+				showConfirmButton: false,
+				timer: 1500
+			})
+		});
+	</script>
+}
+
+<style>
+	.text-overflow {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: block;
+	}
+</style>
 @foreach (var item in Model)
 {
-    TotalPrice = TotalPrice + (item.Price * item.Quantity);
+	TotalPrice = TotalPrice + (item.Price * item.Quantity);
 }
 <div class="container-fluid mt-3 ">
-    <div class="bg-white p-3 me-5 d-flex justify-content-between">
-        <div>
+	<div class="bg-white p-3 me-5 d-flex justify-content-between">
+		<div>
 
-        <h4>Order Details</h4>
-        <span class="text-muted">@Model.First().UniqOrderId</span>
-        </div>
-        <a class="me-5 mt-3" asp-action="DownloadInvoic" asp-controller="Order" asp-route-OrderUniqId="@Model.First().UniqOrderId">
-            <i class="fa fa-download fs-3" aria-hidden="true"></i>
-        </a>
-    </div>
+			<h4>Order Details</h4>
+			<span class="text-muted">@Model.First().UniqOrderId</span>
+		</div>
+		<a class="me-5 mt-3" asp-action="DownloadInvoic" asp-controller="Order" asp-route-OrderUniqId="@Model.First().UniqOrderId">
+			<i class="fa fa-download fs-3" aria-hidden="true"></i>
+		</a>
+	</div>
 </div>
 <div class="container-fluid row">
 
-    <div class="container mt-3 bg-white shadow-lg border-1 col-md-8">
-        <div class=" p-3 border-1">
+	<div class="container mt-3  col-md-8 ">
+		<div class=" p-3 border-1">
 
-            <h4 class="">Order Items<span class="rounded-circle text-muted px-1  mx-3 pe-3" style="background-color:rgba(19,33,68,.1)"> @Model.Count</span></h4>
-        </div>
-        <div class="container">
-            @foreach (var item in Model)
-            {
-                <div class="row gx-3 mb-3 d-flex align-items-center border-bottom">
-                    <div class="col-md-2 mb-3">
-                        <img src="~/uploads/@item.FileName" width="100" />
-                        <span>@item.ProductName</span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <span class="text-black fw-bolder">
-                            $ @item.Price
-                        </span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <span>
-                            @item.Quantity
-                        </span>
-                    </div>
-                    <div class="col-md-1 mb-3">
-                        <span class="text-black fw-bolder"> $ @(@item.Price * @item.Quantity)</span>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="container mt-3">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                </div>
-                <div class="col-md-4 ">
-                    <span class="text-muted fw-bolder">SubTotal</span>
-                </div>
-                <div class="col-md-1">
-                    <span class="text-black fw-bolder">$@TotalPrice</span>
-                </div>
-            </div><div class="row mb-3">
-                <div class="col-md-6">
-                </div>
-                <div class="col-md-4 ">
-                    <span class="text-muted fw-bolder">Shipping Fees</span>
-                </div>
-                <div class="col-md-1">
-                    <span class="text-black fw-bolder">$ 0.0</span>
-                </div>
-            </div><div class="row">
-                <div class="col-md-6">
-                </div>
-                <div class="col-md-4 ">
-                    <span class="text-muted fw-bolder">Amount Paid</span>
-                </div>
-                <div class="col-md-1">
-                    <span class="text-black fw-bolder">$@TotalPrice</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mt-3 ">
-        <div class="bg-white shadow-lg p-3 border-1 ">
+			<h4 class="">Order Items<span class="rounded-circle text-muted px-1  mx-3 pe-3" style="background-color:rgba(19,33,68,.1)"> @Model.Count</span></h4>
+		</div>
+		<div class="container">
+			@foreach (var item in Model)
+			{
+				<div class="row mb-3 gx-3 bg-white d-flex align-items-center border-bottom rounded-1 p-3">
+					<div class="col-12 col-md-2 text-center mb-2 mb-md-0">
+						<img src="~/uploads/@item.FileName" class="img-fluid" alt="Product Image" />
+					</div>
+					<div class="col-12 col-md-3 text-center text-md-start mb-2 mb-md-0">
+						<span class="d-block fw-bolder">@item.ProductName</span>
+					</div>
+					<div class="col-12 col-md-2 text-center text-md-start mb-2 mb-md-0">
+						<span>Price:</span>
+						<span class="text-black fw-bolder">$@item.Price</span>
+					</div>
+					<div class="col-12 col-md-2 text-center text-md-start mb-2 mb-md-0">
+						<span>Quantity:</span>
+						<span class="text-black fw-bolder">@item.Quantity</span>
+					</div>
+					<div class="col-12 col-md-3 text-center text-md-start">
+						<span>Total Price:</span>
+						<span class="text-black fw-bolder"> $@(@item.Price * @item.Quantity)</span>
+					</div>
+				</div>
+			}
+		</div>
+		<div class="container mt-3 ">
+			
+			<div class="row mb-3 ">
+				<div class="col-md-6">
+				</div>
+				<div class="col-md-4 ">
+					<span class="text-muted fw-bolder">SubTotal</span>
+				</div>
+				<div class="col-md-1">
+					<span class="text-black fw-bolder">$@TotalPrice</span>
+				</div>
+			</div><div class="row mb-3">
+				<div class="col-md-6">
+				</div>
+				<div class="col-md-4 ">
+					<span class="text-muted fw-bolder">Shipping Fees</span>
+				</div>
+				<div class="col-md-1">
+					<span class="text-black fw-bolder">$ 0.0</span>
+				</div>
+			</div><div class="row">
+				<div class="col-md-6">
+				</div>
+				<div class="col-md-4 ">
+					<span class="text-muted fw-bolder">Amount Paid</span>
+				</div>
+				<div class="col-md-1">
+					<span class="text-black fw-bolder">$@TotalPrice</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4 mt-3 ">
+		<div class="bg-white  p-3 border-1 rounded-1">
 
-            <h4 class="mb-4 border-bottom pb-3">Customers</h4>
-            <h6 class=""><span class="pt-3">Contact Info</span></h6>
-            <h6 class="text-muted mt-3">Name: @Model[0].CustomerName</h6>
-            <h6 class="text-muted mt-3 mb-3">City: @Model[0].CustomerCity</h6>
-            <div class="border-top pb-3">
-                <h6 class="mt-3"><span class="pt-3">Shipping Address</span></h6>
-                <h6 class="text-muted mt-3"> @Model[0].Address</h6>
+			<h4 class="mb-4 border-bottom pb-3">Customers Details</h4>
+			<h6 class="">
+				<span class="pt-3 d-flex">
+					Contact Info<span class="material-symbols-outlined fs-5">
+						info
+					</span>
+				</span>
+			</h6>
+			<h6 class="text-muted mt-3 text-wrap">Name: <span class="text-overflow">@Model[0].CustomerName</span></h6>
+			<h6 class="text-muted mt-3 mb-3">City: @Model[0].CustomerCity</h6>
+				<h6 class="border-top pt-3">
 
-            </div>
-            <div class="border-top pb-3">
-                <h6 class="mt-3"><span class="pt-3">Billing Address</span></h6>
-                <h6 class="text-muted mt-3"> @Model[0].Address</h6>
+					<span class="pt-3">Shipping Address</span>
+					<span class="material-symbols-outlined fs-5">
+						home
+					</span>
+				</h6>
+				<h6 class="text-muted mt-3"> @Model[0].Address</h6>
 
-            </div>
-        </div>
-    </div>
+			<div class="border-top pb-3">
+				<h6 class="mt-3"><span class="pt-3">Billing Address</span></h6>
+				<h6 class="text-muted mt-3"> @Model[0].Address</h6>
+
+			</div>
+		</div>
+	</div>
 </div>
-<div class="container-fluid bg-white mt-3 p-3">
-    <h4>Shipping activity</h4>
-    @* *@
+<div class="container-fluid  mt-3">
+	<h4>Shipping activity</h4>
+	@* *@
 
-    @if (Model != null && Model.Count > 0)
-    {
-        <div class="mt-2">
-            <table class="table table-bordered mt-2">
+	@if (Model != null && Model.Count > 0)
+	{
+		<div class="mt-2 bg-white">
+			<table class="table table-bordered mt-2">
 
-                <thead class="table-secondary">
-                    <tr>
-                        <th scope="col"> OrderId <i class="bi bi-sort-up" onclick="HandleChagne('OrderId')"></i></th>
-                        <th scope="col"> Date<i class="bi bi-sort-up" onclick="HandleChagne('OrderDate')"></i></th>
-                        <th scope="col"> OrderStatus<i class="bi bi-sort-up" onclick="HandleChagne('CustomerName')"></i></th>
+				<thead class="table-secondary">
+					<tr>
+						<th scope="col"> OrderId <i class="bi bi-sort-up" onclick="HandleChagne('OrderId')"></i></th>
+						<th scope="col"> Date<i class="bi bi-sort-up" onclick="HandleChagne('OrderDate')"></i></th>
+						<th scope="col"> OrderStatus<i class="bi bi-sort-up" onclick="HandleChagne('CustomerName')"></i></th>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null)
-                    {
-                        foreach (var item in Model[0].StatusLog)
-                        {
-
-
-                            <tr class="align-middle">
-                                <td>@item.UniqOrderId</td>
-                                <td>@item.UpDatedDate</td>
-                                <td>@item.OrderStatus</td>
-
-                            </tr>
-
-                        }
-
-                    }
-                </tbody>
-            </table>
-        </div>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model != null)
+					{
+						foreach (var item in Model[0].StatusLog)
+						{
+								var status = "";
 
 
-    }
-    else
-    {
-        <h5 class="ms-3">No Records Found.</h5>
-    }
+							<tr class="align-middle">
+								<td>@item.UniqOrderId</td>
+								<td>@item.UpDatedDate</td>
+
+								@switch (item.OrderStatus)
+								{
+								case 1:
+										status = "OrderPlacement";
+								break;
+								case 2:
+							status = "Picking";
+								break;
+								case 3:
+								status= "Sorting";
+								break;
+								case 4:
+								status= "Shipping";
+								break;
+								case 5:
+								status= "Delivering";
+								break;
+								default:
+								status = "Unknown status.";
+								break;
+								}
+								<td>@status</td>
+
+							</tr>
+
+						}
+
+					}
+				</tbody>
+			</table>
+		</div>
+
+
+	}
+	else
+	{
+		<h5 class="ms-3">No Records Found.</h5>
+	}
 </div>
 
-<div class="container-fluid mt-3 p-3 bg-white border-1 shadow-lg">
-    <form asp-action="UpdateStatus" method="post">
+<div class="container-fluid mt-3 p-3 row border-1 gap-3 gx-2">
+	<form asp-action="UpdateStatus" method="post" class=" p-3 col-md-4">
 
 
-        <input type="hidden" asp-for="@Model[0].UniqOrderId" name="UniqId" />
-        <span> Change The Shipping Status</span>
-        <div class="col-md-3">
+		<input type="hidden" asp-for="@Model[0].UniqOrderId" name="UniqId" />
+		<span> Change The Shipping Status</span>
+		<div class="bg-white p-3">
 
-            <div class="form-floating">
-                <select class="form-select" aria-label="Default select example" id="cancelReason" asp-for="@Model[0].Status" name="OrderStatus">
-                    <option selected disabled>Select The Category</option>
+			<div class="form-floating">
+				<select class="form-select" aria-label="Default select example" id="cancelReason" asp-for="@Model[0].Status" name="OrderStatus">
+					<option selected disabled>Select The Category</option>
 
-                    @foreach (var region in ViewBag.Status)
-                    {
-                        <option value="@region.StatusId" data-status-id="@region.StatusId">@region.StatusName</option>
-                    }
-                </select>
-                <label for="floatingInput">Category</label>
-                <span asp-validation-for="@Model[0].Status" class="text-danger"></span>
-            </div>
+					@foreach (var region in ViewBag.Status)
+					{
+						<option value="@region.StatusId" data-status-id="@region.StatusId">@region.StatusName</option>
+					}
+				</select>
+				<label for="floatingInput">Category</label>
+				<span asp-validation-for="@Model[0].Status" class="text-danger"></span>
+			</div>
 
-            <div class="d-flex justify-content-end mt-3">
-                <button class="btn btn-success" type="submit">Update Status</button>
-            </div>
-        </div>
-    </form>
+			<div class="d-flex justify-content-end mt-3">
+				<button class="btn btn-success" type="submit">Update Status</button>
+			</div>
+		</div>
+	</form>
+
+<div class="page-content page-container col-md-7" id="page-content">
+	<div class="">
+		<div class="row ">
+
+			<div class="col-lg-8">
+				<div class="timeline p-4 block mb-4 ">
+					<p class="fw-bolder">Activity Timeline</p>
+					@foreach (var item in statusLog)
+					{
+						counter++;
+						var isActive = counter == totalItems ? "active" : "";
+						var message = "";
+
+						switch (item.OrderStatus)
+						{
+							case 1:
+								message = "Thanks for your order.";
+								break;
+							case 2:
+								message = "Your order is being processed.";
+								break;
+							case 3:
+								message = "Your order has been shipped.";
+								break;
+							case 4:
+								message = "Your order is out for delivery.";
+								break;
+							case 5:
+								message = "Your order has been delivered.";
+								break;
+							case 6:
+								message = "Your order is completed.";
+								break;
+							case 7:
+								message = "Thank you for your feedback.";
+								break;
+							default:
+								message = "Unknown status.";
+								break;
+						}
+
+						<div class="tl-item @isActive">
+							<div class="tl-dot b-primary"></div>
+							<div class="tl-content">
+								<div class="">@message</div>
+								<div class="tl-date text-muted mt-1">@item.UpDatedDate.ToString("dd-MMM-yyyy")</div>
+							</div>
+						</div>
+					}
+					@*   <div class="tl-item">
+					<div class="tl-dot b-primary"></div>
+					<div class="tl-content">
+					<div class="">Do you know how Google search works.</div>
+					<div class="tl-date text-muted mt-1">45 minutes ago</div>
+					</div>
+					</div>
+					<div class="tl-item">
+					<div class="tl-dot b-danger"></div>
+					<div class="tl-content">
+					<div class="">Thanks to <a href="#" data-abc="true"></a>, for iphone 7</div>
+					<div class="tl-date text-muted mt-1">1 day ago</div>
+					</div>
+					</div>
+					<div class="tl-item">
+					<div class="tl-dot b-danger"></div>
+					<div class="tl-content">
+					<div class="">Order placed <a href="#" data-abc="true"></a> you will get your products</div>
+					<div class="tl-date text-muted mt-1">1 Week ago</div>
+					</div>
+					</div>
+					<div class="tl-item">
+					<div class="tl-dot b-warning"></div>
+					<div class="tl-content">
+					<div class="">Learn how to use <a href="#" data-abc="true">Google Analytics</a> to discover vital information about your readers.</div>
+					<div class="tl-date text-muted mt-1">3 days ago</div>
+					</div>
+					</div> *@
+				</div>
+			</div>
+
+
+		</div>
+	</div>
 </div>
-
-<div class="page-content page-container" id="page-content">
-    <div class="padding">
-        <div class="row">
-
-            <div class="col-lg-6">
-                <div class="timeline p-4 block mb-4 ">
-                    <p class="fw-bolder">Activity Timeline</p>
-                    @foreach (var item in statusLog)
-                    {
-                        counter++;
-                        var isActive = counter == totalItems ? "active" : "";
-                        var message = "";
-
-                        switch (item.OrderStatus)
-                        {
-                            case 1:
-                                message = "Thanks for your order.";
-                                break;
-                            case 2:
-                                message = "Your order is being processed.";
-                                break;
-                            case 3:
-                                message = "Your order has been shipped.";
-                                break;
-                            case 4:
-                                message = "Your order is out for delivery.";
-                                break;
-                            case 5:
-                                message = "Your order has been delivered.";
-                                break;
-                            case 6:
-                                message = "Your order is completed.";
-                                break;
-                            case 7:
-                                message = "Thank you for your feedback.";
-                                break;
-                            default:
-                                message = "Unknown status.";
-                                break;
-                        }
-
-                        <div class="tl-item @isActive">
-                            <div class="tl-dot b-primary"></div>
-                            <div class="tl-content">
-                                <div class="">@message</div>
-                                <div class="tl-date text-muted mt-1">@item.UpDatedDate.ToString("dd-MMM-yyyy")</div>
-                            </div>
-                        </div>
-                    }
-                    @*   <div class="tl-item">
-                    <div class="tl-dot b-primary"></div>
-                    <div class="tl-content">
-                    <div class="">Do you know how Google search works.</div>
-                    <div class="tl-date text-muted mt-1">45 minutes ago</div>
-                    </div>
-                    </div>
-                    <div class="tl-item">
-                    <div class="tl-dot b-danger"></div>
-                    <div class="tl-content">
-                    <div class="">Thanks to <a href="#" data-abc="true"></a>, for iphone 7</div>
-                    <div class="tl-date text-muted mt-1">1 day ago</div>
-                    </div>
-                    </div>
-                    <div class="tl-item">
-                    <div class="tl-dot b-danger"></div>
-                    <div class="tl-content">
-                    <div class="">Order placed <a href="#" data-abc="true"></a> you will get your products</div>
-                    <div class="tl-date text-muted mt-1">1 Week ago</div>
-                    </div>
-                    </div>
-                    <div class="tl-item">
-                    <div class="tl-dot b-warning"></div>
-                    <div class="tl-content">
-                    <div class="">Learn how to use <a href="#" data-abc="true">Google Analytics</a> to discover vital information about your readers.</div>
-                    <div class="tl-date text-muted mt-1">3 days ago</div>
-                    </div>
-                    </div> *@
-                </div>
-            </div>
-
-
-        </div>
-    </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const dropdown = document.getElementById('cancelReason');
-        const currentStatus = @Model[0].Status;
+	document.addEventListener('DOMContentLoaded', function () {
+		const dropdown = document.getElementById('cancelReason');
+		const currentStatus = @Model[0].Status;
 
-        // Optional: Add an event listener to update options if the status changes dynamically
-        dropdown.addEventListener('change', function () {
-            updateDropdownOptions();
-        });
+		// Optional: Add an event listener to update options if the status changes dynamically
+		dropdown.addEventListener('change', function () {
+			updateDropdownOptions();
+		});
 
-        function updateDropdownOptions() {
-            const options = dropdown.querySelectorAll('option[data-status-id]');
-            options.forEach(option => {
-                const statusId = parseInt(option.getAttribute('data-status-id'), 10);
+		function updateDropdownOptions() {
+			const options = dropdown.querySelectorAll('option[data-status-id]');
+			options.forEach(option => {
+				const statusId = parseInt(option.getAttribute('data-status-id'), 10);
 
-                option.disabled = statusId <= currentStatus;
-            });
-        }
+				option.disabled = statusId <= currentStatus;
+			});
+		}
 
-        updateDropdownOptions();
-    });
+		updateDropdownOptions();
+	});
 </script>
