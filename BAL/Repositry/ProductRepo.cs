@@ -244,11 +244,21 @@ namespace BAL.Repositry
             return true;
         }
 
-        public List<Product> GetAllProducts()
+        public IEnumerable<Product> GetAllProducts(string searchValue, int? minPrice, int? maxPrice)
         {
+            var products = _context.Products
+                .Include(item => item.Category)
+                .Include(item => item.ProductPhotos)
+                .Where(item => string.IsNullOrEmpty(searchValue) || item.ProductName.ToLower().Contains(searchValue.ToLower()));
 
-            return _context.Products.Include(item => item.Category).Include(item => item.ProductPhotos).ToList();
+            if (minPrice.HasValue && maxPrice.HasValue)
+            {
+                products = products.Where(item => item.Price >= minPrice.Value && item.Price <= maxPrice.Value);
+            }
+
+            return products.ToList();
         }
+
 
         public List<CartItems> GetCartItems(int[] id)
         {
@@ -262,6 +272,7 @@ namespace BAL.Repositry
 
 
             }).ToList();
+
             return cartItems;
         }
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City)
@@ -285,9 +296,9 @@ namespace BAL.Repositry
                 return email;
             }
         }
-        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId)
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string uniqNumber )
         {
-            var uniqNumber= Guid.NewGuid().ToString();
+   
             for (int i = 0; i < CartQuantity.Count; i++)
             {
 
@@ -304,15 +315,15 @@ namespace BAL.Repositry
                 _context.Products.Update(product);
                 _context.Orders.Add(order);
                 _context.SaveChanges();
-
-                OrderStatusLog orderStatusLog = new OrderStatusLog();   
-                orderStatusLog.OrderStatus = order.Status;
-                orderStatusLog.UniqOrderId=order.UniqOrderId;   
-                orderStatusLog.UpDatedDate=DateTime.Now;    
-                _context.OrderStatusLogs.Add(orderStatusLog);
-                _context.SaveChanges();
             }
-           OrderProduct orderProduct= new OrderProduct();
+            OrderStatusLog orderStatusLog = new OrderStatusLog();
+            orderStatusLog.OrderStatus =1;
+            orderStatusLog.UniqOrderId =uniqNumber;
+            orderStatusLog.UpDatedDate = DateTime.Now;
+            _context.OrderStatusLogs.Add(orderStatusLog);
+            _context.SaveChanges();
+
+            OrderProduct orderProduct= new OrderProduct();
             orderProduct.CustomerId = CustomerId;
             orderProduct.OrderUniqId = uniqNumber;
             _context.OrderProducts.Add(orderProduct);

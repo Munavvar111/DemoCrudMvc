@@ -25,7 +25,7 @@
                                        class="form-control"
                                        id="floatingInput"
                                        placeholder="name@example.com"
-                                       asp-for="@Model.FirstOrDefault().FirstName" />
+                                       asp-for="@Model.FirstOrDefault().FirstName" required />
                                 <label for="floatingInput">First Name</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().FirstName"></span>
                             </div>
@@ -36,7 +36,7 @@
                                        class="form-control"
                                        id="floatingInput"
                                        placeholder="name@example.com"
-                                       asp-for="@Model.FirstOrDefault().LastName" />
+                                       asp-for="@Model.FirstOrDefault().LastName" required />
                                 <label for="floatingInput">Last Name</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().LastName"></span>
                             </div>
@@ -47,7 +47,7 @@
                                        class="form-control"
                                        id="floatingInput"
                                        placeholder="name@example.com"
-                                       asp-for="@Model.FirstOrDefault().Email" />
+                                       asp-for="@Model.FirstOrDefault().Email" required />
                                 <label for="floatingInput">Email</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().Email"></span>
                             </div>
@@ -57,7 +57,7 @@
                                 <input type="text"
                                        class="form-control"
                                        id="floatingInput"
-                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().Address" />
+                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().Address" required />
                                 <label for="floatingInput">Adress</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().Address"></span>
                             </div>
@@ -68,7 +68,7 @@
                                        class="form-control"
                                        id="floatingInput"
                                        value=""
-                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().ZipCode" />
+                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().ZipCode" required />
                                 <label for="floatingInput">ZipCode</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().ZipCode"></span>
                             </div>
@@ -78,7 +78,7 @@
                                 <input type="text"
                                        class="form-control"
                                        id="floatingInput"
-                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().City" />
+                                       placeholder="name@example.com" asp-for="@Model.FirstOrDefault().City" required/>
                                 <label for="floatingInput">City</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().City"></span>
                             </div>
@@ -106,9 +106,13 @@
                                             <span class="">$ @item.CartItemPrice</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <span class="fw-bolder">Quantity:</span>
+                                    <div class="col-md-2">
+                                        <span class="fw-bolder">Quantity:</span><br>
                                         <span class="text-muted fw-bolder">@item.CartItemQuantity</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="fw-bolder">Total Price:</span>
+                                        <span class="text-muted fw-bolder">$@(@item.CartItemPrice*@item.CartItemQuantity)</span>
                                     </div>
                                 </div>
                             }
@@ -156,12 +160,15 @@
         </form>
 
     </div>
-}
-<script>
-    function RemoveCartItem() {
-        console.log("hii")
-        localStorage.clear();
-        //clear after the validation of form--Panding
+}<script>
+     function RemoveCartItem() {
+         var form = document.getElementById('CheckoutForm');
+         console.log(form.checkValidity())
+         if (form.checkValidity()) {
 
-    }
+             localStorage.clear();
+         }
+     }
 </script>
+
+

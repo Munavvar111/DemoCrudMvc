@@ -1,0 +1,135 @@
+﻿@model List<DAL.ViewModals.OrderVM>
+@{
+    Layout = null;
+    var TotalPrice = 0;
+
+}
+@foreach (var item in Model)
+{
+    TotalPrice = TotalPrice + (item.Price * item.Quantity);
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice</title>
+    <style>
+        /* Add your custom CSS styles for the invoice here */
+        /* For example: */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .invoice-container {
+            width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .billing-address {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .invoice-details table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-details table th,
+        .invoice-details table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .invoice-totals {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .invoice-totals table {
+            width: 50%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        .invoice-totals table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <h1>Invoice</h1>
+            <p>Order ID: @Model.First().UniqOrderId</p>
+        </div>
+
+        <div class="billing-address">
+            <div>
+                <h2>Billing Address From</h2>
+                <p>Tatva Soft House</p>
+                <p>Ahmedabad, Gujarat, 364515</p>
+            </div>
+            <div>
+                <h2>Billing Address To</h2>
+                <p>@Model.First().Address</p>
+                <p>@Model.First().CustomerCity, Ahemdabad, 364515</p>
+            </div>
+        </div>
+
+        <div class="invoice-details">
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                        <td>$@item.Price</td>
+                        <td>$@(item.Quantity * item.Price)</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+        <div class="invoice-totals">
+            <table>
+                <tr>
+                    <td>Subtotal</td>
+                    <td>$@TotalPrice</td>
+                </tr>
+                <tr>
+                    <td>Tax</td>
+                    <td>$0</td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>$@TotalPrice</td>
+                </tr>
+                <tr>
+                    <td>Paid</td>
+                    <td>$@TotalPrice</td>
+                </tr>
+            </table>
+        </div>
+    <h3>Thank You</h3>
+    </div>
+</body>
+</html>

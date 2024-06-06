@@ -1,6 +1,7 @@
 ﻿using BAL.Interface;
 using DAL.ViewModals;
 using Microsoft.AspNetCore.Mvc;
+using Rotativa.AspNetCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DemoCrudMvc.Controllers
@@ -32,9 +33,11 @@ namespace DemoCrudMvc.Controllers
             return PartialView("OrderPartial",paginatedData);
         }
 
-        public IActionResult TrackOrder()
+        public IActionResult TrackOrder(string id)
         {
-            return View();  
+            ViewBag.Status = _order.GetAllStatus();
+            var a = _order.OrderDetailsById(id);
+            return View(a);  
         }
 
         public IActionResult OrderDetails(string id)
@@ -42,6 +45,28 @@ namespace DemoCrudMvc.Controllers
             ViewBag.Status = _order.GetAllStatus();
             var a =_order.OrderDetailsById(id);
             return View(a);  
+        }
+        [HttpPost]
+        public IActionResult UpdateStatus(int OrderStatus,string UniqId)
+        {
+            if (_order.IsUpdateOrderStatus(UniqId, OrderStatus))
+            {
+                return RedirectToAction("OrderDetails", new {id=UniqId});
+            }
+            else
+            {
+                return RedirectToAction("OrderDetails", new {id=UniqId});
+
+            }
+        }
+
+        public IActionResult DownloadInvoic(string OrderUniqId)
+        {
+            var orderdetails = _order.OrderDetailsById(OrderUniqId);
+            return new ViewAsPdf("InvoiceDetails", orderdetails)
+            {
+                FileName = "Invoice.pdf"
+            };
         }
     }
 }

@@ -4,6 +4,7 @@ using DemoCrudMvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Diagnostics;
+using System.Text.Encodings.Web;
 
 namespace DemoCrudMvc.Controllers
 {
@@ -13,7 +14,7 @@ namespace DemoCrudMvc.Controllers
         private readonly IProduct _product;
         private readonly IEmailService _emailService;
 
-        public HomeController(ILogger<HomeController> logger, IProduct product,IEmailService emailService)
+        public HomeController(ILogger<HomeController> logger, IProduct product, IEmailService emailService)
         {
             _logger = logger;
             _emailService = emailService;
@@ -22,13 +23,53 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult Index()
         {
-            var product=_product.GetAllProducts();
-            var a=HttpContext.Session.GetInt32("CurrentCart");
+            //var product=_product.GetAllProducts();
+            var product = _product.GetAllProducts("", null, null);
+            ViewBag.Count = product.Count();
+            var a = HttpContext.Session.GetInt32("CurrentCart");
             if (a == null)
             {
                 HttpContext.Session.SetInt32("CurrentCart", 0);
             }
-            return View(product);
+            return View();
+        }
+
+        public IActionResult GetProductListing(string searchValue, string[] selectedPrices)
+        {
+            if (selectedPrices.Length == 0)
+            {
+                var productes = _product.GetAllProducts(searchValue, null, null);
+                return PartialView("ProductListingPartial", productes);
+            }
+
+            int minPrice = int.MaxValue;
+            int maxPrice = int.MinValue;
+
+            foreach (var priceRange in selectedPrices)
+            {
+                var parts = priceRange.Split('-');
+                int min = int.Parse(parts[0]);
+                int max = int.Parse(parts[1]);
+
+                if (min < minPrice)
+                {
+                    minPrice = min;
+                }
+
+                if (max > maxPrice)
+                {
+                    maxPrice = max;
+                }
+            }
+
+            var products = _product.GetAllProducts(searchValue, minPrice, maxPrice);
+
+            if (HttpContext.Session.GetInt32("CurrentCart") == null)
+            {
+                HttpContext.Session.SetInt32("CurrentCart", 0);
+            }
+
+            return PartialView("ProductListingPartial", products);
         }
 
         public IActionResult GetProductData(string searchValue, int currentPage, int pageSize, string change, bool boolvalue)
@@ -157,7 +198,7 @@ namespace DemoCrudMvc.Controllers
             return View(product);
         }
 
-        public async Task<IActionResult> ProductUpdateAsync(int id, ProductVM product,string featurePhoto)
+        public async Task<IActionResult> ProductUpdateAsync(int id, ProductVM product, string featurePhoto)
         {
             if (featurePhoto == null)
             {
@@ -166,7 +207,7 @@ namespace DemoCrudMvc.Controllers
             else
             {
 
-            product.featurePhoto=featurePhoto;
+                product.featurePhoto = featurePhoto;
             }
             ViewBag.Categorys = _product.GetAllCategories();
             if (!ModelState.IsValid)
@@ -177,7 +218,7 @@ namespace DemoCrudMvc.Controllers
                 {
                     product.FileNames.Add(file.PhotoName);
                 }
-                return View("updateProduct", product);  
+                return View("updateProduct", product);
             }
             else
             {
@@ -261,7 +302,7 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult ProductDetails(int id)
         {
-            var productDetails=_product.GetProductById(id);
+            var productDetails = _product.GetProductById(id);
             ProductVM vm = new ProductVM();
             //vm.ProductId = id;
             //vm.ProductName=productDetails.ProductName;  
@@ -271,22 +312,22 @@ namespace DemoCrudMvc.Controllers
             //vm.FileNames = productDetails.ProductPhotos..ToList();
             return View(productDetails);
         }
-        public IActionResult AddToCart()    
+        public IActionResult AddToCart()
         {
             return View();
         }
         public IActionResult GetCartDetails(int[] id)
         {
             var CartId = _product.GetCartItems(id);
-            return PartialView("CartPartial",CartId);
+            return PartialView("CartPartial", CartId);
         }
-        public IActionResult UpdateCartItem(int quantity,int totalPrice,int productId)
+        public IActionResult UpdateCartItem(int quantity, int totalPrice, int productId)
         {
-            return PartialView();   
+            return PartialView();
         }
 
         [HttpPost]
-        public IActionResult CheckOut(List<int> productID,List<int> CartPrice,List<int> CartQuantity,List<string> Cartname)
+        public IActionResult CheckOut(List<int> productID, List<int> CartPrice, List<int> CartQuantity, List<string> Cartname)
         {
             List<CartItems> cartItems = new List<CartItems>();
             for (int i = 0; i < productID.Count; i++)
@@ -294,7 +335,7 @@ namespace DemoCrudMvc.Controllers
                 CartItems cartItem = new CartItems(); // Instantiate a new CartItems object
                 cartItem.ProductId = productID[i];
                 cartItem.CartItemQuantity = CartQuantity[i];
-                cartItem.CartItemName= Cartname[i]; 
+                cartItem.CartItemName = Cartname[i];
                 cartItem.CartItemPrice = CartPrice[i];
                 cartItem.CartFileName = _product.getProductPhoto(productID[i]).FirstOrDefault().PhotoName;
 
@@ -302,12 +343,25 @@ namespace DemoCrudMvc.Controllers
             }
             return View(cartItems);
         }
-        public IActionResult PlaceOrder(string FirstName,string LastName,string Email,string Address,int ZipCode,string City,List<int> CartQuantity, List<int> CartPrice,List<int> ProductId) {
+        public IActionResult PlaceOrder(string FirstName, string LastName, string Email, string Address, int ZipCode, string City, List<int> CartQuantity, List<int> CartPrice, List<int> ProductId)
+        {
             var customerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
-            var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId);
+            var uniqNumber = Guid.NewGuid().ToString();
+            var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId, uniqNumber);
             if (orderDetails)
             {
-                if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", "Welcome "+" "+customerId.FirstName+"-"+customerId.LastName+" here You Track Your Order")){
+                var orderTrackingUrl = Url.Action("TrackOrder", "Order", new { id = uniqNumber }, protocol: HttpContext.Request.Scheme);
+
+                // Construct the HTML email body
+                var body = $@"
+    <h1>Thank you for your order!</h1>
+    <p>Your order has been successfully placed. You can track your order using the link below:</p>
+    <p><a href='{HtmlEncoder.Default.Encode(orderTrackingUrl)}'>Track your order</a></p>
+    <p>Thank you for shopping with us!</p>
+    <p>Best regards,</p>
+    <p>Your Company Name</p>";
+                if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", body))
+                {
                     return RedirectToAction("Index");
                 }
             }
@@ -318,7 +372,7 @@ namespace DemoCrudMvc.Controllers
         {
             var currentCount = HttpContext.Session.GetInt32("CurrentCart");
 
-            
+
             // Increment the CartCount by one
             ViewBag.CartCount = currentCount + 1;
             HttpContext.Session.SetInt32("CurrentCart", (int)(currentCount + 1));

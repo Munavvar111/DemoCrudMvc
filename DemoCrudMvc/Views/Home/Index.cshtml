@@ -58,82 +58,68 @@
         });
     </script>
 }
-<div class="container-fluid mt-3">
-    <div class="mt-5">
+<div class="container-fluid mt-3 row bg-white">
+    @* <div class="col-md-12 row">
+    <div class="col-md-4">
+    <span>hii</span>
     </div>
-    <div class="container-fluid mt-4 ">
-       
-        <div class=" row gap-3">
-            @foreach (var product in Model)
-            {
-                <div class="d-flex flex-column border border-2 rounded-2  shadow-lg col-md-6" style="width:250px;">
-                    <div class="card-image  ">
-                        <div class="image-slider " id="slider-@product.ProductId">
-                            @foreach (var photo in product.ProductPhotos)
-                            {
-                                <img class="slider-image @(photo == product.ProductPhotos.First() ? "active" : "")" src="~/uploads/@photo.PhotoName" alt="@product.ProductName">
-                            }
-                        </div>
-                    </div>
-                    <div class="card-inner p-3">
-                        @* <input type="text" asp-for="@"> *@
-                        <span class="text-muted">@product.Category.CategoryName</span>
-                        <h5 class="mb-0">@product.ProductName</h5>
-                        <div class="price mt-2">
-                            <span class="text-primary">$@product.Price</span>
-                        </div>
-                        <div class="mt-3 d-flex justify-content-between align-items-center">
-                            <a class="btn btn-success text-uppercase btn-sm details fw-bolder" asp-action="ProductDetails" asp-controller="Home" asp-route-id="@product.ProductId">Details</a>
-                            <div class="d-flex flex-row">
-                                @if (product.Quantity == 0)
-                                {
-                                 <span class="text-danger ">Its Out Of Stocks</span>   
-                                }
-                                else
-                                {
-                                    <span class="bg-success  d-flex justify-content-center align-items-center fs-4 rounded-circle pe-auto cart"  onclick="ChangeCart(@product.ProductId)"><i class="fa fa-shopping-cart text-white"></i></span>
+    <div class="col-md-8 bg-white">
 
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+    <h4>Product Listing</h4>
+    </div>
+    </div> *@
+    <div class="col-md-2 border-end border-md-end-none">
+        <div class="p-3 d-flex gap-3 align-items-center">
+
+            <span class="material-symbols-outlined  fs-3 border rounded-circle p-2 bg-light">
+                filter_alt
+            </span>
+            <span class="fw-bolder">Filter</span>
         </div>
+        <div class="mt-3">
+            <h5>Price</h5>
+            <input type="checkbox" id="price_range_1" value="0-100">
+            <label for="price_range_1">$0 - $100</label><br>
+
+            <input type="checkbox" id="price_range_2" value="100-200">
+            <label for="price_range_2">$100 - $200</label><br>
+
+            <input type="checkbox" id="price_range_3" value="200-500">
+            <label for="price_range_3">$200 - $500</label><br>
+
+             <input type="checkbox" id="price_range_4" value="500-1000">
+            <label for="price_range_4">$500 - $1000</label><br>
+
+             <input type="checkbox" id="price_range_5" value="1000-2222222">
+            <label for="price_range_5">$1000+</label><br>
+
+
+        </div>
+
+    </div>
+    <div class="col-md-10 bg-white">
+        <div class="d-flex justify-content-between">
+            <h4>Product Listing<span class="text-muted fw-bolder">(@ViewBag.Count)  </span></h4>
+            <div class="input-group input-group-height w-25">
+
+                <input class="form-control" type="search" placeholder="Search Products" aria-label="Search" id="searchInput">
+            </div>
+        </div>
+
+        <div id="ProductListingPartial"></div>
+
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const sliders = document.querySelectorAll('.image-slider');
-        sliders.forEach(slider => {
-            let currentIndex = 0;
-            const images = slider.querySelectorAll('.slider-image');
-            const totalImages = images.length;
-
-            setInterval(() => {
-                images[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % totalImages;
-                images[currentIndex].classList.add('active');
-            }, 4000);
-        });
-    });
-</script>
 
 <script>
-
     function ChangeCart(product) {
-
-        
         let cart = JSON.parse(localStorage.getItem('productId'));
-
         if (!Array.isArray(cart)) {
             cart = [];
         }
-
         const productIndex = cart.findIndex(item => item === product);
         console.log(productIndex)
-
         if (productIndex === -1) {
             cart.push(product);
             localStorage.setItem('productId', JSON.stringify(cart));
@@ -152,32 +138,6 @@
                 'Your Product  has been Already  Send In Cart.',
                 'success'
             )
-        }
-    }
-    function incrementQuantity(productId, maxQuantity) {
-        console.log(maxQuantity)
-        var quantityInput = document.getElementById('quantity-' + productId);
-        var incrementButton = document.getElementById('increment-btn-' + productId);
-        var QuantityError = document.getElementById('quantityProduct-' + productId);
-        var currentQuantity = parseInt(quantityInput.value);
-
-        if (currentQuantity < maxQuantity) {
-            quantityInput.value = currentQuantity + 1;
-            if (currentQuantity + 1 >= maxQuantity) {
-                incrementButton.disabled = true;
-
-            }
-        }
-    }
-
-    function decrementQuantity(productId) {
-        var quantityInput = document.getElementById('quantity-' + productId);
-        var incrementButton = document.getElementById('increment-btn-' + productId);
-        var currentQuantity = parseInt(quantityInput.value);
-
-        if (currentQuantity > 0) {
-            quantityInput.value = currentQuantity - 1;
-            incrementButton.disabled = false;
         }
     }
 </script>
@@ -202,4 +162,47 @@
         var modalImage = myModal.querySelector('#modalImage');
         modalImage.src = imagePath + imageFilename;
     });
+</script>
+<script>
+    $(document).ready(function () {
+        filterTable()
+    });
+
+    const debounce = (func, delay) => {
+        let debounceTimer;
+        return function () {
+            const context = this;
+            const args = arguments;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+        };
+    };
+    $("#searchInput").on("input", debounce(function () {
+        console.log("inputchange")
+        filterTable();
+    }, 500));
+    function handleCheckboxChange() {
+        filterTable();
+    }
+
+    $("input[type='checkbox']").change(debounce(handleCheckboxChange, 500));
+
+    function filterTable() {
+        var searchValue = $("#searchInput").val();
+
+        var selectedPrices = [];
+        $("input[type='checkbox']:checked").each(function () {
+            selectedPrices.push($(this).val());
+        });
+        console.log(selectedPrices)
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetProductListing",
+            traditional: true,
+            data: { searchValue: searchValue, selectedPrices: selectedPrices },
+            success: function (data) {
+                $('#ProductListingPartial').html(data);
+            }
+        });
+    }
 </script>

@@ -58,24 +58,32 @@
 
 </style>
 
-<div class="container mt-5 mb-5 bg-white shadow-lg">
-    
-    <div class="custom-product-card ">
-        <div class="card-body ">
-            <div class="row gap-3">
+<div class="container-fluid ">
+    <div class="d-flex justify-content-between mt-3 mx-3">
+        <h4>Product Details Page</h4>
+        <div class="d-flex justify-content-end">
+            <a asp-controller="Home" asp-action="Index" asp-area=""
+               class="btn btn-outline-info d-flex align-items-center">
+                <span class="material-symbols-outlined"> chevron_left </span> Back
+            </a>
+        </div>
+    </div>
+    <div class="container-fluid  p-3 custom-product-card bg-white shadow-lg">
+        <div class="card-body">
+            <div class="row gap-5">
                 <div class="col-md-2">
-                    <div class="d-flex flex-column gap-3    ">
+                    <div class="d-flex flex-row flex-md-column gap-3 flex-wrap">
                         @foreach (var item in Model.ProductPhotos)
                         {
                             <div class="thumbnail" onclick="SetMainImage('@Url.Content("~/uploads/" + @item.PhotoName)')">
-                                <img src="~/uploads/@item.PhotoName" width="50" />
+                                <img src="~/uploads/@item.PhotoName" width="100" />
                             </div>
                         }
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 bg-light d-flex align-items-center justify-content-center">
                     <div class="image-gallery">
-                        <img id="mainImage" src="~/uploads/@Model.FeaturePhoto" width="400" onclick="OpenModal()" />
+                        <img id="mainImage" src="~/uploads/@Model.FeaturePhoto" width="800" onclick="OpenModal()" class="img-fluid" />
                     </div>
                 </div>
                 <div class="col-md-5 mx-3 bg-white">
@@ -84,8 +92,8 @@
                         <div class="product-description">@Html.Raw(@Model.Description)</div>
                         <div class="product-price">Price: $@Model.Price</div>
                         @* <div class="product-quantity">
-                            Quantity:
-                            <input type="number" id="quantity" name="quantity" value="1" min="1">
+                        Quantity:
+                        <input type="number" id="quantity" name="quantity" value="1" min="1">
                         </div> *@
                         @if (Model.Quantity == 0)
                         {
@@ -93,8 +101,8 @@
                         }
                         else
                         {
-                            
-                        <button class="btn btn-warning  fw-bolder mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
+
+                            <button class="btn btn-warning  fw-bolder mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
                         }
                     </div>
                 </div>
@@ -111,7 +119,7 @@
         console.log(ProductId)
         let cart = JSON.parse(localStorage.getItem('productId'));
 
-        
+
         if (!Array.isArray(cart)) {
             cart = [];
         }
@@ -129,14 +137,14 @@
                 }
             })
         }
-        window.location='/Home/AddToCart'
+        window.location = '/Home/AddToCart'
     }
     document.addEventListener('DOMContentLoaded', (event) => {
         function SetMainImage(imageSrc) {
             document.getElementById('mainImage').src = imageSrc;
         }
 
-        
+
 
         function OpenModal() {
             const mainImageSrc = document.getElementById('mainImage').src;
@@ -149,7 +157,7 @@
             carouselItems.each(function (index, element) {
                 console.log($(element).find('img').attr('src'))
                 if ($(element).find('img').attr('src') === modifiedUrl) {
-                console.log("hiifromhere")
+                    console.log("hiifromhere")
                     $(element).addClass('active');
                 }
             });

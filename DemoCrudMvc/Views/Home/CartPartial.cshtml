@@ -2,175 +2,225 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <style>
-	.cart-item {
-		display: flex;
-		align-items: center;
-		padding: 10px;
-		border-bottom: 1px solid #ddd;
-	}
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
 
-		.cart-item img {
-			width: 100px;
-			height: auto;
-			margin-right: 20px;
-		}
+        .cart-item img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
 
 </style>
 
-<div class="container mt-5 bg-white">
-	<h2 class="text-muted">Shopping Cart</h2>
-	@if (Model.Count > 0)
-	{
+<div class="container mt-5 ">
+   
+    @if (Model.Count > 0)
+    {
 
-		<form asp-action="CheckOut" method="post">
+        <form asp-action="CheckOut" method="post" class="row">
 
-			<div id="cart-items">
+            <div id="cart-items" class="col-md-6  row gap-3">
 
-				@foreach (var item in Model)
-				{
-					<div class="cart-item d-flex justify-content-between align-items-center" data-product-id="@item.ProductId">
-						<div class="d-flex">
-							<div>
-								<img src="~/uploads/@item.CartFileName" alt="@item.CartFileName" />
-							</div>
-							<div class="d-flex flex-column justify-content-between">
-								<input type="text" type="hidden" asp-for="@item.CartItemName" name="Cartname">
-								<input type="hidden" asp-for="@item.ProductId" name="productID">
-								<input class="d-none" asp-for="@item.CartItemPrice" name="CartPrice" id="cartPrice-@item.ProductId" />
-								<h4>@item.CartItemName</h4>
-								<div class="quantity-control d-flex align-items-center">
-												<span class="text-muted fw-bolder">Qty:</span>
-									<select name="CartQuantity" class="quantity-select" id="quantity-@item.ProductId" onchange="updateQuantity('@item.ProductId', this.value, @item.CartMaxQuantity, @item.CartItemPrice)">
-										@{
-											for (int i = 1; i <= 10; i++)
-											{
-												<option value="@i">@i</option>
-											}
-										}
-									</select>
-								</div>
-							</div>
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-12 gap-3 bg-white">
 
-							<div class="d-flex align-items-end mx-3 justify-content-end" >
-							</div>
-						</div>
-						<div class="d-flex flex-column">
-							<div class="d-flex justify-content-end" onclick="RemoveFromCard(@item.ProductId)">
+                    
+                    <div class="cart-item d-flex justify-content-between align-items-center" data-product-id="@item.ProductId">
+                        <div class="d-flex">
+                            <div>
+                                <img src="~/uploads/@item.CartFileName" alt="@item.CartFileName" />
+                            </div>
+                            <div class="d-flex flex-column justify-content-between">
+                                <input type="text" type="hidden" asp-for="@item.CartItemName" name="Cartname">
+                                <input type="hidden" asp-for="@item.ProductId" name="productID">
+                                <input class="d-none" asp-for="@item.CartItemPrice" name="CartPrice" id="cartPrice-@item.ProductId" />
+                                <h4>@item.CartItemName</h4>
+                                <div class="quantity-control d-flex align-items-center">
+                                    <span class="text-muted fw-bolder">Qty:</span>
+                                    <select name="CartQuantity" class="quantity-select" id="quantity-@item.ProductId" onchange="updateQuantity('@item.ProductId', this.value, @item.CartMaxQuantity, @item.CartItemPrice)">
+                                        @{
+                                            for (int i = 1; i <= 10; i++)
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
 
-								<i class="fa fa-trash text-danger fs-3" aria-hidden="true"></i><span> </span>
-							</div>
-							<div>
-								<span class="d-flex justify-content-end">Price:</span>
-								<span id="price-@item.ProductId" class="fw-bolder">$@item.CartItemPrice</span>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-			<div class="mt-4 d-flex justify-content-end">
+                            <div class="d-flex align-items-end mx-3 justify-content-end">
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <div class="d-flex justify-content-end" onclick="RemoveFromCard(@item.ProductId)">
 
-				<button class="btn btn-warning fw-bolder mb-3" type="submit">Proceed to Checkout</button>
+                                <i class="fa fa-trash text-danger fs-3" aria-hidden="true"></i><span> </span>
+                            </div>
+                            <div>
+                                <span class="d-flex justify-content-end">Price:</span>
+                                <span id="price-@item.ProductId" class="fw-bolder">$@item.CartItemPrice</span>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                }
+            <div class="mt-4 d-flex justify-content-end">
 
-			</div>
-		</form>
-	}
+                <button class="btn btn-warning fw-bolder mb-3" type="submit">Proceed to Checkout</button>
 
-	else
-	{
+            </div>
+            </div>
+            <div class="col-md-6">
+                <div class=" bg-white">
+                    <span>Total </span>
+                    <span id="total-price"></span>
+                </div>
+            </div>
+        </form>
+    }
 
-		<div>
-			<span>Your Cart Is Empty Go Back For Shopping</span>
-		</div>
-	}
+    else
+    {
+
+        <div style="text-align: center; padding: 20px;">
+            <img src="~/download.png" alt="Empty Cart" style="width: 200px; height: 200px;">
+            <h2 style="margin-top: 20px; font-weight: bold; color: #333;">Your Shopping Cart is Empty</h2>
+            <p style="font-size: 16px; color: #666; margin-top: 10px;">Looks like you haven't added anything to your cart yet.</p>
+            <p style="font-size: 16px; color: #666;">Start shopping now to find the perfect items for you!</p>
+            <a class="btn btn-primary" asp-action="Index" asp-controller="Home">Browse Products</a>
+        </div>
+
+    }
 </div>
 
 <script>
-	function RemoveFromCard(productId) {
-		console.log(productId)
-		let cart = JSON.parse(localStorage.getItem('productId'));
+    function RemoveFromCard(productId) {
+        console.log(productId)
+        let cart = JSON.parse(localStorage.getItem('productId'));
 
 
-		cart = cart.filter(item => item !== productId);
+        cart = cart.filter(item => item !== productId);
 
-		localStorage.setItem('productId', JSON.stringify(cart));
+        localStorage.setItem('productId', JSON.stringify(cart));
 
-		location.reload()
+        location.reload()
 
-	}
-
-
-	// function increaseQuantity(productId, maxQuantity, itemPrice) {
-	//     const quantityElement = document.getElementById(`quantity-${productId}`);
-	//     let quantity = parseInt(quantityElement.textContent, 10);
-	//     quantity += 1;
-	//     const quantityInput = document.getElementById(`cartQuantity-${productId}`);
-	//     quantityInput.value = quantity;
-
-	//     console.log(quantityInput)
-	//     if (quantity >= maxQuantity) {
-	//         quantity = maxQuantity;
-	//         document.getElementById(`increase-${productId}`).disabled = true;
-	//     } else {
-	//         document.getElementById(`increase-${productId}`).disabled = false;
-	//     }
-
-	//     document.getElementById(`decrease-${productId}`).disabled = quantity <= 1;
-	//     quantityElement.textContent = quantity;
-
-	//     // Update price
-	//     const priceElement = document.getElementById(`price-${productId}`);
-	//     const totalPrice = (quantity * itemPrice).toFixed(2);
-	//     var UpdatedPrice = document.getElementById(`cartPrice-${productId}`).value
-	//     UpdatedPrice = totalPrice;
-	//     console.log(UpdatedPrice)
-	//     priceElement.textContent = totalPrice;
+    }
 
 
-	// }
+    // function increaseQuantity(productId, maxQuantity, itemPrice) {
+    //     const quantityElement = document.getElementById(`quantity-${productId}`);
+    //     let quantity = parseInt(quantityElement.textContent, 10);
+    //     quantity += 1;
+    //     const quantityInput = document.getElementById(`cartQuantity-${productId}`);
+    //     quantityInput.value = quantity;
 
-	// function decreaseQuantity(productId, maxQuantity, itemPrice) {
-	//     const quantityElement = document.getElementById(`quantity-${productId}`);
-	//     let quantity = parseInt(quantityElement.textContent, 10);
-	//     quantity -= 1;
-	//     var UpdatedQuantity = document.getElementById(`cartQuantity-${productId}`).value
+    //     console.log(quantityInput)
+    //     if (quantity >= maxQuantity) {
+    //         quantity = maxQuantity;
+    //         document.getElementById(`increase-${productId}`).disabled = true;
+    //     } else {
+    //         document.getElementById(`increase-${productId}`).disabled = false;
+    //     }
 
-	//     UpdatedQuantity = quantity;
-	//     if (quantity <= 1) {
-	//         quantity = 1;
-	//         document.getElementById(`decrease-${productId}`).disabled = true;
-	//     } else {
-	//         document.getElementById(`decrease-${productId}`).disabled = false;
-	//     }
+    //     document.getElementById(`decrease-${productId}`).disabled = quantity <= 1;
+    //     quantityElement.textContent = quantity;
 
-	//     document.getElementById(`increase-${productId}`).disabled = quantity >= maxQuantity;
-	//     quantityElement.textContent = quantity;
-
-	//     // Update price
-	//     const priceElement = document.getElementById(`price-${productId}`);
-	//     const totalPrice = (quantity * itemPrice).toFixed(2);
-	//     var UpdatedPrice = document.getElementById(`cartPrice-${productId}`).value
-	//     UpdatedPrice = totalPrice;
-	//     priceElement.textContent = totalPrice;
-	// }
-	function updateQuantity(productId, quantity, maxQuantity, price) {
-		quantity = parseInt(quantity);
-		maxQuantity = parseInt(maxQuantity);
-
-		if (quantity > maxQuantity) {
-			// Adjust quantity to maxQuantity if selected quantity exceeds maxQuantity
-			document.getElementById('quantity-' + productId).value = maxQuantity;
-			quantity = maxQuantity;
-		}
-
-		console.log('Product ID:', productId);
-		console.log('Selected Quantity:', quantity);
-		console.log('Max Quantity:', maxQuantity);
-		console.log('Price:', price);
-
-		const totalPrice = quantity * price;
-		document.getElementById('price-' + productId).innerText = totalPrice.toFixed(2);
-	}
+    //     // Update price
+    //     const priceElement = document.getElementById(`price-${productId}`);
+    //     const totalPrice = (quantity * itemPrice).toFixed(2);
+    //     var UpdatedPrice = document.getElementById(`cartPrice-${productId}`).value
+    //     UpdatedPrice = totalPrice;
+    //     console.log(UpdatedPrice)
+    //     priceElement.textContent = totalPrice;
 
 
+    // }
+
+    // function decreaseQuantity(productId, maxQuantity, itemPrice) {
+    //     const quantityElement = document.getElementById(`quantity-${productId}`);
+    //     let quantity = parseInt(quantityElement.textContent, 10);
+    //     quantity -= 1;
+    //     var UpdatedQuantity = document.getElementById(`cartQuantity-${productId}`).value
+
+    //     UpdatedQuantity = quantity;
+    //     if (quantity <= 1) {
+    //         quantity = 1;
+    //         document.getElementById(`decrease-${productId}`).disabled = true;
+    //     } else {
+    //         document.getElementById(`decrease-${productId}`).disabled = false;
+    //     }
+
+    //     document.getElementById(`increase-${productId}`).disabled = quantity >= maxQuantity;
+    //     quantityElement.textContent = quantity;
+
+    //     // Update price
+    //     const priceElement = document.getElementById(`price-${productId}`);
+    //     const totalPrice = (quantity * itemPrice).toFixed(2);
+    //     var UpdatedPrice = document.getElementById(`cartPrice-${productId}`).value
+    //     UpdatedPrice = totalPrice;
+    //     priceElement.textContent = totalPrice;
+    // }
+    function updateQuantity(productId, quantity, maxQuantity, price) {
+        quantity = parseInt(quantity);
+        maxQuantity = parseInt(maxQuantity);
+
+        if (quantity > maxQuantity) {
+            // Adjust quantity to maxQuantity if selected quantity exceeds maxQuantity
+            document.getElementById('quantity-' + productId).value = maxQuantity;
+            quantity = maxQuantity;
+        }
+
+        console.log('Product ID:', productId);
+        console.log('Selected Quantity:', quantity);
+        console.log('Max Quantity:', maxQuantity);
+        console.log('Price:', price);
+
+        const totalPrice = quantity * price;
+        document.getElementById('price-' + productId).innerText = totalPrice.toFixed(2);
+
+        var total = 0;
+
+        // Iterate through each price element
+        var priceElements = document.querySelectorAll('[id^="price-"]');
+        priceElements.forEach(function (element) {
+            // Extract price from element text and add it to total
+            var price = parseFloat(element.innerText);
+            total += price;
+        });
+        console.log(price)
+        // Round total to 2 decimal places
+        var totalFormatted = total.toFixed(2);
+
+        // Set the total price to the desired element
+        document.getElementById('total-price').innerText = totalFormatted;
+    }
+    var total = 0;
+
+    // Iterate through each price element
+    var priceElements = document.querySelectorAll('[id^="price-"]');
+    
+    priceElements.forEach(function (element) {
+        // Extract price from element text and add it to total
+        var priceWithoutDollarSign = element.innerText.replace('$', '');
+        var price = parseFloat(priceWithoutDollarSign);
+        console.log(element.innerText)
+
+        console.log(typeof(price)); // Output: "12311"
+
+        total += price;
+    });
+    console.log(total)
+    // Round total to 2 decimal places
+    var totalFormatted = total.toFixed(2);
+
+    // Set the total price to the desired element
+    document.getElementById('total-price').innerText = totalFormatted;
 
 </script>

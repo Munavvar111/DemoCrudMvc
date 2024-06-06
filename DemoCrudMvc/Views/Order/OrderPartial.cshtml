@@ -21,6 +21,7 @@
                 {
                     foreach (var item in Model)
                     {
+                        
 
 
                         <tr class="align-middle">
@@ -28,7 +29,7 @@
                             <td>@item.OrderDate</td>
                             <td>@item.CustomerName</td>
                             <td>@item.Address</td>
-                            <td>@item.Status</td>
+                            <td>@item.CureentStatus</td>
                             <td><a class="btn btn-dark fw-bolder text-white" asp-route-id="@item.UniqOrderId" asp-action="OrderDetails">Order Details</a></td>
                         </tr>
 

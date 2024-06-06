@@ -1,6 +1,7 @@
 using BAL.Interface;
 using BAL.Repositry;
 using DAL.DataContext;
+using Rotativa.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseRotativa();
 
 app.UseRouting();
 app.UseSession();

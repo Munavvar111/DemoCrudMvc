@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BAL.Repositry
 {
-    public class OrderRepo:IOrder
+    public class OrderRepo : IOrder
     {
         private readonly ApplicationDbContext _context;
 
@@ -19,22 +19,31 @@ namespace BAL.Repositry
         {
             _context = context;
         }
-        public List<OrderVM> GetOrderDetails(string SearchValue,string change,bool boolValue)
+        public List<OrderVM> GetOrderDetails(string SearchValue, string change, bool boolValue)
         {
 
-            var ordersDetail = _context.OrderProducts.Include(item=>item.Customer).Select(item => new OrderVM
+            var ordersDetail = _context.OrderProducts.Include(item => item.Customer).Select(item => new OrderVM
             {
                 CustomeId = item.CustomerId,
-                UniqOrderId=item.OrderUniqId,
-                Address=item.Customer.Address,
-                CustomerName=item.Customer.FirstName+"-"+item.Customer.LastName,
-                OrderDate=_context.Orders.FirstOrDefault(items=>items.UniqOrderId==item.OrderUniqId).OrderDate,
-                Status=_context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).Status,
-
+                UniqOrderId = item.OrderUniqId,
+                Address = item.Customer.Address,
+                CustomerName = item.Customer.FirstName + "-" + item.Customer.LastName,
+                OrderDate = _context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).OrderDate,
+                Status = _context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).Status,
             }).ToList();
-                              
-                               
-            return ordersDetail;
+
+            foreach (var order in ordersDetail)
+            {
+                if (order.Status != null)
+                {
+                    var status = _context.OrderStatuses.FirstOrDefault(s => s.StatusId == order.Status);
+                    if (status != null)
+                    {
+                        order.CureentStatus = status.StatusName;
+                    }
+                }
+            }
+                return ordersDetail;
         }
 
         public List<OrderVM> OrderDetailsById(string OrderId)
@@ -47,21 +56,57 @@ namespace BAL.Repositry
                 CustomerName = item.Customer.FirstName + "-" + item.Customer.LastName,
                 ProductName = item.Product.ProductName,
                 ProductId = item.Product.ProductId,
-                FileName=item.Product.FeaturePhoto,
-                Price= item.OrderPrice,   
+                FileName = item.Product.FeaturePhoto,
+                UniqOrderId = item.UniqOrderId,
+                Price = item.OrderPrice,
                 Quantity = item.OrderQuantity,
                 Status = item.Status,
                 CureentStatus = _context.OrderStatuses.FirstOrDefault(items => items.StatusId == item.Status).StatusName,
                 CustomeId = item.CustomerId,
-                CustomerCity=item.Customer.City,
-                StatusLog=_context.OrderStatusLogs.Where(item=>item.UniqOrderId==OrderId).ToList()
+                CustomerCity = item.Customer.City,
+                StatusLog = _context.OrderStatusLogs.Where(item => item.UniqOrderId == OrderId).ToList()
             }).ToList();
             return a;
         }
 
         public List<OrderStatus> GetAllStatus()
         {
-            return _context.OrderStatuses.ToList(); 
+            return _context.OrderStatuses.ToList();
+        }
+
+        public bool IsUpdateOrderStatus(string OrderUniqId, int OrderStatus)
+        {
+            var orders = _context.Orders.Where(o => o.UniqOrderId == OrderUniqId).ToList();
+            if (orders.First().Status != OrderStatus)
+            {
+                if (!orders.Any())
+                {
+                    // No orders found
+                    return false;
+                }
+
+                // Update the OrderStatus for each order
+                foreach (var order in orders)
+                {
+
+                    order.Status = OrderStatus;
+                    _context.Orders.Update(order);
+                    _context.SaveChanges();
+                }
+
+                OrderStatusLog orderStatusLog = new OrderStatusLog();
+                orderStatusLog.OrderStatus = OrderStatus;
+                orderStatusLog.UniqOrderId = OrderUniqId;
+                orderStatusLog.UpDatedDate = DateTime.Now;
+                _context.OrderStatusLogs.Add(orderStatusLog);
+                _context.SaveChanges();
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

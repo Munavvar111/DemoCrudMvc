@@ -34,12 +34,12 @@ namespace BAL.Interface
 
         public bool IsRestore(int id);
 
-        public List<Product> GetAllProducts();
+        public IEnumerable<Product> GetAllProducts(string searchValue,int? maxValue,int? minValue);
 
         public List<CartItems> GetCartItems(int[] id);
 
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City);
 
-        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId);
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string uniqNumber);
     }
 }

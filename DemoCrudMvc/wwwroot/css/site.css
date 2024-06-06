@@ -228,16 +228,7 @@ body {
     background-color: #f9f9fa
 }
 
-@media (min-width:992px) {
-    .page-container {
-        max-width: 1140px;
-        margin: 0 auto
-    }
 
-    .page-sidenav {
-        display: block !important
-    }
-}
 
 .padding {
     padding: 2rem

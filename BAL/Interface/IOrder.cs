@@ -15,5 +15,7 @@ namespace BAL.Interface
         public List<OrderVM> OrderDetailsById(string id);     
 
         public List<OrderStatus> GetAllStatus();
+
+        public bool IsUpdateOrderStatus(string OrderUniqId, int OrderStatus);
     }
 }
