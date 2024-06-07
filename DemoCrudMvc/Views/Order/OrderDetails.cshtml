@@ -181,32 +181,35 @@
 						{
 								var status = "";
 
-
+							@switch (item.OrderStatus)
+							{
+								case 1:
+									status = "OrderPlacement";
+									break;
+								case 2:
+									status = "Picking";
+									break;
+								case 3:
+									status = "Sorting";
+									break;
+								case 4:
+									status = "Packing";
+									break;
+								case 5:
+									status = "Shipping";
+									break;
+								case 6:
+									status = "Delivering";
+									break;
+								default:
+									status = "Unknown status.";
+									break;
+							}
 							<tr class="align-middle">
 								<td>@item.UniqOrderId</td>
-								<td>@item.UpDatedDate</td>
+								<td>@item.UpDatedDate.ToString("dd-MMM-yyyy")</td>
 
-								@switch (item.OrderStatus)
-								{
-								case 1:
-										status = "OrderPlacement";
-								break;
-								case 2:
-							status = "Picking";
-								break;
-								case 3:
-								status= "Sorting";
-								break;
-								case 4:
-								status= "Shipping";
-								break;
-								case 5:
-								status= "Delivering";
-								break;
-								default:
-								status = "Unknown status.";
-								break;
-								}
+								
 								<td>@status</td>
 
 							</tr>

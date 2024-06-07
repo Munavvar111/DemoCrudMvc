@@ -68,7 +68,7 @@
             </a>
         </div>
     </div>
-    <div class="container-fluid  p-3 custom-product-card bg-white shadow-lg">
+    <div class="container-fluid p-3 custom-product-card bg-white shadow-lg">
         <div class="card-body">
             <div class="row gap-5">
                 <div class="col-md-2">
@@ -91,54 +91,151 @@
                         <div class="product-name">@Model.ProductName</div>
                         <div class="product-description">@Html.Raw(@Model.Description)</div>
                         <div class="product-price">Price: $@Model.Price</div>
-                        @* <div class="product-quantity">
-                        Quantity:
-                        <input type="number" id="quantity" name="quantity" value="1" min="1">
-                        </div> *@
-                        @if (Model.Quantity == 0)
-                        {
-                            <span class="text-danger">Its Out Of Stocks</span>
-                        }
-                        else
-                        {
-
-                            <button class="btn btn-warning  fw-bolder mt-3" onclick="addToCart(@Model.ProductId)">Add to Cart</button>
-                        }
+                        <div id="quantity-controls" class="quantity-controls d-none">
+                            <button class="btn btn-outline-secondary" onclick="decrementQuantity()">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span id="quantity" class="quantity-display">1</span>
+                            <button class="btn btn-outline-secondary" onclick="incrementQuantity()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <button id="add-to-cart" class="btn btn-warning fw-bolder mt-3" onclick="addToCart('@Model.ProductId')">Add to Cart</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-<!-- Modal for displaying the image carousel -->
+<script>
+    $(document).ready(function () {
+        updateUIFromLocalStorage();
+        updateAddToCartButton();
+    });
+
+    function toggleQuantityControls() {
+        $('#quantity-controls').toggleClass('d-none');
+        $('#add-to-cart').toggleClass('d-none');
+        if (!$('#quantity-controls').hasClass('d-none')) {
+            updateUIFromLocalStorage();
+        }
+    }
+
+    function updateUIFromLocalStorage() {
+        console.log("hji")
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        let productId = '@Model.ProductId';
+        console.log(productId)
+        if (cart[productId]) {
+            console.log("jo")
+
+            let quantity = cart[productId];
+            $('#quantity').text(quantity); 
+        }
+    }
+
+    function incrementQuantity() {
+        let quantityElement = document.getElementById('quantity');
+        let currentQuantity = parseInt(quantityElement.textContent);
+        quantityElement.textContent = currentQuantity + 1;
+        updateLocalStorage();
+       
+    }
+
+    function decrementQuantity() {
+        let quantityElement = document.getElementById('quantity');
+        let currentQuantity = parseInt(quantityElement.textContent);
+        if (currentQuantity > 1) {
+            quantityElement.textContent = currentQuantity - 1;
+            updateLocalStorage();
+        } else {
+            let productId = '@Model.ProductId';
+            let cart = JSON.parse(localStorage.getItem('cart')) || {};
+            delete cart[productId];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            toggleQuantityControls();
+            var products = JSON.parse(localStorage.getItem('cart'));
+            console.log(products)
+            var count = products ? Object.keys(products).length : 0;
+            console.log(count)
+            $('#cartCount').text(count);
+            
+        }
+       
+    }
+
+    function updateLocalStorage() {
+        let productId = '@Model.ProductId';
+        let quantity = parseInt($('#quantity').text());
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        cart[productId] = quantity;
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+ 
+    function addToCart(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        let currentQuantity = cart[productId] || 0;
+        if (currentQuantity === 0) {
+            cart[productId] = 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        var products = JSON.parse(localStorage.getItem('cart'));
+        console.log(products)
+        var count = products ? Object.keys(products).length : 0;
+        console.log(count)
+        $('#cartCount').text(count);
+      
+        toggleQuantityControls();
+        updateAddToCartButton();
+    }
+    function updateAddToCartButton() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        let productId = '@Model.ProductId';
+        if (cart[productId]) {
+            $('#add-to-cart').addClass('d-none');
+            $('#quantity-controls').removeClass('d-none');
+            let quantity = cart[productId];
+            $('#quantity').text(quantity);
+        } else {
+            $('#add-to-cart').removeClass('d-none');
+            $('#quantity-controls').addClass('d-none');
+            $('#quantity').text('1');
+        }
+
+    }
+
+</script>
+
 
 
 <script>
-    function addToCart(ProductId) {
-        console.log(ProductId)
-        let cart = JSON.parse(localStorage.getItem('productId'));
+    // function addToCart(ProductId) {
+    //     console.log(ProductId)
+    //     let cart = JSON.parse(localStorage.getItem('cart'));
 
 
-        if (!Array.isArray(cart)) {
-            cart = [];
-        }
-        const productIndex = cart.findIndex(item => item === ProductId);
-        if (productIndex === -1) {
-            cart.push(ProductId);
-            localStorage.setItem('productId', JSON.stringify(cart));
-            $.ajax({
-                method: "POST",
-                url: "/Home/CartViewBag",
-                success: function (data) {
-                    var products = JSON.parse(localStorage.getItem('productId'));
-                    var count = products ? products.length : 0;
-                    $('#cartCount').text(count);
-                }
-            })
-        }
-        window.location = '/Home/AddToCart'
-    }
+    //     if (!Array.isArray(cart)) {
+    //         cart = [];
+    //     }
+    //     const productIndex = cart.findIndex(item => item === ProductId);
+    //     if (productIndex === -1) {
+    //         cart.push(ProductId);
+    //         localStorage.setItem('productId', JSON.stringify(cart));
+    //         $.ajax({
+    //             method: "POST",
+    //             url: "/Home/CartViewBag",
+    //             success: function (data) {
+    //                 var products = JSON.parse(localStorage.getItem('cart'));
+    //                 var count = products ? products.length : 0;
+    //                 $('#cartCount').text(count);
+    //             }
+    //         })
+    //     }
+    //     window.location = '/Home/AddToCart'
+    // }
     document.addEventListener('DOMContentLoaded', (event) => {
         function SetMainImage(imageSrc) {
             document.getElementById('mainImage').src = imageSrc;

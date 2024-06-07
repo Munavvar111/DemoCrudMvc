@@ -23,7 +23,11 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult Index()
         {
-            //var product=_product.GetAllProducts();
+            var email = HttpContext.Session.GetString("email");
+            if (email != null)
+            {
+                return RedirectToAction("Product");
+            }
             var product = _product.GetAllProducts("", null, null);
             ViewBag.Count = product.Count();
             var a = HttpContext.Session.GetInt32("CurrentCart");
@@ -304,22 +308,17 @@ namespace DemoCrudMvc.Controllers
         {
             var productDetails = _product.GetProductById(id);
             ProductVM vm = new ProductVM();
-            //vm.ProductId = id;
-            //vm.ProductName=productDetails.ProductName;  
-            //vm.featurePhoto=productDetails.FeaturePhoto;
-            //vm.ProductDescription = productDetails.Description;
-            //vm.CategoryName = productDetails.Category.CategoryName;
-            //vm.FileNames = productDetails.ProductPhotos..ToList();
             return View(productDetails);
         }
         public IActionResult AddToCart()
         {
             return View();
         }
-        public IActionResult GetCartDetails(int[] id)
+        public IActionResult GetCartDetails([FromBody] Dictionary<string, int> cart)
         {
-            var CartId = _product.GetCartItems(id);
-            return PartialView("CartPartial", CartId);
+            //int[] a = 21;
+            var CartId = _product.GetCartItems(cart);
+            return PartialView("CartPartial",CartId);
         }
         public IActionResult UpdateCartItem(int quantity, int totalPrice, int productId)
         {
@@ -327,14 +326,14 @@ namespace DemoCrudMvc.Controllers
         }
 
         [HttpPost]
-        public IActionResult CheckOut(List<int> productID, List<int> CartPrice, List<int> CartQuantity, List<string> Cartname)
+        public IActionResult CheckOut(List<int> productID, List<int> CartPrice, List<int> CartQuantity, List<string> Cartname,List<int> quantity)
         {
             List<CartItems> cartItems = new List<CartItems>();
             for (int i = 0; i < productID.Count; i++)
             {
                 CartItems cartItem = new CartItems(); // Instantiate a new CartItems object
                 cartItem.ProductId = productID[i];
-                cartItem.CartItemQuantity = CartQuantity[i];
+                cartItem.CartItemQuantity = quantity[i];
                 cartItem.CartItemName = Cartname[i];
                 cartItem.CartItemPrice = CartPrice[i];
                 cartItem.CartFileName = _product.getProductPhoto(productID[i]).FirstOrDefault().PhotoName;
@@ -352,31 +351,32 @@ namespace DemoCrudMvc.Controllers
             {
                 var orderTrackingUrl = Url.Action("TrackOrder", "Order", new { id = uniqNumber }, protocol: HttpContext.Request.Scheme);
 
-                // Construct the HTML email body
                 var body = $@"
-    <h1>Thank you for your order!</h1>
-    <p>Your order has been successfully placed. You can track your order using the link below:</p>
-    <p><a href='{HtmlEncoder.Default.Encode(orderTrackingUrl)}'>Track your order</a></p>
-    <p>Thank you for shopping with us!</p>
-    <p>Best regards,</p>
-    <p>Your Company Name</p>";
+                             <h1>Thank you for your order!</h1>
+                             <p>Your order has been successfully placed. You can track your order using the link below:</p>
+                             <p><a href='{HtmlEncoder.Default.Encode(orderTrackingUrl)}'>Track your order</a></p>
+                             <p>Thank you for shopping with us!</p>
+                             <p>Best regards,</p>
+                             <p>Your Company Name</p>";
                 if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", body))
                 {
                     return RedirectToAction("Index");
                 }
-            }
-            return RedirectToAction("Index");
+                else
+                {
+					TempData["Error"] = "Email Send UnSuccessFull";
+				}
+				TempData["SuccessMessage"] = "Order Send SuccessFully";
+			}
+
+			return RedirectToAction("Index");
         }
 
         public IActionResult CartViewBag()
         {
             var currentCount = HttpContext.Session.GetInt32("CurrentCart");
-
-
-            // Increment the CartCount by one
             ViewBag.CartCount = currentCount + 1;
             HttpContext.Session.SetInt32("CurrentCart", (int)(currentCount + 1));
-
             return Json(new { newCount = ViewBag.CartCount });
         }
 

@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewData["Title"] = "OrderSuccessful";
+}
+
+<div class="container success-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <i class="fa fa-check-circle success-icon"></i>
+                    <h2 class="card-title">Order Successful!</h2>
+                    <p class="card-text">Thank you for your purchase. Your order has been placed successfully.</p>
+                    <div class="order-details">
+                        <h4>Order Summary</h4>
+                        <div class="order-summary">
+                            <div class="summary-item">
+                                <span class="fw-bold">Order Number:</span> <span id="order-number">123456</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="fw-bold">Total Amount:</span> <span id="total-amount">$100.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="fw-bold">Estimated Delivery:</span> <span id="delivery-date">June 15, 2023</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/" class="btn btn-success btn-home">Go to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

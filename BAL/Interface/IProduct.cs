@@ -36,7 +36,7 @@ namespace BAL.Interface
 
         public IEnumerable<Product> GetAllProducts(string searchValue,int? maxValue,int? minValue);
 
-        public List<CartItems> GetCartItems(int[] id);
+        public List<CartItems> GetCartItems(Dictionary<string, int> cart);
 
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City);
 

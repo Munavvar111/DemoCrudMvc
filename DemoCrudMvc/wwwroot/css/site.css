@@ -420,3 +420,39 @@ tl-item.active .tl-dot:before {
 .b-danger {
     border-color: #f54394 !important;
 }
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-display {
+    min-width: 30px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.btn-outline-secondary {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+    .btn-outline-secondary .fas {
+        pointer-events: none;
+    }
+.card-container {
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+    .card-container.blur {
+        filter: blur(5px);
+    }
+
+    .card-container.focus {
+        transform: scale(1.05);
+        z-index: 1;
+    }

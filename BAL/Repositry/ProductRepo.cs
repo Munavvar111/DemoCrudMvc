@@ -4,6 +4,7 @@ using DAL.DataModels;
 using DAL.ViewModals;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System.Linq;
 using System.Security.Principal;
 using BC = BCrypt.Net.BCrypt;
 
@@ -260,20 +261,24 @@ namespace BAL.Repositry
         }
 
 
-        public List<CartItems> GetCartItems(int[] id)
+        public List<CartItems> GetCartItems( Dictionary<string, int> cart)
         {
-            var cartItems = _context.Products.Where(item => id.Any(id => id == item.ProductId)).Select(item => new CartItems
-            {
-                CartItemName = item.ProductName,
-                CartItemPrice = (int)item.Price,
-                CartMaxQuantity = (int)item.Quantity,
-                ProductId = item.ProductId,
-                CartFileName = item.FeaturePhoto,
-
-
-            }).ToList();
+            var productIds = cart.Keys.ToList(); // Extract product IDs from the cart dictionary
+            var cartItems = _context.Products
+                .Where(item => productIds.Contains(item.ProductId.ToString())) // Convert ProductId to string for comparison
+                .Select(item => new CartItems
+                {
+                    CartItemName = item.ProductName,
+                    CartItemPrice = (int)item.Price,
+                    CartMaxQuantity = (int)item.Quantity,
+                    ProductId = item.ProductId,
+                    CartFileName = item.FeaturePhoto,
+                    CartItemQuantity = cart[item.ProductId.ToString()] // Get the current quantity from the cart dictionary based on the product ID
+                })
+                .ToList();
 
             return cartItems;
+
         }
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City)
         {

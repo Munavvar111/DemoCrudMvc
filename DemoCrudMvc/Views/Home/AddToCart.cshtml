@@ -5,7 +5,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between mt-3 mx-3">
         <h4>Shopping Bag</h4>
-        <div class="d-flex justify-content-end">
+        <div class="d-flex ">
             <a asp-controller="Home" asp-action="Index" asp-area=""
                class="btn btn-outline-info d-flex align-items-center">
                 <span class="material-symbols-outlined"> chevron_left </span> Back
@@ -21,16 +21,18 @@
 
 <script>
     $(document).ready(function () {
-        var Id = JSON.parse(localStorage.getItem('productId'))
-        console.log(typeof Id)
-        GetData(Id);
+        var cart = JSON.parse(localStorage.getItem('cart')) || {};
+        // console.log(typeof Id)
+        console.log(cart)
+        
+       GetData(cart);
     });
-    function GetData(Id) {
+    function GetData(cart) {
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: "/Home/GetCartDetails",
-            traditional: true,
-            data: { Id: Id },
+            contentType: "application/json",
+            data: JSON.stringify(cart),
             success: function (data) {
                 $('#AddToCartPartial').html(data);
             }

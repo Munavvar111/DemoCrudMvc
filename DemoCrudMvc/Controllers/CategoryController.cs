@@ -17,7 +17,11 @@ namespace DemoCrudMvc.Controllers
         public IActionResult Index()
         {
             ViewBag.Categories = _product.GetAllCategories();
-
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return RedirectToAction("index", "login");
+            }
             return View();
         }
 
@@ -41,7 +45,11 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult AddCategory()
         {
-
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return RedirectToAction("index", "login");
+            }
             return View();
         }
 
@@ -110,6 +118,11 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult UpdateCategory(int id)
         {
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return RedirectToAction("index", "login");
+            }
             var getCategoryFromId=_category.GetCategoryById(id);
             return View(getCategoryFromId);
         }

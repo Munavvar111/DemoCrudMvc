@@ -4,7 +4,6 @@
 }
 @model List<DAL.ViewModals.OrderVM>
 @{
-    ViewData["Title"] = "OrderDetails";
     var TotalPrice = 0;
 
     var statusLog = Model[0].StatusLog;
@@ -40,23 +39,24 @@
         <div class="container">
             @foreach (var item in Model)
             {
-                <div class="row gx-3 mb-3 d-flex align-items-center border-bottom">
-                    <div class="col-md-2 mb-3">
-                        <img src="~/uploads/@item.FileName" width="100" />
-                        <span>@item.ProductName</span>
+                <div class="row mb-3 gx-3 bg-white d-flex align-items-center border-bottom rounded-1 p-3">
+                    <div class="col-12 col-md-2 text-center mb-2 mb-md-0">
+                        <img src="~/uploads/@item.FileName" class="img-fluid" alt="Product Image" />
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <span class="text-black fw-bolder">
-                            $ @item.Price
-                        </span>
+                    <div class="col-12 col-md-3 text-center text-md-start mb-2 mb-md-0">
+                        <span class="d-block fw-bolder">@item.ProductName</span>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <span>
-                            @item.Quantity
-                        </span>
+                    <div class="col-12 col-md-2 text-center text-md-start mb-2 mb-md-0">
+                        <span>Price:</span>
+                        <span class="text-black fw-bolder">$@item.Price</span>
                     </div>
-                    <div class="col-md-1 mb-3">
-                        <span class="text-black fw-bolder"> $ @(@item.Price * @item.Quantity)</span>
+                    <div class="col-12 col-md-2 text-center text-md-start mb-2 mb-md-0">
+                        <span>Quantity:</span>
+                        <span class="text-black fw-bolder">@item.Quantity</span>
+                    </div>
+                    <div class="col-12 col-md-3 text-center text-md-start">
+                        <span>Total Price:</span>
+                        <span class="text-black fw-bolder"> $@(@item.Price * @item.Quantity)</span>
                     </div>
                 </div>
             }

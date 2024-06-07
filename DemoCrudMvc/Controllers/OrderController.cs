@@ -16,6 +16,11 @@ namespace DemoCrudMvc.Controllers
         }
         public IActionResult Index()
         {
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return RedirectToAction("index", "login");
+            }
             return View();
         }
         public IActionResult GetOrderDetail(string searchValue,int currentPage,int pageSize,string Change,bool boolvalue)
@@ -35,15 +40,46 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult TrackOrder(string id)
         {
+            if (id == null)
+            {
+                TempData["Error"] = "Something Is Wrong";
+                return RedirectToAction("Index","Home");
+            }
+
             ViewBag.Status = _order.GetAllStatus();
+            if(!_order.IsOrderIdExsits(id)) { 
+                TempData["Error"] = "Something Is Wrong";
+                return RedirectToAction("Index", "Home");
+
+            }
             var a = _order.OrderDetailsById(id);
-            return View(a);  
+            if (a == null)
+            {
+                TempData["Error"] = "Something Is Wrong";
+                return RedirectToAction("Index","Home");
+            }
+            return View(a);
         }
 
         public IActionResult OrderDetails(string id)
         {
+            if (id == null)
+            {
+                TempData["Error"] = "Something Is Wrong";
+                return RedirectToAction("Index");
+            }
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return RedirectToAction("index", "login");
+            }
             ViewBag.Status = _order.GetAllStatus();
             var a =_order.OrderDetailsById(id);
+            if (a == null)
+            {
+                TempData["Error"] = "Something Is Wrong";
+                return RedirectToAction("Index");
+            }
             return View(a);  
         }
         [HttpPost]
@@ -69,6 +105,10 @@ namespace DemoCrudMvc.Controllers
             {
                 FileName = "Invoice.pdf"
             };
+        }
+        public IActionResult OrderSuccessful()
+        {
+            return View();  
         }
     }
 }
