@@ -106,9 +106,10 @@ namespace DemoCrudMvc.Controllers
                 FileName = "Invoice.pdf"
             };
         }
-        public IActionResult OrderSuccessful()
+        public IActionResult OrderSuccessful(string OrderUniqId)
         {
-            return View();  
+            var a = _order.OrderDetailsById(OrderUniqId);
+            return View(a);  
         }
     }
 }

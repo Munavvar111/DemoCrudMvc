@@ -101,6 +101,8 @@
                             </button>
                         </div>
                         <button id="add-to-cart" class="btn btn-warning fw-bolder mt-3" onclick="addToCart('@Model.ProductId')">Add to Cart</button>
+                        <button id="buy-now" class="btn btn-success fw-bolder mt-3" onclick="buyNow('@Model.ProductId')">Buy Now</button>
+
                     </div>
                 </div>
             </div>
@@ -206,7 +208,14 @@
         }
 
     }
-
+    function buyNow(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        if (!cart[productId]) {
+            cart[productId] = 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        window.location.href = '/Home/AddToCart';
+    }
 </script>
 
 

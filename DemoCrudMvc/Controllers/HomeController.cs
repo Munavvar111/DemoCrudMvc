@@ -360,7 +360,7 @@ namespace DemoCrudMvc.Controllers
                              <p>Your Company Name</p>";
                 if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", body))
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("OrderSuccessful", "Order", new { OrderUniqId =uniqNumber});
                 }
                 else
                 {

@@ -1,33 +1,58 @@
-﻿
+﻿@model List<DAL.ViewModals.OrderVM>;
 @{
-    ViewData["Title"] = "OrderSuccessful";
+    ViewData["Title"] = "Order Successful";
+    var TotalPrice = 0;
+    var estimatedDeliveryDate = Model.First()?.OrderDate.AddDays(5);
 }
-
-<div class="container success-container">
+@foreach (var item in Model)
+{
+    TotalPrice = TotalPrice + (item.Price * item.Quantity);
+}
+<div class="container success-container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <i class="fa fa-check-circle success-icon"></i>
-                    <h2 class="card-title">Order Successful!</h2>
-                    <p class="card-text">Thank you for your purchase. Your order has been placed successfully.</p>
-                    <div class="order-details">
-                        <h4>Order Summary</h4>
-                        <div class="order-summary">
-                            <div class="summary-item">
-                                <span class="fw-bold">Order Number:</span> <span id="order-number">123456</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="fw-bold">Total Amount:</span> <span id="total-amount">$100.00</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="fw-bold">Estimated Delivery:</span> <span id="delivery-date">June 15, 2023</span>
-                            </div>
-                        </div>
+        <div class="col-lg-6 col-md-8 text-center">
+            <i class="fa fa-check-circle text-success fa-4x mb-4"></i>
+            <h2 class="mb-4">Order Successful!</h2>
+            <p class="mb-4">Thank you for your purchase. Your order has been placed successfully.</p>
+            <div class="order-details mb-4 p-4">
+                <h4 class="mb-3">Order Summary</h4>
+                <div class="order-summary text-left">
+                    <div class="summary-item mb-2">
+                        <span class="font-weight-bold">Order Number:</span> <span id="order-number">@Model[0].OrderId</span>
                     </div>
-                    <a href="/" class="btn btn-success btn-home">Go to Home</a>
+                    <div class="summary-item mb-2">
+                        <span class="font-weight-bold">Total Amount:</span> <span id="total-amount">$@TotalPrice</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="font-weight-bold">Estimated Delivery:</span>     <span id="delivery-date">@estimatedDeliveryDate?.ToString("MMMM dd, yyyy")</span>
+
+                    </div>
                 </div>
             </div>
+            <a href="/" class="btn btn-success btn-lg">Go to Home</a>
         </div>
     </div>
 </div>
+
+<style>
+    .success-container {
+        margin-top: 50px;
+    }
+
+    .order-details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        display: inline-block;
+        text-align: left;
+        width: 100%;
+    }
+
+    .summary-item {
+        font-size: 1.1rem;
+    }
+
+    .btn-home, .btn-orders {
+        margin-top: 20px;
+    }
+</style>
