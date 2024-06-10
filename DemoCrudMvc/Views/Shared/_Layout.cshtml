@@ -15,11 +15,77 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
+    <!-- Option 1: Include in HTML -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/DemoCrudMvc.styles.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <style>
+        .dropdown-menu-notifications {
+            max-height: 400px;
+            overflow-y: auto;
+            width: 450px; /* Increased width for admin panel feel */
+        }
+
+        .notification-item {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            border-bottom: 1px solid #e3e3e3;
+            background-color: #f9f9f9;
+        }
+
+            .notification-item:last-child {
+                border-bottom: none;
+            }
+
+            .notification-item a {
+                text-decoration: none;
+                color: #333;
+            }
+
+                .notification-item a:hover {
+                    background-color: #f1f1f1;
+                }
+
+        .notification-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .notification-panel {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+
+        .notification-panel-header {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .notification-panel-footer {
+            padding: 10px 15px;
+            text-align: center;
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+    </style>
 </head>
+
+
+
 <body class="bg-light">
     <div id="loader">
         <div class="spinner-border text-info" role="status">
@@ -72,10 +138,16 @@
                                     </a>
                                 </li>
                                 <li class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown"> Notifiction (<span id="countNotify">0</span>) <span class="caret"></span></a>
-                                    <ul class="dropdown-menu" id="myNotifyList">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" id="notificationDropdownToggle">Notification (<span id="countNotify">0</span>) <span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-notifications notification-panel" id="myNotifyList">
+                                        <li class="notification-panel-header">Notifications</li>
+                                        <!-- Notifications will be appended here -->
+                                        <li class="notification-panel-footer"><a href="/Notifications/AllNotifications">View all notifications</a></li>
                                     </ul>
                                 </li>
+
+                             
+
                             }
                             @if (email != null)
                             {
@@ -101,29 +173,7 @@
                         @RenderBody()
             </main>
         </div>
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">
-                        ×
-                    </button>
-                    <h4 class="modal-title">
-                        <img src="assets/img/nty.png" style="height: 50px; width: 50px">
-                        Notifications
-                    </h4>
-                </div>
-                <div class="modal-body" id="myAllNotifications">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+   
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
@@ -147,20 +197,20 @@
                 console.log("hii")
                 $('#loader').fadeOut();
             });
-            $(document).ajaxStart(function () {
-                console.log("sdfs")
-                $('#loader').fadeIn();
-            });
+            // $(document).ajaxStart(function () {
+            //     console.log("sdfs")
+            //     $('#loader').fadeIn();
+            // });
 
-            $(document).ajaxStop(function () {
-                console.log("stop Ajax")
-                $('#loader').fadeOut();
-            });
+            // $(document).ajaxStop(function () {
+            //     console.log("stop Ajax")
+            //     $('#loader').fadeOut();
+            // });
 
         </script>
     </body>
     </html>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">   
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -172,19 +222,21 @@
     </script>
 <script>
     $(document).ready(function () {
+        let notifications = [];
+        let currentNotificationIndex = 0;
+        let notificationInterval;
+        let fetchInterval;
+
         function fetchNotifications() {
             $.ajax({
                 type: "GET",
                 url: "/Home/GetNotificationData",
                 success: function (data) {
-                    console.log(data)
-                    if (data.data == true) {
-                        return
-                    }
-                    else {
-
-                        let notifications = data.data.$values || [];
-                        displayNotifications(notifications);
+                    if (data.data === true) {
+                        return;
+                    } else {
+                        notifications = data.data.$values || [];
+                        currentNotificationIndex = 0; // Reset index for new notifications
                     }
                 },
                 error: function () {
@@ -193,43 +245,95 @@
             });
         }
 
-        function displayNotifications(notifications) {
-            let index = 0;
+        function displayNotifications() {
+            if (notifications.length > 0) {
+                let notification = notifications[currentNotificationIndex];
+                let message = `OrderProductId: ${notification.OrderProductId}, Customer: ${notification.Customer.FirstName} ${notification.Customer.LastName}, Order: ${formatTimeDifference(notification.OrderTime)}`;
+                toastr.info(message);
+                currentNotificationIndex++;
 
-            function showNextNotification() {
-                if (index < notifications.length) {
-                    let notification = notifications[index];
-                    let message = `OrderProductId: ${notification.OrderProductId}, Customer: ${notification.Customer.FirstName} ${notification.Customer.LastName}, Order: ${formatTimeDifference(notification.OrderTime)}`;
-                    toastr.info(message);
-                    index++;
-                    setTimeout(showNextNotification, 40000); // Show the next notification after 5 seconds
-                } else {
-                    // Restart the loop after all notifications are shown
-                    setTimeout(() => {
-                        index = 0;
-                        showNextNotification();
-                    }, 40000); // Wait 5 seconds before restarting
+                if (currentNotificationIndex >= notifications.length) {
+                    // All notifications have been displayed, fetch new notifications
+                    currentNotificationIndex = 0;
+                    clearInterval(notificationInterval);
+                    fetchNotifications();
+                    notificationInterval = setInterval(displayNotifications, 30000); // Restart displaying notifications
                 }
             }
-
-            function formatTimeDifference(timeDifference) {
-                let [hours, minutes, seconds] = timeDifference.split(':');
-                seconds = seconds.split('.')[0]; // Remove milliseconds
-                console.log(seconds)
-                hours = parseInt(hours, 10);
-                minutes = parseInt(minutes, 10);
-                seconds = parseInt(seconds, 10);
-                return `${hours}h ${minutes}m ${seconds}s`;
-            }
-            showNextNotification();
         }
 
-        // Initial fetch and display of notifications
+        function formatTimeDifference(timeDifference) {
+            let [hours, minutes, seconds] = timeDifference.split(':');
+            seconds = seconds.split('.')[0]; // Remove milliseconds
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+            seconds = parseInt(seconds, 10);
+            return `${hours}h ${minutes}m ${seconds}s`;
+        }
 
-        // Fetch notifications every 29 seconds
-        setInterval(fetchNotifications, 2000000);
+        // Fetch notifications for the first time when the page loads
+        fetchNotifications();
+
+        // Start displaying notifications after 20 seconds
+        setTimeout(() => {
+            notificationInterval = setInterval(displayNotifications, 30000);
+        }, 20000);
     });
 </script>
 <script>
+    $(document).ready(function () {
+        function fetchNotifications() {
+            $.ajax({
+                url: '/Home/GetNotification', // Adjust the URL to match your controller/action
+                type: 'GET',
+                success: function (response) {
+                    console.log(response);
+                    updateNotifications(response.data.$values);
+                },
+                error: function (error) {
+                    console.error('Error fetching notifications', error);
+                }
+            });
+        }
 
+        function updateNotifications(notifications) {
+            var $notifyList = $('#myNotifyList');
+            var $countNotify = $('#countNotify');
+            $notifyList.find('.notification-item').remove();
+
+            if (notifications.length > 0) {
+                $countNotify.text(notifications.length);
+
+                notifications.forEach(function (notification) {
+                    var listItem = $('<li>').addClass('notification-item')
+                        .append($('<a>')
+                            .attr('href', '/Notifications/NotificationDetails?orderId=' + notification.OrderId)
+                            .append($('<div>').addClass('notification-header').text(notification.CustomerName + ' placed an order'))
+                            .append($('<div>').addClass('notification-time').text('Order ID: ' + notification.OrderId + ' at ' + notification.OrderTime))
+                        );
+                    $notifyList.find('.notification-panel-footer').before(listItem);
+                });
+            } else {
+                $countNotify.text(0);
+                $notifyList.find('.notification-panel-footer').before('<li class="notification-item">No new notifications</li>');
+            }
+
+            // Adjust dropdown menu position
+            var dropdownToggle = $('#notificationDropdownToggle');
+            var dropdownMenu = $('#myNotifyList');
+            if (dropdownToggle.length && dropdownMenu.length) {
+                var dropdownMenuWidth = dropdownMenu.outerWidth();
+                var navbarWidth = $('.navbar-collapse').outerWidth();
+                var dropdownToggleOffset = dropdownToggle.offset().left;
+                if (dropdownToggleOffset + dropdownMenuWidth > navbarWidth) {
+                    dropdownMenu.css('right', 'auto');
+                    dropdownMenu.css('left', 'auto');
+                }
+            }
+        }
+
+        fetchNotifications();
+        setInterval(fetchNotifications, 60000); // Fetch every 60 seconds
+    });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

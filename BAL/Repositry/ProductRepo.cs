@@ -349,7 +349,8 @@ namespace BAL.Repositry
         {
             return _context.OrderProducts.Where(item=>item.OrderDate>DateTime.Now.AddHours(-2) && item.NotificationBool).Select(item=>new NotificationVM
             {
-                OrderId=item.OrderUniqId
+                OrderId=item.OrderUniqId,
+                CustomerName=item.Customer.FirstName,
             }).ToList();
         }
     }
