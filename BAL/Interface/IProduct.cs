@@ -41,5 +41,11 @@ namespace BAL.Interface
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City);
 
         public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string uniqNumber);
+
+        public int ProductCountSevenDay(int id);
+
+        public List<OrderProduct> OrderLastTwoHors();
+
+        public List<NotificationVM> GetNotificationTwoHours();
     }
 }

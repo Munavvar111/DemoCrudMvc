@@ -3,6 +3,7 @@ using BAL.Repositry;
 using DAL.DataContext;
 using Rotativa.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,12 @@ builder.Services.AddScoped<IProduct,ProductRepo>();
 builder.Services.AddScoped<ICategory,CategoryRepo>();	
 builder.Services.AddScoped<IEmailService,EmailRepo>();
 builder.Services.AddScoped<IOrder,OrderRepo>();
+builder.Services.AddControllersWithViews()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                    options.JsonSerializerOptions.MaxDepth = 64; // Optionally increase the max depth if needed
+                });
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(1); // Set your desired timeout

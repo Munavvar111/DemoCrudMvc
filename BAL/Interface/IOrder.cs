@@ -10,7 +10,7 @@ namespace BAL.Interface
 {
     public interface IOrder
     {
-        public List<OrderVM> GetOrderDetails(string SearchValue,string change,bool boolValue);
+        public List<OrderVM> GetOrderDetails(string SearchValue,string change,bool boolValue,int StatusTrack);
 
         public List<OrderVM> OrderDetailsById(string id);     
 

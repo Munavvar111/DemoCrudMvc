@@ -38,8 +38,18 @@
 
 <div class="container d-flex justify-content-between mb-3">
 </div>
-<div class="d-flex justify-content-end container">
+<div class="d-flex justify-content-between container">
+    <div class="form-floating">
+        <select class="form-select" aria-label="Default select example" id="StatusTrack" name="OrderStatus">
+            <option selected value="0">Select The Category</option>
 
+            @foreach (var region in ViewBag.Status)
+            {
+                <option value="@region.StatusId" data-status-id="@region.StatusId">@region.StatusName</option>
+            }
+        </select>
+        <label for="floatingInput">Status</label>
+    </div>
     <div class="input-group input-group-height w-25">
 
         <input class="form-control" type="search" placeholder="Search Products" aria-label="Search" id="searchInput">
@@ -54,17 +64,12 @@
     var pageSize = 10;
 
     $(document).ready(function () {
-
-
-
         $(document).on("click", "#pagination a.page-link", function () {
             console.log("Pagination link clicked!");
             var id = $(this).attr("id");
             currentPage = $("#" + id).data("page");
             filterTable(currentPage, pageSize);
         });
-
-
         filterTable(currentPage, pageSize)
     });
     const debounce = (func, delay) => {
@@ -77,6 +82,10 @@
                 = setTimeout(() => func.apply(context, args), delay)
         }
     }
+
+    $("#StatusTrack").on("input change", function () {
+        filterTable(currentPage, pageSize);
+    });
     $("#searchInput").on("input", debounce(function () {
         console.log("inputchange")
         currentPage = 1;
@@ -85,12 +94,12 @@
 
     function filterTable(currentPage, pageSize) {
         var searchValue = $("#searchInput").val();
-
+        var StatusTrack = $("#StatusTrack").val();
         $.ajax({
             type: "GET",
             url: "/Order/GetOrderDetail",
             traditional: true,
-            data: { searchValue, currentPage, pageSize, Change, boolvalue },
+            data: { searchValue, currentPage, pageSize, Change, boolvalue, StatusTrack },
             success: function (data) {
                 $('#OrderPartial').html(data);
             }

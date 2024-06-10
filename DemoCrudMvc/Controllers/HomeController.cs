@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Diagnostics;
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
+//using System.Web.Mvc;
 
 namespace DemoCrudMvc.Controllers
 {
@@ -23,6 +27,7 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult Index()
         {
+
             var email = HttpContext.Session.GetString("email");
             if (email != null)
             {
@@ -35,6 +40,7 @@ namespace DemoCrudMvc.Controllers
             {
                 HttpContext.Session.SetInt32("CurrentCart", 0);
             }
+            ViewBag.OrderNotification = _product.GetNotificationTwoHours();
             return View();
         }
 
@@ -307,6 +313,7 @@ namespace DemoCrudMvc.Controllers
         public IActionResult ProductDetails(int id)
         {
             var productDetails = _product.GetProductById(id);
+            ViewBag.ProductCount = _product.ProductCountSevenDay(id);
             ProductVM vm = new ProductVM();
             return View(productDetails);
         }
@@ -379,6 +386,49 @@ namespace DemoCrudMvc.Controllers
             HttpContext.Session.SetInt32("CurrentCart", (int)(currentCount + 1));
             return Json(new { newCount = ViewBag.CartCount });
         }
+        public IActionResult GetNotificationData()
+        {
+            var CountOfNotification = HttpContext.Session.GetInt32("CountNotify");
+           
+                HttpContext.Session.SetInt32("CountNotify", 1);
+           
+            
+            var orderLastTwoHours = _product.OrderLastTwoHors();
+            var notificationData = orderLastTwoHours.Select(item => new
+            {
+                item.OrderProductId,
+                Customer = new
+                {
+                    item.Customer.FirstName,
+                    item.Customer.LastName,
+                },
+                OrderTime = item.OrderDate.HasValue
+                   ?  DateTime.Now.TimeOfDay-item.OrderDate.Value.TimeOfDay 
+                   : TimeSpan.Zero
+            }).ToList();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                MaxDepth = 128 // Optionally increase the max depth if needed
+            };
+            var jsonData = JsonSerializer.Serialize(new { data = notificationData }, options);
+                return Content(jsonData, "application/json");
 
+            
+         
+        }
+        public IActionResult GetNotification()
+        {
+            List<NotificationVM> lstDataSubmit = new List<NotificationVM>();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                MaxDepth = 128 // Optionally increase the max depth if needed
+            };
+            lstDataSubmit = _product.GetNotificationTwoHours();   
+            var jsonData = JsonSerializer.Serialize(new { data = lstDataSubmit }, options);
+            return Content(jsonData, "application/json");
+
+        }
     }
 }

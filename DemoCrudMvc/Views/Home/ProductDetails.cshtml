@@ -36,10 +36,7 @@
             padding: 20px;
         }
 
-        .custom-product-card .product-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
+        
 
         .custom-product-card .product-description {
             margin-top: 10px;
@@ -68,40 +65,107 @@
             </a>
         </div>
     </div>
-    <div class="container-fluid p-3 custom-product-card bg-white shadow-lg">
+    <div class="container-fluid p-3 custom-product-card ">
         <div class="card-body">
             <div class="row gap-5">
-                <div class="col-md-2">
+                <div class="col-md-1 d-md-block d-none">
                     <div class="d-flex flex-row flex-md-column gap-3 flex-wrap">
                         @foreach (var item in Model.ProductPhotos)
                         {
                             <div class="thumbnail" onclick="SetMainImage('@Url.Content("~/uploads/" + @item.PhotoName)')">
-                                <img src="~/uploads/@item.PhotoName" width="100" />
+                                <img src="~/uploads/@item.PhotoName" width="100"  />
                             </div>
                         }
                     </div>
                 </div>
-                <div class="col-md-4 bg-light d-flex align-items-center justify-content-center">
-                    <div class="image-gallery">
-                        <img id="mainImage" src="~/uploads/@Model.FeaturePhoto" width="800" onclick="OpenModal()" class="img-fluid" />
+                <div class="col-md-5 bg-white bg-transparent d-flex align-items-center justify-content-center  d-none d-md-block    ">
+                    <div class="image-gallery d-none d-md-block">
+                        <img id="mainImage" src="~/uploads/@Model.FeaturePhoto" width="800" onclick="OpenModal()" class="   " />
                     </div>
                 </div>
-                <div class="col-md-5 mx-3 bg-white">
+                <div class="d-md-none">
+                    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                        <ol class="carousel-indicators">
+                            @{
+                                int index = 0;
+                                foreach (var item in Model.ProductPhotos)
+                                {
+                                    <li data-target="#carouselExampleIndicators" data-slide-to="@index" class="@(index == 0 ? "active" : "")"></li>
+                                    ;
+                                    index++;
+                                }
+                            }
+                        </ol>
+                        <div class="carousel-inner">
+                            @{
+                                bool isActive = true;
+                                foreach (var item in Model.ProductPhotos)
+                                {
+                                    <div class="carousel-item @(isActive ? "active" : "")">
+                                        <img class="d-block w-100" src="~/uploads/@item.PhotoName" alt="Slide">
+                                    </div>
+                                    ;
+                                    isActive = false;
+                                }
+                            }
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 mx-3">
                     <div class="product-details">
-                        <div class="product-name">@Model.ProductName</div>
-                        <div class="product-description">@Html.Raw(@Model.Description)</div>
-                        <div class="product-price">Price: $@Model.Price</div>
-                        <div id="quantity-controls" class="quantity-controls d-none">
-                            <button class="btn btn-outline-secondary" onclick="decrementQuantity()">
+                        <span class="text-info fw-bolder">There Are @ViewBag.ProductCount Buy In Last 7 seven day</span>
+                        <div class="product-name fs-3 fw-600 border-bottom" style="word-wrap:anywhere"><h4>@Model.ProductName</h4></div>
+                        <div class="product-price text-black d-flex flex-column border-bottom">
+                            <span class="fs-3">
+
+                            <i class="fa fa-usd fs-5" aria-hidden="true"></i>
+                            <span class="fs-3">@Model.Price</span>
+                            </span>
+                        <span class="fs-5">
+                            Inclusive of all taxes
+                        </span>
+                        </div>
+                        <div id="quantity-controls" class="quantity-controls d-none mt-3">
+                            <button class="btn btn-outline-secondary" onclick="decrementQuantity(@Model.Quantity)">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <span id="quantity" class="quantity-display">1</span>
-                            <button class="btn btn-outline-secondary" onclick="incrementQuantity()">
+                            <button class="btn btn-outline-secondary" onclick="incrementQuantity(@Model.Quantity)">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
+                        @if (Model.Quantity > 0)
+                        {
+                           <div class="d-flex gap-3 p-1 border-bottom">
+
                         <button id="add-to-cart" class="btn btn-warning fw-bolder mt-3" onclick="addToCart('@Model.ProductId')">Add to Cart</button>
-                        <button id="buy-now" class="btn btn-success fw-bolder mt-3" onclick="buyNow('@Model.ProductId')">Buy Now</button>
+                            <button id="buy-now" class="btn btn-success fw-bolder mt-3" onclick="buyNow('@Model.ProductId')">Buy Now</button>
+                               </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex gap-3 p-1">
+
+                            <button id="add-to-cart" class="btn btn-warning fw-bolder mt-3 " onclick="addToCart('@Model.ProductId')" disabled>Add to Cart</button>
+                            <button id="buy-now" class="btn btn-success fw-bolder mt-3" onclick="buyNow('@Model.ProductId')"disabled>Buy Now</button>
+                            </div>
+                            <span class="text-danger fs-4  border-bottom p-1">
+                                <i class="fa fa-ban" aria-hidden="true"></i>
+                                Sorry,currently of the stock
+                            </span>
+                        }
+                        <div class="product-description">
+                            <h5>About Thit Item</h5>
+                            @Html.Raw(Model.Description)
+                        </div>
 
                     </div>
                 </div>
@@ -138,15 +202,18 @@
         }
     }
 
-    function incrementQuantity() {
+    function incrementQuantity(maxQuantity) {
+        console.log(maxQuantity)
         let quantityElement = document.getElementById('quantity');
         let currentQuantity = parseInt(quantityElement.textContent);
-        quantityElement.textContent = currentQuantity + 1;
-        updateLocalStorage();
-       
+        if (currentQuantity < maxQuantity) {
+
+            quantityElement.textContent = currentQuantity + 1;
+            updateLocalStorage();
+        }
     }
 
-    function decrementQuantity() {
+    function decrementQuantity(maxQuantity) {
         let quantityElement = document.getElementById('quantity');
         let currentQuantity = parseInt(quantityElement.textContent);
         if (currentQuantity > 1) {

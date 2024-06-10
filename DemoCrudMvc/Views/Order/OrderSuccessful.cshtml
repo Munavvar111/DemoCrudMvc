@@ -18,7 +18,7 @@
                 <h4 class="mb-3">Order Summary</h4>
                 <div class="order-summary text-left">
                     <div class="summary-item mb-2">
-                        <span class="font-weight-bold">Order Number:</span> <span id="order-number">@Model[0].OrderId</span>
+                        <span class="font-weight-bold">Order Number:</span> <span id="order-number">@Model[0].UniqOrderId</span>
                     </div>
                     <div class="summary-item mb-2">
                         <span class="font-weight-bold">Total Amount:</span> <span id="total-amount">$@TotalPrice</span>
@@ -30,6 +30,7 @@
                 </div>
             </div>
             <a href="/" class="btn btn-success btn-lg">Go to Home</a>
+            <a asp-action="TrackOrder" asp-route-id="@Model[0].UniqOrderId" class="btn btn-success btn-lg">Track Order</a>
         </div>
     </div>
 </div>

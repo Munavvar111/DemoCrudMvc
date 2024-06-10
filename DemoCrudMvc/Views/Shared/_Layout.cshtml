@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <link rel="stylesheet" href="~/DemoCrudMvc.styles.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -30,7 +31,7 @@
             <div class="container">
                 @if (ViewData["Title"] as string != "TrackOrder")
                 {
-                    <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management</a>
+                    <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management </a>
 
                     <div class=" collapse navbar-collapse" id="navbarNavDropdown">
                         <ul class="navbar-nav ms-auto ">
@@ -70,6 +71,11 @@
                                         <span id="cartCount" class="cart-count"></span>
                                     </a>
                                 </li>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown"> Notifiction (<span id="countNotify">0</span>) <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" id="myNotifyList">
+                                    </ul>
+                                </li>
                             }
                             @if (email != null)
                             {
@@ -81,19 +87,43 @@
                             }
 
                         </ul>
+
                     </div>
                 }
                 else
                 {
-                    <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management</a>
+                    <a class="fs-3 nav-link" asp-action="Index" asp-controller="Home">Product Management   </a>
                 }
+
             </div>
             </nav>
             <main role="main" class="pb-3">
                         @RenderBody()
             </main>
         </div>
-
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        ×
+                    </button>
+                    <h4 class="modal-title">
+                        <img src="assets/img/nty.png" style="height: 50px; width: 50px">
+                        Notifications
+                    </h4>
+                </div>
+                <div class="modal-body" id="myAllNotifications">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
@@ -130,6 +160,8 @@
         </script>
     </body>
     </html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">   
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var products = JSON.parse(localStorage.getItem('cart'));
@@ -138,3 +170,66 @@
             document.getElementById("cartCount").textContent = count;
         });
     </script>
+<script>
+    $(document).ready(function () {
+        function fetchNotifications() {
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetNotificationData",
+                success: function (data) {
+                    console.log(data)
+                    if (data.data == true) {
+                        return
+                    }
+                    else {
+
+                        let notifications = data.data.$values || [];
+                        displayNotifications(notifications);
+                    }
+                },
+                error: function () {
+                    console.error('Error fetching notifications.');
+                }
+            });
+        }
+
+        function displayNotifications(notifications) {
+            let index = 0;
+
+            function showNextNotification() {
+                if (index < notifications.length) {
+                    let notification = notifications[index];
+                    let message = `OrderProductId: ${notification.OrderProductId}, Customer: ${notification.Customer.FirstName} ${notification.Customer.LastName}, Order: ${formatTimeDifference(notification.OrderTime)}`;
+                    toastr.info(message);
+                    index++;
+                    setTimeout(showNextNotification, 40000); // Show the next notification after 5 seconds
+                } else {
+                    // Restart the loop after all notifications are shown
+                    setTimeout(() => {
+                        index = 0;
+                        showNextNotification();
+                    }, 40000); // Wait 5 seconds before restarting
+                }
+            }
+
+            function formatTimeDifference(timeDifference) {
+                let [hours, minutes, seconds] = timeDifference.split(':');
+                seconds = seconds.split('.')[0]; // Remove milliseconds
+                console.log(seconds)
+                hours = parseInt(hours, 10);
+                minutes = parseInt(minutes, 10);
+                seconds = parseInt(seconds, 10);
+                return `${hours}h ${minutes}m ${seconds}s`;
+            }
+            showNextNotification();
+        }
+
+        // Initial fetch and display of notifications
+
+        // Fetch notifications every 29 seconds
+        setInterval(fetchNotifications, 2000000);
+    });
+</script>
+<script>
+
+</script>

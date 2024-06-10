@@ -17,6 +17,11 @@ public partial class OrderProduct
     [Column(TypeName = "character varying")]
     public string? OrderUniqId { get; set; }
 
+    [Column(TypeName = "timestamp without time zone")]
+    public DateTime? OrderDate { get; set; }
+
+    public bool NotificationBool { get; set; }
+
     [ForeignKey("CustomerId")]
     [InverseProperty("OrderProducts")]
     public virtual Customer Customer { get; set; } = null!;

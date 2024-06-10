@@ -15,6 +15,14 @@
 			margin-right: 20px;
 		}
 
+	.clamp-text {
+		display: -webkit-box;
+		-webkit-line-clamp: 2; /* Limit to 4 lines */
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: #657380; /* Text color */
+	}
 </style>
 
 <div class="container mt-5 ">
@@ -38,7 +46,7 @@
 									<input type="text" type="hidden" asp-for="@item.CartItemName" name="Cartname">
 									<input type="hidden" asp-for="@item.ProductId" name="productID">
 									<input class="d-none" asp-for="@item.CartItemPrice" name="CartPrice" id="cartPrice-@item.ProductId" />
-									<h4>@item.CartItemName</h4>
+									<h4 class="clamp-text fs-5">@item.CartItemName</h4>
 									<div class="quantity-control d-flex align-items-center">
 										<span class="text-muted fw-bolder">Qty:</span>
 										<div id="quantity-controls-@item.ProductId" class="quantity-controls">
@@ -69,11 +77,11 @@
 				<div class="bg-white  p-3  border-bottom">
 
 					<div class=" d-flex justify-content-between">
-						<span> Subtotal: </span>
+						<span class="fs-5"> Subtotal: </span>
 						<span id="total-price" class="text-muted total-price"></span>
 					</div>
 					<div class=" d-flex justify-content-between">
-						<span> Delivery: </span>
+						<span class="fs-5"> Delivery: </span>
 						<span class="text-muted">0</span>
 					</div>
 				</div>

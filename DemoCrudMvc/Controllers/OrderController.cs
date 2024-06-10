@@ -16,6 +16,7 @@ namespace DemoCrudMvc.Controllers
         }
         public IActionResult Index()
         {
+            ViewBag.Status = _order.GetAllStatus();
             var email = HttpContext.Session.GetString("email");
             if (email == null)
             {
@@ -23,9 +24,9 @@ namespace DemoCrudMvc.Controllers
             }
             return View();
         }
-        public IActionResult GetOrderDetail(string searchValue,int currentPage,int pageSize,string Change,bool boolvalue)
+        public IActionResult GetOrderDetail(string searchValue,int currentPage,int pageSize,string Change,bool boolvalue,int StatusTrack)
         {
-            var getOrderDetails=_order.GetOrderDetails(searchValue,Change,boolvalue);
+            var getOrderDetails=_order.GetOrderDetails(searchValue,Change,boolvalue,StatusTrack);
             int totalItems = getOrderDetails.Count();
             //Count TotalPage
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);

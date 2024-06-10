@@ -46,6 +46,15 @@
 		text-overflow: ellipsis;
 		display: block;
 	}
+
+	.clamp-text {
+		display: -webkit-box!important;
+		-webkit-line-clamp: 2; /* Limit to 4 lines */
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: #657380; /* Text color */
+	}
 </style>
 @foreach (var item in Model)
 {
@@ -78,7 +87,7 @@
 						<img src="~/uploads/@item.FileName" class="img-fluid" alt="Product Image" />
 					</div>
 					<div class="col-12 col-md-3 text-center text-md-start mb-2 mb-md-0">
-						<span class="d-block fw-bolder">@item.ProductName</span>
+						<span class="d-block fw-bolder clamp-text">@item.ProductName</span>
 					</div>
 					<div class="col-12 col-md-2 text-center text-md-start mb-2 mb-md-0">
 						<span>Price:</span>
@@ -246,7 +255,7 @@
 						<option value="@region.StatusId" data-status-id="@region.StatusId">@region.StatusName</option>
 					}
 				</select>
-				<label for="floatingInput">Category</label>
+				<label for="floatingInput">Status</label>
 				<span asp-validation-for="@Model[0].Status" class="text-danger"></span>
 			</div>
 

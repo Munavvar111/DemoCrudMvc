@@ -19,7 +19,7 @@ namespace BAL.Repositry
         {
             _context = context;
         }
-        public List<OrderVM> GetOrderDetails(string SearchValue, string change, bool boolValue)
+        public List<OrderVM> GetOrderDetails(string SearchValue, string change, bool boolValue,int StatusTrack)
         {
 
             var ordersDetail = _context.OrderProducts.Include(item => item.Customer).Select(item => new OrderVM
@@ -30,7 +30,8 @@ namespace BAL.Repositry
                 CustomerName = item.Customer.FirstName + "-" + item.Customer.LastName,
                 OrderDate = _context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).OrderDate,
                 Status = _context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).Status,
-            }).OrderBy(item => item.Status).ToList();
+            }).OrderBy(item => item.Status).Where(item=>(string.IsNullOrEmpty(SearchValue) || item.CustomerName.ToLower().Contains(SearchValue) 
+            || item.Address.ToLower().Contains(SearchValue) || item.UniqOrderId.ToLower().Contains(SearchValue)) &&( StatusTrack==0 || item.Status==StatusTrack) ).ToList();
             if (boolValue)
             {
 

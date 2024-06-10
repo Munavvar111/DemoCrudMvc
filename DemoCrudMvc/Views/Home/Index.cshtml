@@ -160,9 +160,18 @@
         modalImage.src = imagePath + imageFilename;
     });
 </script>
+
+
 <script>
     $(document).ready(function () {
         filterTable()
+        // $.ajax({
+        //     type:"GET",
+        //     url:"/Home/GetNotificationData",
+        //     success: function (data) {
+        //         console.log(data.data.$values)
+        //     }
+        // })
     });
 
     const debounce = (func, delay) => {

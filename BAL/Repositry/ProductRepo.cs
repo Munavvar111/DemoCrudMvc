@@ -336,6 +336,21 @@ namespace BAL.Repositry
             return true;
         }
 
-    }
+		public int ProductCountSevenDay(int id)
+        {
+            return _context.Orders.Where(item=>item.ProductId== id &&  item.OrderDate>=DateTime.Now.AddDays(-7)).Count(); 
+        }
+        public List<OrderProduct> OrderLastTwoHors()
+        {
+            return _context.OrderProducts.Include(item=>item.Customer).Where(item => item.OrderDate > DateTime.Now.AddHours(-2)).ToList();
+        }
 
+        public List<NotificationVM> GetNotificationTwoHours()
+        {
+            return _context.OrderProducts.Where(item=>item.OrderDate>DateTime.Now.AddHours(-2) && item.NotificationBool).Select(item=>new NotificationVM
+            {
+                OrderId=item.OrderUniqId
+            }).ToList();
+        }
+    }
 }
