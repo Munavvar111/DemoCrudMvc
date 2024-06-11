@@ -351,7 +351,7 @@ namespace DemoCrudMvc.Controllers
             return View(cartItems);
         }
         public IActionResult PlaceOrder(string FirstName, string LastName, string Email, string Address, int ZipCode, string City, List<int> CartQuantity, List<int> CartPrice, List<int> ProductId,int flexRadioDefault,string razorpay_payment_id,string razorpay_order_id,string razorpay_signature)
-        {
+            {
             if (flexRadioDefault == 2)
             {
                 if (razorpay_order_id != null)
@@ -363,7 +363,19 @@ namespace DemoCrudMvc.Controllers
                     { "razorpay_signature", razorpay_signature }
                 };
 
-                    Utils.verifyPaymentSignature(attributes);
+                    try
+                    {
+                        Utils.verifyPaymentSignature(attributes);
+                        var customerId1 = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
+                        var orderDetails1 = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId1.CustomerId, razorpay_order_id);
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["Error"] = "Payment verification failed: " + ex.Message;
+                        return RedirectToAction("Index");
+                    }
                 }
                 var amount = 0;
             for (int i = 0;i < CartPrice.Count;i++) {

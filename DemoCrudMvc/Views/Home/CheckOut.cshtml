@@ -12,7 +12,37 @@
         overflow: hidden;
         text-overflow: ellipsis;
         color: #657380; /* Text color */
+
     }
+
+    .payment-method {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .form-check {
+        margin-bottom: 10px;
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    .form-check-label {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .payment-logo {
+        width: 24px;
+        height: 24px;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
 </style>
 @if (Model.Count > 0)
 {
@@ -102,18 +132,22 @@
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().City"></span>
                             </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="1">
-                            <label class="form-check-label" for="flexRadioDefault1">
-                                Cod
-                            </label>
+                        <div class="payment-method">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="1">
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    <img src="https://img.freepik.com/free-vector/flat-design-cash-delivery_23-2148808917.jpg?w=740&t=st=1718126619~exp=1718127219~hmac=d672e59fd0e3f99b19920d1a10140f073aabd1e58dcd6f7a1cb7586d0f3c479c" alt="Cash on Delivery" class="payment-logo"> Cash on Delivery
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked value="2">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    <img src="https://img.freepik.com/free-vector/flat-design-cash-delivery_23-2148808917.jpg?w=740&t=st=1718126619~exp=1718127219~hmac=d672e59fd0e3f99b19920d1a10140f073aabd1e58dcd6f7a1cb7586d0f3c479c" alt="Online Payment" class="payment-logo"> Online Payment
+                                </label>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked value="2">
-                            <label class="form-check-label" for="flexRadioDefault2">
-                                Online Payment
-                            </label>
-                        </div>
+
+
 
                     </div>
                 </div>
@@ -200,80 +234,124 @@
 
             </div>
         </form>
-        
     </div>
-}<script>
-     function RemoveCartItem() {
-         var form = document.getElementById('CheckoutForm');
-         console.log(form.checkValidity())
-         if (form.checkValidity()) {
-             var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked').value;
-             if (selectedRadio == "2") {
-                 var form = document.getElementById('CheckoutForm');
-                 var formData = new FormData(form);
 
-                 $.ajax({
-                     url: '@Url.Action("PlaceOrder", "Home")',
-                     type: 'POST',
-                     data: formData,
-                     contentType: false,
-                     processData: false,
-                     success: function (response) {
-                         console.log(response)
-                         // Assuming response contains orderId and other details for Razorpay
-                         var orderId = response.data.OrderId; // Fetch the order ID from response
+}
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize the validator
+    $('#CheckoutForm').validate({
+        rules: {
+            FirstName: {
+                required: true,
+                minlength: 2
+            },
+            LastName: {
+                required: true,
+                minlength: 2
+            },
+            RadioSelection: {
+                required: true
+            }
+        },
+        messages: {
+            FirstName: {
+                required: "Please enter your first name",
+                minlength: "Your first name must consist of at least 2 characters"
+            },
+            LastName: {
+                required: "Please enter your last name",
+                minlength: "Your last name must consist of at least 2 characters"
+            },
+            RadioSelection: {
+                required: "Please select an option"
+            }
+        },
+        errorElement: 'span',
+        errorClass: 'text-danger',
+        errorPlacement: function(error, element) {
+            if (element.attr("type") == "radio") {
+                error.appendTo(element.parent().parent());
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+});
 
-                         var options = {
-                             "key": "rzp_test_QhgKuwa09iAtCQ", 
-                             "name": response.data.FirstName+" "+response.data.LastName,
-                             "description": "Buy A Product",
-                             "order_id": orderId,
-                             "image": "https://example.com/your_logo",
-                             "prefill": {
-                                 "name": "Gaurav Kumar",
-                                 "email": "gaurav.kumar@example.com",
-                                 "contact": "+919000090000",
-                             },
-                             "notes": {
-                                 "address": "Hello World"
-                             },
-                             "theme": {
-                                 "color": "#3399cc",
-                                 "image_padding": false
-                             },
-                             "handler": function (response) {
-                                 console.log(response)
-                                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-                                 document.getElementById('razorpay_order_id').value = orderId;
-                                 document.getElementById('razorpay_signature').value = response.razorpay_signature;
-                                 form.submit();
-                             },
-                             "modal": {
-                                 "ondismiss": function () {
-                                     console.log("This code runs when the popup is closed");
-                                 },
-                                 "escape": true,
-                                 "backdropclose": true
-                             }
-                         };
+function RemoveCartItem() {
+    var form = $('#CheckoutForm');
 
-                         var rzp = new Razorpay(options);
-                         rzp.open();
-                     },
-                     error: function (response) {
-                         // Handle error response
-                         console.log(response);
-                     }
-                 });
-             }
+    // Check if the form is valid
+    if (form.valid()) {
+        console.log("gii")
 
-             // $('#loader').show();
+            var selectedRadio = $('input[name="flexRadioDefault"]:checked').val();
+            console.log("gii")
+        if (selectedRadio == "2") {
+            console.log(selectedRadio)
+            var formData = new FormData(form[0]);
 
-             // localStorage.clear();
-         }
-     }
+            $.ajax({
+                url: '@Url.Action("PlaceOrder", "Home")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    var orderId = response.data.OrderId; // Fetch the order ID from response
+
+                    var options = {
+                        "key": "rzp_test_QhgKuwa09iAtCQ",
+                        "name": response.data.FirstName + " " + response.data.LastName,
+                        "description": "Buy A Product",
+                        "order_id": orderId,
+                        "image": "https://example.com/your_logo",
+                        "prefill": {
+                            "name": "Gaurav Kumar",
+                            "email": "gaurav.kumar@example.com",
+                            "contact": "+919000090000",
+                        },
+                        "notes": {
+                            "address": "Hello World"
+                        },
+                        "theme": {
+                            "color": "#3399cc",
+                            "image_padding": false
+                        },
+                        "handler": function (response) {
+                            console.log(response);
+                            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                            document.getElementById('razorpay_order_id').value = orderId;
+                            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                            form[0].submit();
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                console.log("This code runs when the popup is closed");
+                            },
+                            "escape": true,
+                            "backdropclose": true
+                        }
+                    };
+
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        }
+            else {
+                form.submit(); // This will trigger validation and show error messages
+            }
+    }
+}
 </script>
-
 
 <form action="Charge.aspx" method="post" name="razorpayForm">
     <input id="razorpay_payment_id" type="hidden" name="razorpay_payment_id" />
