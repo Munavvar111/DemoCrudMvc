@@ -112,5 +112,19 @@ namespace DemoCrudMvc.Controllers
             var a = _order.OrderDetailsById(OrderUniqId);
             return View(a);  
         }
+
+        public IActionResult ReadOrderNotification(string orderId)
+        {
+            if (orderId != null)
+            {
+                _order.ReadOrderNotification(orderId);
+            }
+            return RedirectToAction("OrderDetails", new { id = orderId });
+        }
+        public IActionResult ReadAllNotification()
+        {
+            _order.ReadAllNotification();
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

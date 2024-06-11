@@ -331,6 +331,8 @@ namespace BAL.Repositry
             OrderProduct orderProduct= new OrderProduct();
             orderProduct.CustomerId = CustomerId;
             orderProduct.OrderUniqId = uniqNumber;
+            orderProduct.OrderDate = DateTime.Now;
+            orderProduct.NotificationBool = true;
             _context.OrderProducts.Add(orderProduct);
             _context.SaveChanges();     
             return true;

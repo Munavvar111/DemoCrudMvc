@@ -42,7 +42,7 @@
                             <div class="form-floating">
                                 <input type="text"
                                        class="form-control"
-                                       id="floatingInput"
+                                       id="Firstname"
                                        placeholder="name@example.com"
                                        asp-for="@Model.FirstOrDefault().FirstName" required />
                                 <label for="floatingInput">First Name</label>
@@ -53,7 +53,7 @@
                             <div class="form-floating">
                                 <input type="text"
                                        class="form-control"
-                                       id="floatingInput"
+                                       id="Lastname"
                                        placeholder="name@example.com"
                                        asp-for="@Model.FirstOrDefault().LastName" required />
                                 <label for="floatingInput">Last Name</label>
@@ -64,7 +64,7 @@
                             <div class="form-floating">
                                 <input type="text"
                                        class="form-control"
-                                       id="floatingInput"
+                                       id="email"
                                        placeholder="name@example.com"
                                        asp-for="@Model.FirstOrDefault().Email" required />
                                 <label for="floatingInput">Email</label>
@@ -75,7 +75,7 @@
                             <div class="form-floating">
                                 <input type="text"
                                        class="form-control"
-                                       id="floatingInput"
+                                       id="Address"
                                        placeholder="name@example.com" asp-for="@Model.FirstOrDefault().Address" required />
                                 <label for="floatingInput">Adress</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().Address"></span>
@@ -101,6 +101,18 @@
                                 <label for="floatingInput">City</label>
                                 <span class="text-danger" asp-validation-for="@Model.FirstOrDefault().City"></span>
                             </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="1">
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                Cod
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked value="2">
+                            <label class="form-check-label" for="flexRadioDefault2">
+                                Online Payment
+                            </label>
                         </div>
 
                     </div>
@@ -137,6 +149,7 @@
                                             <span class="fw-bolder">Total Price:</span>
                                             <span class="text-muted fw-bolder">$@(@item.CartItemPrice * @item.CartItemQuantity)</span>
                                         </div>
+
                                     </div>
 
                                 </div>
@@ -175,25 +188,98 @@
                                 </span>
                             </div>
                         </div>
+
+                        <input id="razorpay_payment_id" type="hidden" name="razorpay_payment_id" />
+                        <input id="razorpay_order_id" type="hidden" name="razorpay_order_id" />
+                        <input id="razorpay_signature" type="hidden" name="razorpay_signature" />
                     </div>
                     <div class="d-flex justify-content-end my-3 mr-5">
-                        <button class="btn btn-success" type="submit" onclick="RemoveCartItem()">Place The Order</button>
+                        <button class="btn btn-success" type="button" onclick="RemoveCartItem()">Place The Order</button>
                     </div>
                 </div>
 
             </div>
         </form>
-
+        
     </div>
 }<script>
      function RemoveCartItem() {
          var form = document.getElementById('CheckoutForm');
          console.log(form.checkValidity())
          if (form.checkValidity()) {
+             var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked').value;
+             if (selectedRadio == "2") {
+                 var form = document.getElementById('CheckoutForm');
+                 var formData = new FormData(form);
 
-             localStorage.clear();
+                 $.ajax({
+                     url: '@Url.Action("PlaceOrder", "Home")',
+                     type: 'POST',
+                     data: formData,
+                     contentType: false,
+                     processData: false,
+                     success: function (response) {
+                         console.log(response)
+                         // Assuming response contains orderId and other details for Razorpay
+                         var orderId = response.data.OrderId; // Fetch the order ID from response
+
+                         var options = {
+                             "key": "rzp_test_QhgKuwa09iAtCQ", 
+                             "name": response.data.FirstName+" "+response.data.LastName,
+                             "description": "Buy A Product",
+                             "order_id": orderId,
+                             "image": "https://example.com/your_logo",
+                             "prefill": {
+                                 "name": "Gaurav Kumar",
+                                 "email": "gaurav.kumar@example.com",
+                                 "contact": "+919000090000",
+                             },
+                             "notes": {
+                                 "address": "Hello World"
+                             },
+                             "theme": {
+                                 "color": "#3399cc",
+                                 "image_padding": false
+                             },
+                             "handler": function (response) {
+                                 console.log(response)
+                                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                                 document.getElementById('razorpay_order_id').value = orderId;
+                                 document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                                 form.submit();
+                             },
+                             "modal": {
+                                 "ondismiss": function () {
+                                     console.log("This code runs when the popup is closed");
+                                 },
+                                 "escape": true,
+                                 "backdropclose": true
+                             }
+                         };
+
+                         var rzp = new Razorpay(options);
+                         rzp.open();
+                     },
+                     error: function (response) {
+                         // Handle error response
+                         console.log(response);
+                     }
+                 });
+             }
+
+             // $('#loader').show();
+
+             // localStorage.clear();
          }
      }
 </script>
 
 
+<form action="Charge.aspx" method="post" name="razorpayForm">
+    <input id="razorpay_payment_id" type="hidden" name="razorpay_payment_id" />
+    <input id="razorpay_order_id" type="hidden" name="razorpay_order_id" />
+    <input id="razorpay_signature" type="hidden" name="razorpay_signature" />
+</form>
+
+<button id="rzp-button1">Pay with Razorpay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>

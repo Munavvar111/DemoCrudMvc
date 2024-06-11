@@ -121,7 +121,11 @@
                 </div>
                 <div class="col-md-4 mx-3">
                     <div class="product-details">
-                        <span class="text-info fw-bolder">There Are @ViewBag.ProductCount Buy In Last 7 seven day</span>
+                        <span class="text-info  fs-4">
+                            <span class="material-symbols-outlined">
+                                trending_up
+                            </span> <span class="fw-bold text-Info"> @ViewBag.ProductCount+ </span> People Ordered This In The Last 7  day
+                        </span>
                         <div class="product-name fs-3 fw-600 border-bottom" style="word-wrap:anywhere"><h4>@Model.ProductName</h4></div>
                         <div class="product-price text-black d-flex flex-column border-bottom">
                             <span class="fs-3">

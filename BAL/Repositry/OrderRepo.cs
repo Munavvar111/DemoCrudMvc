@@ -163,5 +163,24 @@ namespace BAL.Repositry
         public bool IsOrderIdExsits(string OrderUniqId) { 
         return _context.Orders.Any(item=>item.UniqOrderId == OrderUniqId);   
         }
+
+        public void ReadOrderNotification(string OrderUniqId)
+        {
+            var orderProduct = _context.OrderProducts.FirstOrDefault(item => item.OrderUniqId == OrderUniqId);
+            orderProduct.NotificationBool= false;
+            _context.OrderProducts.Update(orderProduct);
+            _context.SaveChanges();
+        }
+
+        public void ReadAllNotification()
+        {
+            var UnReadNotification = _context.OrderProducts.Where(item => item.OrderDate > DateTime.Now.AddHours(-2) && item.NotificationBool);
+            foreach(var item in UnReadNotification)
+            {
+                item.NotificationBool= false;
+                _context.OrderProducts.Update(item); 
+            }
+            _context.SaveChanges();
+        }
     }
 }

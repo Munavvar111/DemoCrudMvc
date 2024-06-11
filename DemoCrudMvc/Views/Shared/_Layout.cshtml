@@ -22,11 +22,14 @@
           rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <style>
         .dropdown-menu-notifications {
             max-height: 400px;
             overflow-y: auto;
-            width: 450px; /* Increased width for admin panel feel */
+            max-width:400px;
+            transform: translateX(-50%); /* Center the dropdown menu */
         }
 
         .notification-item {
@@ -137,14 +140,7 @@
                                         <span id="cartCount" class="cart-count"></span>
                                     </a>
                                 </li>
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" id="notificationDropdownToggle">Notification (<span id="countNotify">0</span>) <span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-notifications notification-panel" id="myNotifyList">
-                                        <li class="notification-panel-header">Notifications</li>
-                                        <!-- Notifications will be appended here -->
-                                        <li class="notification-panel-footer"><a href="/Notifications/AllNotifications">View all notifications</a></li>
-                                    </ul>
-                                </li>
+                                
 
                              
 
@@ -155,6 +151,16 @@
                                     <a class="navbar-brand mx-3" asp-action="Index" asp-controller="Order">
                                         Order
                                     </a>
+                                </li>
+                                <li class=" dropleft">
+                                    <a class="dropdown-toggle" style="text-decoration:none" data-toggle="dropdown" id="notificationDropdownToggle">
+                                        <i class="fa fa-bell" aria-hidden="true"></i>
+                                        (<span id="countNotify">0</span>) <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-notifications notification-panel" id="myNotifyList">
+                                        <li class="notification-panel-header">Notifications</li>
+                                        <li class="notification-panel-footer btn"><a class="btn btn-primary fw-bolder" asp-action="ReadAllNotification" asp-controller="Order">Read all notifications</a></li>
+                                    </ul>
                                 </li>
                             }
 
@@ -176,8 +182,9 @@
    
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
         <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -186,17 +193,15 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
                     @await RenderSectionAsync("Scripts", required: false)
         <script>
+        $(document).ready(function () {
+            // Show the loader immediately when the document is ready
+            $('#loader').show();
+        });
 
-
-            $(window).on('ready', function () {
-                console.log("hiilo")
-                $('#loader').fadeIn();
-            });
-
-            $(window).on('load', function () {
-                console.log("hii")
-                $('#loader').fadeOut();
-            });
+        $(window).on('load', function () {
+            // Hide the loader once the window has fully loaded
+            $('#loader').fadeOut();
+        });
             // $(document).ajaxStart(function () {
             //     console.log("sdfs")
             //     $('#loader').fadeIn();
@@ -211,7 +216,6 @@
     </body>
     </html>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">   
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var products = JSON.parse(localStorage.getItem('cart'));
@@ -220,14 +224,32 @@
             document.getElementById("cartCount").textContent = count;
         });
     </script>
+
 <script>
     $(document).ready(function () {
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-left",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
         let notifications = [];
         let currentNotificationIndex = 0;
         let notificationInterval;
         let fetchInterval;
 
-        function fetchNotifications() {
+        function fetchNotificationsToaster() {
             $.ajax({
                 type: "GET",
                 url: "/Home/GetNotificationData",
@@ -235,8 +257,9 @@
                     if (data.data === true) {
                         return;
                     } else {
+                        console.log(data)
                         notifications = data.data.$values || [];
-                        currentNotificationIndex = 0; // Reset index for new notifications
+                        currentNotificationIndex = 0; 
                     }
                 },
                 error: function () {
@@ -253,38 +276,33 @@
                 currentNotificationIndex++;
 
                 if (currentNotificationIndex >= notifications.length) {
-                    // All notifications have been displayed, fetch new notifications
                     currentNotificationIndex = 0;
                     clearInterval(notificationInterval);
-                    fetchNotifications();
-                    notificationInterval = setInterval(displayNotifications, 30000); // Restart displaying notifications
+                    fetchNotificationsToaster();
+                    notificationInterval = setInterval(displayNotifications, 10000); 
                 }
             }
         }
 
         function formatTimeDifference(timeDifference) {
             let [hours, minutes, seconds] = timeDifference.split(':');
-            seconds = seconds.split('.')[0]; // Remove milliseconds
+            seconds = seconds.split('.')[0]; 
             hours = parseInt(hours, 10);
             minutes = parseInt(minutes, 10);
             seconds = parseInt(seconds, 10);
-            return `${hours}h ${minutes}m ${seconds}s`;
+            return ` ${minutes}m ${seconds}s`;
         }
 
-        // Fetch notifications for the first time when the page loads
-        fetchNotifications();
+        fetchNotificationsToaster();
 
-        // Start displaying notifications after 20 seconds
         setTimeout(() => {
-            notificationInterval = setInterval(displayNotifications, 30000);
+            notificationInterval = setInterval(displayNotifications, 10000);
         }, 20000);
-    });
-</script>
-<script>
-    $(document).ready(function () {
+
+
         function fetchNotifications() {
             $.ajax({
-                url: '/Home/GetNotification', // Adjust the URL to match your controller/action
+                url: '/Home/GetNotification', 
                 type: 'GET',
                 success: function (response) {
                     console.log(response);
@@ -307,7 +325,7 @@
                 notifications.forEach(function (notification) {
                     var listItem = $('<li>').addClass('notification-item')
                         .append($('<a>')
-                            .attr('href', '/Notifications/NotificationDetails?orderId=' + notification.OrderId)
+                            .attr('href', '/Order/ReadOrderNotification?orderId=' + notification.OrderId)
                             .append($('<div>').addClass('notification-header').text(notification.CustomerName + ' placed an order'))
                             .append($('<div>').addClass('notification-time').text('Order ID: ' + notification.OrderId + ' at ' + notification.OrderTime))
                         );
@@ -318,22 +336,11 @@
                 $notifyList.find('.notification-panel-footer').before('<li class="notification-item">No new notifications</li>');
             }
 
-            // Adjust dropdown menu position
-            var dropdownToggle = $('#notificationDropdownToggle');
-            var dropdownMenu = $('#myNotifyList');
-            if (dropdownToggle.length && dropdownMenu.length) {
-                var dropdownMenuWidth = dropdownMenu.outerWidth();
-                var navbarWidth = $('.navbar-collapse').outerWidth();
-                var dropdownToggleOffset = dropdownToggle.offset().left;
-                if (dropdownToggleOffset + dropdownMenuWidth > navbarWidth) {
-                    dropdownMenu.css('right', 'auto');
-                    dropdownMenu.css('left', 'auto');
-                }
-            }
+           
         }
 
         fetchNotifications();
-        setInterval(fetchNotifications, 60000); // Fetch every 60 seconds
+        setInterval(fetchNotifications, 60000);
     });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+

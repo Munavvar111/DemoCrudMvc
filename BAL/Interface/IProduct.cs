@@ -1,5 +1,6 @@
 ﻿using DAL.DataModels;
 using DAL.ViewModals;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,5 +48,9 @@ namespace BAL.Interface
         public List<OrderProduct> OrderLastTwoHors();
 
         public List<NotificationVM> GetNotificationTwoHours();
+
+        //Task<MerchantOrder> ProcessMerchantOrder(CartItems cartItems);
+
+        //Task<string> CompleteOrderProcess(HttpContextAccessor httpContextAccessor);
     }
 }

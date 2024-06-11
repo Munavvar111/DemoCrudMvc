@@ -8,6 +8,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Razorpay.Api;
 //using System.Web.Mvc;
 
 namespace DemoCrudMvc.Controllers
@@ -349,11 +350,70 @@ namespace DemoCrudMvc.Controllers
             }
             return View(cartItems);
         }
-        public IActionResult PlaceOrder(string FirstName, string LastName, string Email, string Address, int ZipCode, string City, List<int> CartQuantity, List<int> CartPrice, List<int> ProductId)
+        public IActionResult PlaceOrder(string FirstName, string LastName, string Email, string Address, int ZipCode, string City, List<int> CartQuantity, List<int> CartPrice, List<int> ProductId,int flexRadioDefault,string razorpay_payment_id,string razorpay_order_id,string razorpay_signature)
         {
+            if (flexRadioDefault == 2)
+            {
+                if (razorpay_order_id != null)
+                {
+                    var attributes = new Dictionary<string, string>
+                {
+                    { "razorpay_payment_id", razorpay_payment_id },
+                    { "razorpay_order_id", razorpay_order_id },
+                    { "razorpay_signature", razorpay_signature }
+                };
+
+                    Utils.verifyPaymentSignature(attributes);
+                }
+                var amount = 0;
+            for (int i = 0;i < CartPrice.Count;i++) {
+            amount += CartPrice[i] * CartQuantity[i];
+            }
+            Dictionary<string, object> input = new Dictionary<string, object>();
+            input.Add("amount", amount); // this amount should be same as transaction amount
+            input.Add("currency", "INR");
+            input.Add("receipt", "12121");
+
+            string key = "rzp_test_QhgKuwa09iAtCQ";
+            string secret = "EPN5K5oBZerW2xhW103kenEQ";
+
+            RazorpayClient client = new RazorpayClient(key, secret);
+
+            Razorpay.Api.Order order = client.Order.Create(input);
+            var OrderId = order["id"].ToString();
+                MerchantOrder merchant = new MerchantOrder();
+                merchant.FirstName = FirstName;
+                merchant.LastName=LastName; 
+                merchant.Address = Address; 
+                merchant.OrderId = OrderId; 
+                merchant.ProductId = ProductId;
+                merchant.CartPrice = CartPrice;
+                merchant.Amount= amount;    
+                merchant.CartQuantity = CartQuantity;   
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                    MaxDepth = 128 // Optionally increase the max depth if needed
+                };
+                var jsonData = JsonSerializer.Serialize(new { data = merchant }, options);
+                return Content(jsonData, "application/json");
+            }
             var customerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
             var uniqNumber = Guid.NewGuid().ToString();
             var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId, uniqNumber);
+
+            //Dictionary<string, object> input = new Dictionary<string, object>();
+            //input.Add("amount", 100); // this amount should be same as transaction amount
+            //input.Add("currency", "INR");
+            //input.Add("receipt", "12121");
+
+            //string key = "<Enter your Api Key here>";
+            //string secret = "<Enter your Api Secret here>";
+
+            //RazorpayClient client = new RazorpayClient(key, secret);
+
+            //Razorpay.Api.Order order = client.Order.Create(input);
+            //orderId = order["id"].ToString();
             if (orderDetails)
             {
                 var orderTrackingUrl = Url.Action("TrackOrder", "Order", new { id = uniqNumber }, protocol: HttpContext.Request.Scheme);
@@ -377,7 +437,7 @@ namespace DemoCrudMvc.Controllers
 			}
 
 			return RedirectToAction("Index");
-        }
+            }
 
         public IActionResult CartViewBag()
         {
