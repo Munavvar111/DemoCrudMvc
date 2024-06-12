@@ -17,54 +17,54 @@ namespace DemoCrudMvc.Controllers
         public IActionResult Index()
         {
             ViewBag.Status = _order.GetAllStatus();
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
             return View();
         }
-        public IActionResult GetOrderDetail(string searchValue,int currentPage,int pageSize,string Change,bool boolvalue,int StatusTrack)
+        public IActionResult GetOrderDetail(string searchValue,int CurrentPage, int PageSize, string Change,bool BoolValue, int StatusTrack)
         {
-            var getOrderDetails=_order.GetOrderDetails(searchValue,Change,boolvalue,StatusTrack);
-            int totalItems = getOrderDetails.Count();
+            var GetOrderDetails=_order.GetOrderDetails(searchValue,Change, BoolValue, StatusTrack);
+            int TotalItems = GetOrderDetails.Count();
             //Count TotalPage
-            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            List<OrderVM> paginatedData = getOrderDetails.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.totalPages = totalPages;
+            int TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+            List<OrderVM> PaginatedData = GetOrderDetails.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToList();
+            ViewBag.totalPages = TotalPages;
 
-            ViewBag.CurrentPage = currentPage;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalEntries = totalItems;
-            return PartialView("OrderPartial",paginatedData);
+            ViewBag.CurrentPage = CurrentPage;
+            ViewBag.PageSize = PageSize;
+            ViewBag.TotalEntries = TotalItems;
+            return PartialView("OrderPartial",PaginatedData);
         }
 
-        public IActionResult TrackOrder(string id)
+        public IActionResult TrackOrder(string Id)
         {
-            if (id == null)
+            if (Id == null)
             {
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index","Home");
             }
 
             ViewBag.Status = _order.GetAllStatus();
-            if(!_order.IsOrderIdExsits(id)) { 
+            if(!_order.IsOrderIdExsits(Id)) { 
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index", "Home");
 
             }
-            var a = _order.OrderDetailsById(id);
-            if (a == null)
+            var order = _order.OrderDetailsById(Id);
+            if (order == null)
             {
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index","Home");
             }
-            return View(a);
+            return View(order);
         }
 
-        public IActionResult OrderDetails(string id)
+        public IActionResult OrderDetails(string Id)
         {
-            if (id == null)
+            if (Id == null)
             {
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index");
@@ -75,13 +75,13 @@ namespace DemoCrudMvc.Controllers
                 return RedirectToAction("index", "login");
             }
             ViewBag.Status = _order.GetAllStatus();
-            var a =_order.OrderDetailsById(id);
-            if (a == null)
+            var OrderDetails =_order.OrderDetailsById(Id);
+            if (OrderDetails == null)
             {
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index");
             }
-            return View(a);  
+            return View(OrderDetails);  
         }
         [HttpPost]
         public IActionResult UpdateStatus(int OrderStatus,string UniqId)
@@ -89,7 +89,7 @@ namespace DemoCrudMvc.Controllers
             if (_order.IsUpdateOrderStatus(UniqId, OrderStatus))
             {
                 TempData["SuccessMessage"] = "Your Order Shipment Has Been Updated";
-                return RedirectToAction("OrderDetails", new {id=UniqId});
+                return RedirectToAction("OrderDetails", new {Id =UniqId});
             }
             else
             {
@@ -101,25 +101,25 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult DownloadInvoic(string OrderUniqId)
         {
-            var orderdetails = _order.OrderDetailsById(OrderUniqId);
-            return new ViewAsPdf("InvoiceDetails", orderdetails)
+            var OrderDetails = _order.OrderDetailsById(OrderUniqId);
+            return new ViewAsPdf("InvoiceDetails", OrderDetails)
             {
                 FileName = "Invoice.pdf"
             };
         }
         public IActionResult OrderSuccessful(string OrderUniqId)
         {
-            var a = _order.OrderDetailsById(OrderUniqId);
-            return View(a);  
+            var OrderDetails = _order.OrderDetailsById(OrderUniqId);
+            return View(OrderDetails);  
         }
 
-        public IActionResult ReadOrderNotification(string orderId)
+        public IActionResult ReadOrderNotification(string OrderId)
         {
-            if (orderId != null)
+            if (OrderId != null)
             {
-                _order.ReadOrderNotification(orderId);
+                _order.ReadOrderNotification(OrderId);
             }
-            return RedirectToAction("OrderDetails", new { id = orderId });
+            return RedirectToAction("OrderDetails", new { Id = OrderId });
         }
         public IActionResult ReadAllNotification()
         {

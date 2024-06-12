@@ -64,7 +64,7 @@
 
                         <tr class="align-middle" style="@rowStyle">
                             <td style="@rowStyle">
-                                <img src="~/uploads/@item.featurePhoto" width="100px" class="img-thumbnail" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="@item.featurePhoto">
+                                <img src="~/uploads/@item.FeaturePhoto" width="100px" class="img-thumbnail" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="@item.FeaturePhoto">
 
                                 </td>
                             <td style="@rowStyle">@item.ProductName</td>
@@ -231,7 +231,7 @@ else
 
 
                 $.ajax({
-                    url: '/Home/delete/' + productId,
+                    url: '/Home/Delete/' + productId,
                     type: 'POST',
                     success: function (response) {
                         Swal.fire(
@@ -270,7 +270,7 @@ else
 
 
                     $.ajax({
-                        url: '/Home/restore/' + productId,
+                    url: '/Home/Restore/' + productId,
                         type: 'POST',
                         success: function (response) {
                             Swal.fire(

@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <input class="d-none" asp-for="filename" />
+        <input class="d-none" asp-for="FileName" />
         <div class="col">
             <div class="input-group input-group-lg">
                 <div id="fileName" class="form-control fs-6 align-middle">Select Files</div>
@@ -155,7 +155,7 @@
                                 <img src="~/uploads/@Model.FileNames[i]" class="card-img-top img-thumbnail" alt="Product Image" data-bs-toggle="modal" data-bs-target="#photoModal" data-image="@Model.FileNames[i]" width="100">
                                 <div>
 
-                                    <input type="radio" class="feature-photo-radio" name="featurePhoto" value="@Model.FileNames[i]" id="Photo_@i" @(Model.featurePhoto == Model.FileNames[i] ? "checked" : "") />
+                                    <input type="radio" class="feature-photo-radio" name="FeaturePhoto" value="@Model.FileNames[i]" id="Photo_@i" @(Model.FeaturePhoto == Model.FileNames[i] ? "checked" : "") />
                                     <label for="Photo_@i">Select Featured Photo</label>
                                 </div>
                             </div>

@@ -274,7 +274,7 @@
         function displayNotifications() {
             if (notifications.length > 0) {
                 let notification = notifications[currentNotificationIndex];
-                let message = ` ${notification.Customer.FirstName} ${notification.Customer.LastName},Purchaded: ${notification.product}, Order: ${formatTimeDifference(notification.OrderTime)}`;
+                let message = ` ${notification.Customer.FirstName} ${notification.Customer.LastName},Purchaded: ${notification.Product}, Order: ${formatTimeDifference(notification.OrderTime)}`;
                 toastr.info(message);
                 currentNotificationIndex++;
 

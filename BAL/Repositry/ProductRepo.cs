@@ -17,9 +17,9 @@ namespace BAL.Repositry
 
         public ProductRepo(ApplicationDbContext context) { _context = context; }
 
-        public List<ProductVM> GetProductList(string productName, string change, bool boolvalue)
+        public List<ProductVM> GetProductList(string ProductName, string Change, bool Boolvalue)
         {
-            var product = _context.Products.Include(item => item.Category).Select(pro => new ProductVM
+            var ProductsList = _context.Products.Include(item => item.Category).Select(pro => new ProductVM
             {
                 ProductName = pro.ProductName,
                 ProductId = pro.ProductId,
@@ -30,79 +30,80 @@ namespace BAL.Repositry
                 IsDeleted = (bool)pro.Isdeleted,
                 Quantity = (int)pro.Quantity,
                 DatePicker = pro.DateTimePicker.Value,
-                featurePhoto = pro.FeaturePhoto,
+                FeaturePhoto = pro.FeaturePhoto,
                 FileNames = _context.ProductPhotos.Where(item => item.ProductId == pro.ProductId).Select(item => item.PhotoName).ToList(),
-            }).Where(item => string.IsNullOrEmpty(productName) || (item.ProductName.ToLower().Contains(productName) || item.UniqueNo.Contains(productName) || item.CategoryName.ToLower().Contains(productName) || item.ProductDescription.ToLower().Contains(productName))).ToList();
+            }).Where(item => string.IsNullOrEmpty(ProductName) || (item.ProductName.ToLower().Contains(ProductName) || item.UniqueNo.Contains(ProductName) || item.CategoryName.ToLower().Contains(ProductName) || item.ProductDescription.ToLower().Contains(ProductName))).ToList();
 
-            if (boolvalue)
+            if (Boolvalue)
             {
 
-                switch (change)
+                switch (Change)
                 {
                     case "ProductId":
-                        product = product.OrderBy(p => p.ProductId).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.ProductId).ToList();
                         break;
 
                     case "ProductName":
-                        product = product.OrderBy(p => p.ProductName).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.ProductName).ToList();
                         break;
 
                     case "Category":
-                        product = product.OrderBy(p => p.CategoryName).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.CategoryName).ToList();
                         break;
                     case "Price":
-                        product = product.OrderBy(p => p.Price).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.Price).ToList();
                         break;
                     case "SerialNo":
-                        product = product.OrderBy(p => p.UniqueNo).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.UniqueNo).ToList();
                         break;
                     case "Description":
-                        product = product.OrderBy(p => p.UniqueNo).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.UniqueNo).ToList();
                         break;
                     case "Quantity":
-                        product = product.OrderBy(p => p.Quantity).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.Quantity).ToList();
                         break;
                     case "OrderDate":
-                        product = product.OrderBy(p => p.DatePicker).ToList();
+                        ProductsList = ProductsList.OrderBy(p => p.DatePicker).ToList();
                         break;
 
                 }
             }
             else
             {
-                switch (change)
+                switch (Change)
                 {
                     case "ProductId":
-                        product = product.OrderByDescending(p => p.ProductId).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.ProductId).ToList();
                         break;
 
                     case "ProductName":
-                        product = product.OrderByDescending(p => p.ProductName).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.ProductName).ToList();
                         break;
 
                     case "Category":
-                        product = product.OrderByDescending(p => p.CategoryName).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.CategoryName).ToList();
                         break;
 
                     case "Price":
-                        product = product.OrderByDescending(p => p.Price).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.Price).ToList();
                         break;
                     case "SerialNo":
-                        product = product.OrderByDescending(p => p.UniqueNo).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.UniqueNo).ToList();
                         break;
                     case "Description":
-                        product = product.OrderByDescending(p => p.ProductDescription).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.ProductDescription).ToList();
                         break;
                     case "Quantity":
-                        product = product.OrderByDescending(p => p.Quantity).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.Quantity).ToList();
                         break;
                     case "OrderDate":
-                        product = product.OrderByDescending(p => p.DatePicker).ToList();
+                        ProductsList = ProductsList.OrderByDescending(p => p.DatePicker).ToList();
                         break;
                 }
             }
+            _context.Dispose();
 
-            return product;
+            return ProductsList;
         }
 
         public List<Category> GetAllCategories()
@@ -110,95 +111,103 @@ namespace BAL.Repositry
             return _context.Categories.Where(item => item.IsDeleted == false).ToList();
         }
 
-        public bool DeleteProduct(int id)
+        public bool DeleteProduct(int Id)
         {
-            var product = _context.Products.Where(item => item.ProductId == id).FirstOrDefault();
-            product.Isdeleted = true;
-            _context.Products.Update(product);
+            var Product = _context.Products.Where(item => item.ProductId == Id).FirstOrDefault();
+            Product.Isdeleted = true;
+            _context.Products.Update(Product);
             _context.SaveChanges();
+            _context.Dispose();
+
             return true;
         }
 
-        public bool IsAddTheProduct(ProductVM product)
+        public bool IsAddTheProduct(ProductVM Product)
         {
             Product product1 = new Product();
-            product1.ProductName = product.ProductName;
-            product1.CategoryId = _context.Categories.Where(item => item.CategoryName == product.CategoryName).Select(item => item.CategoryId).FirstOrDefault();
+            product1.ProductName = Product.ProductName;
+            product1.CategoryId = _context.Categories.Where(item => item.CategoryName == Product.CategoryName).Select(item => item.CategoryId).FirstOrDefault();
             product1.UniqueNo = Guid.NewGuid().ToString();
-            product1.Price = (int)product.Price;
-            product1.Description = product.ProductDescription;
+            product1.Price = (int)Product.Price;
+            product1.Description = Product.ProductDescription;
             product1.Isdeleted = false;
-            product1.DateTimePicker = product.DatePicker;
-            product1.Quantity = product.Quantity;
-            product1.FeaturePhoto = product.FileNames.FirstOrDefault();
+            product1.DateTimePicker = Product.DatePicker;
+            product1.Quantity = Product.Quantity;
+            product1.FeaturePhoto = Product.FileNames.FirstOrDefault();
             _context.Products.Add(product1);
             _context.SaveChanges();
-            if (product.FileNames.Count > 0)
+            if (Product.FileNames.Count > 0)
             {
-                foreach (var file in product.FileNames)
+                foreach (var File in Product.FileNames)
                 {
                     ProductPhoto photo = new ProductPhoto();
                     photo.ProductId = product1.ProductId;
-                    photo.PhotoName = file;
+                    photo.PhotoName = File;
                     _context.ProductPhotos.Add(photo);
                     _context.SaveChanges();
                 }
+                _context.Dispose();
+
             }
 
             return true;
         }
 
-        public Product GetProductById(int id)
+        public Product GetProductById(int Id)
         {
-            return _context.Products.Include(item => item.Category).Include(item => item.ProductPhotos).Where(item => item.ProductId == id).FirstOrDefault();
+            return _context.Products.Include(item => item.Category).Include(item => item.ProductPhotos).Where(item => item.ProductId == Id).FirstOrDefault();
         }
 
-        public bool UpdateProduct(int id, ProductVM product)
+        public bool UpdateProduct(int Id, ProductVM Product)
         {
-            var updateProduct = _context.Products.Where(item => item.ProductId == id).FirstOrDefault();
-            updateProduct.UniqueNo = product.UniqueNo;
-            updateProduct.Price = product.Price;
-            updateProduct.Description = product.ProductDescription;
-            updateProduct.ProductName = product.ProductName;
-            updateProduct.DateTimePicker = product.DatePicker;
-            updateProduct.Quantity = product.Quantity;
-            updateProduct.FeaturePhoto = product.featurePhoto;
-            updateProduct.CategoryId = _context.Categories.Where(item => item.CategoryName == product.CategoryName).Select(item => item.CategoryId).FirstOrDefault();
-            _context.Update(updateProduct);
+            var UpdateProduct = _context.Products.Where(item => item.ProductId == Id).FirstOrDefault();
+            UpdateProduct.UniqueNo = Product.UniqueNo;
+            UpdateProduct.Price = Product.Price;
+            UpdateProduct.Description = Product.ProductDescription;
+            UpdateProduct.ProductName = Product.ProductName;
+            UpdateProduct.DateTimePicker = Product.DatePicker;
+            UpdateProduct.Quantity = Product.Quantity;
+            UpdateProduct.FeaturePhoto = Product.FeaturePhoto;
+            UpdateProduct.CategoryId = _context.Categories.Where(item => item.CategoryName == Product.CategoryName).Select(item => item.CategoryId).FirstOrDefault();
+            _context.Update(UpdateProduct);
             _context.SaveChanges();
-            if (product.FileNames.Count > 0)
+            if (Product.FileNames.Count > 0)
             {
-                foreach (var file in product.FileNames)
+                foreach (var File in Product.FileNames)
                 {
                     ProductPhoto photo = new ProductPhoto();
-                    photo.ProductId = id;
-                    photo.PhotoName = file;
+                    photo.ProductId = Id;
+                    photo.PhotoName = File;
                     _context.ProductPhotos.Add(photo);
                     _context.SaveChanges();
                 }
+                _context.Dispose();
+
             }
             return true;
         }
 
-        public User GetUser(string email)
+        public User GetUser(string Email)
         {
-            return _context.Users.Where(item => item.Email == email).FirstOrDefault();
+            return _context.Users.Where(item => item.Email == Email).FirstOrDefault();
         }
 
-        public void AddUser(RegistrationVM registration)
+        public void AddUser(RegistrationVM Registration)
         {
-            User user = new User();
-            user.UserId = Guid.NewGuid().ToString();
-            user.Password = BC.HashPassword(registration.Passwordhash);
-            user.Email = registration.Email;
-            _context.Add(user);
+            User User = new User();
+            User.UserId = Guid.NewGuid().ToString();
+            User.Password = BC.HashPassword(Registration.Passwordhash);
+            User.Email = Registration.Email;
+            _context.Add(User);
             _context.SaveChanges();
+            _context.Dispose();
+
         }
 
-        public bool IsLoginValid(loginVM login)
+        public bool IsLoginValid(loginVM Login)
         {
-            var user = _context.Users.Where(item => item.Email == login.Email).FirstOrDefault();
-            if (user == null || !BC.Verify(login.Passwordhash, user.Password))
+            var User = _context.Users.Where(item => item.Email == Login.Email).FirstOrDefault();
+            if (User == null || !BC.Verify(Login.Passwordhash, User.Password))
             {
                 return false;
             }
@@ -209,21 +218,21 @@ namespace BAL.Repositry
 
 
         }
-        public List<ProductPhoto> getProductPhoto(int id)
+        public List<ProductPhoto> GetProductPhoto(int Id)
         {
-            var photo = _context.ProductPhotos.Where(item => item.ProductId == id).ToList();
+            var photo = _context.ProductPhotos.Where(item => item.ProductId == Id).ToList();
             return photo;
         }
 
-        public bool DeletePhoto(string photoId)
+        public bool DeletePhoto(string PhotoId)
         {
-            var photo = _context.ProductPhotos.Include(item => item.Product).Where(item => item.PhotoName == photoId).FirstOrDefault();
-            var photos = _context.ProductPhotos.Where(item => item.ProductId == photo.Product.ProductId).ToList();
-            if (photos.Count > 0)
+            var Photo = _context.ProductPhotos.Include(item => item.Product).Where(item => item.PhotoName == PhotoId).FirstOrDefault();
+            var Photos = _context.ProductPhotos.Where(item => item.ProductId == Photo.Product.ProductId).ToList();
+            if (Photos.Count > 0)
             {
-                if (photo.Product.FeaturePhoto == photoId)
+                if (Photo.Product.FeaturePhoto == PhotoId)
                 {
-                    photo.Product.FeaturePhoto = photos.Where(item => item.PhotoName != photoId).FirstOrDefault().PhotoName;
+                    Photo.Product.FeaturePhoto = Photos.Where(item => item.PhotoName != PhotoId).FirstOrDefault().PhotoName;
                 }
             }
             else
@@ -231,41 +240,46 @@ namespace BAL.Repositry
                 return false;
             }
 
-            _context.ProductPhotos.Remove(photo);
+            _context.ProductPhotos.Remove(Photo);
             _context.SaveChanges();
+            _context.Dispose();
+
             return true;
         }
 
-        public bool IsRestore(int id)
+        public bool IsRestore(int Id)
         {
-            var product = _context.Products.FirstOrDefault(item => item.ProductId == id);
-            product.Isdeleted = false;
-            _context.Products.Update(product);
+            var Product = _context.Products.FirstOrDefault(item => item.ProductId == Id);
+            Product.Isdeleted = false;
+            _context.Products.Update(Product);
             _context.SaveChanges();
+            _context.Dispose();
+
             return true;
         }
 
-        public IEnumerable<Product> GetAllProducts(string searchValue, int? minPrice, int? maxPrice)
+        public IEnumerable<Product> GetAllProducts(string SearchValue, int? MinPrice, int? MaxPrice)
         {
-            var products = _context.Products
+            var Products = _context.Products
                 .Include(item => item.Category)
                 .Include(item => item.ProductPhotos)
-                .Where(item => string.IsNullOrEmpty(searchValue) || item.ProductName.ToLower().Contains(searchValue.ToLower()));
+                .Where(item => string.IsNullOrEmpty(SearchValue) || item.ProductName.ToLower().Contains(SearchValue.ToLower()));
 
-            if (minPrice.HasValue && maxPrice.HasValue)
+            if (MinPrice.HasValue && MaxPrice.HasValue)
             {
-                products = products.Where(item => item.Price >= minPrice.Value && item.Price <= maxPrice.Value);
+                Products = Products.Where(item => item.Price >= MinPrice.Value && item.Price <= MaxPrice.Value);
             }
+            _context.Dispose();
 
-            return products.ToList();
+            return Products.ToList();
         }
 
 
-        public List<CartItems> GetCartItems( Dictionary<string, int> cart)
+        public List<CartItems> GetCartItems( Dictionary<string, int> Cart)
         {
-            var productIds = cart.Keys.ToList(); // Extract product IDs from the cart dictionary
-            var cartItems = _context.Products
-                .Where(item => productIds.Contains(item.ProductId.ToString())) // Convert ProductId to string for comparison
+            var ProductIds = Cart.Keys.ToList(); // Extract product IDs from the cart dictionary
+            var CartItems = _context.Products
+                .Where(item => ProductIds.Contains(item.ProductId.ToString())) // Convert ProductId to string for comparison
                 .Select(item => new CartItems
                 {
                     CartItemName = item.ProductName,
@@ -273,11 +287,12 @@ namespace BAL.Repositry
                     CartMaxQuantity = (int)item.Quantity,
                     ProductId = item.ProductId,
                     CartFileName = item.FeaturePhoto,
-                    CartItemQuantity = cart[item.ProductId.ToString()] // Get the current quantity from the cart dictionary based on the product ID
+                    CartItemQuantity = Cart[item.ProductId.ToString()] // Get the current quantity from the cart dictionary based on the product ID
                 })
                 .ToList();
+            _context.Dispose();
 
-            return cartItems;
+            return CartItems;
 
         }
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City)
@@ -285,71 +300,76 @@ namespace BAL.Repositry
             var email = _context.Customers.FirstOrDefault(item => item.Email == Email);
             if (email == null)
             {
-                Customer customer = new Customer();
-                customer.FirstName = FirstName;
-                customer.LastName = LastName;
-                customer.Email = Email;
-                customer.Address = Address;
-                customer.City = City;
-                customer.ZipCode = ZipCode;
-                _context.Customers.Add(customer);
+                Customer Customer = new Customer();
+                Customer.FirstName = FirstName;
+                Customer.LastName = LastName;
+                Customer.Email = Email;
+                Customer.Address = Address;
+                Customer.City = City;
+                Customer.ZipCode = ZipCode;
+                _context.Customers.Add(Customer);
                 _context.SaveChanges();
-                return customer;
+                _context.Dispose();
+
+                return Customer;
             }
             else
             {
                 return email;
             }
         }
-        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId, string uniqNumber, string? razorpay_payment_id, string? razorpay_signature, int pType)
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId, string UniqNumber, string? RazorPayPaymentId, string? RazorpaySignature, int pType)
         {
    
             for (int i = 0; i < CartQuantity.Count; i++)
             {
 
-                Order order = new Order();
-                order.OrderPrice = (int)CartPrice[i];
-                order.OrderQuantity = (int)CartQuantity[i];
-                order.CustomerId = CustomerId;
-                order.ProductId = ProductId[i];
-                var product = _context.Products.FirstOrDefault(item => item.ProductId == ProductId[i]);
-                product.Quantity = product.Quantity - CartQuantity[i];
-                order.OrderDate = DateTime.Now;
-                order.UniqOrderId= uniqNumber;  
-                order.Status = 1;
-                _context.Products.Update(product);
-                _context.Orders.Add(order);
+                Order Order = new Order();
+                Order.OrderPrice = (int)CartPrice[i];
+                Order.OrderQuantity = (int)CartQuantity[i];
+                Order.CustomerId = CustomerId;
+                Order.ProductId = ProductId[i];
+                var Product = _context.Products.FirstOrDefault(item => item.ProductId == ProductId[i]);
+                Product.Quantity = Product.Quantity - CartQuantity[i];
+                Order.OrderDate = DateTime.Now;
+                Order.UniqOrderId= UniqNumber;  
+                Order.Status = 1;
+                _context.Products.Update(Product);
+                _context.Orders.Add(Order);
                 _context.SaveChanges();
+
             }
-            OrderStatusLog orderStatusLog = new OrderStatusLog();
-            orderStatusLog.OrderStatus =1;
-            orderStatusLog.UniqOrderId =uniqNumber;
-            orderStatusLog.UpDatedDate = DateTime.Now;
-            _context.OrderStatusLogs.Add(orderStatusLog);
+            OrderStatusLog OrderStatusLog = new OrderStatusLog();
+            OrderStatusLog.OrderStatus =1;
+            OrderStatusLog.UniqOrderId =UniqNumber;
+            OrderStatusLog.UpDatedDate = DateTime.Now;
+            _context.OrderStatusLogs.Add(OrderStatusLog);
             _context.SaveChanges();
 
-            Payment payment=new Payment();
-            payment.PaymentOrderId= uniqNumber;
-            payment.PaymentType = pType;
-            payment.RazorPaymentId = razorpay_payment_id;
-            payment.RazorSignature=razorpay_signature;
-            _context.Payments.Add(payment); 
+            Payment Payment=new Payment();
+            Payment.PaymentOrderId= UniqNumber;
+            Payment.PaymentType = pType;
+            Payment.RazorPaymentId = RazorPayPaymentId;
+            Payment.RazorSignature=RazorpaySignature;
+            _context.Payments.Add(Payment); 
             _context.SaveChanges();
 
-            OrderProduct orderProduct= new OrderProduct();
-            orderProduct.CustomerId = CustomerId;
-            orderProduct.OrderUniqId = uniqNumber;
-            orderProduct.OrderDate = DateTime.Now;
-            orderProduct.NotificationBool = true;
-            orderProduct.PaymentId=payment.PaymentId;
-            _context.OrderProducts.Add(orderProduct);
-            _context.SaveChanges();     
+            OrderProduct OrderProduct= new OrderProduct();
+            OrderProduct.CustomerId = CustomerId;
+            OrderProduct.OrderUniqId = UniqNumber;
+            OrderProduct.OrderDate = DateTime.Now;
+            OrderProduct.NotificationBool = true;
+            OrderProduct.PaymentId=Payment.PaymentId;
+            _context.OrderProducts.Add(OrderProduct);
+            _context.SaveChanges(); 
+            _context.Dispose();
+
             return true;
         }
 
-		public int ProductCountSevenDay(int id)
+		public int ProductCountSevenDay(int Id)
         {
-            return _context.Orders.Where(item=>item.ProductId== id &&  item.OrderDate>=DateTime.Now.AddDays(-7)).Count(); 
+            return _context.Orders.Where(item=>item.ProductId== Id &&  item.OrderDate>=DateTime.Now.AddDays(-7)).Count(); 
         }
         public List<OrderProduct> OrderLastTwoHors()
         {
@@ -363,6 +383,7 @@ namespace BAL.Repositry
                 OrderId=item.OrderUniqId,
                 CustomerName=item.Customer.FirstName,
             }).ToList();
+
         }
     }
 }

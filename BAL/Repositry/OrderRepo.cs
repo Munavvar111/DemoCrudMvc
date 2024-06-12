@@ -19,7 +19,7 @@ namespace BAL.Repositry
         {
             _context = context;
         }
-        public List<OrderVM> GetOrderDetails(string SearchValue, string change, bool boolValue,int StatusTrack)
+        public List<OrderVM> GetOrderDetails(string SearchValue, string Change, bool BoolValue,int StatusTrack)
             {
 
             var ordersDetail = _context.OrderProducts.Include(item => item.Customer).Select(item => new OrderVM
@@ -32,10 +32,10 @@ namespace BAL.Repositry
                 Status = _context.Orders.FirstOrDefault(items => items.UniqOrderId == item.OrderUniqId).Status,
             }).OrderBy(item => item.Status).Where(item=>(string.IsNullOrEmpty(SearchValue) || item.CustomerName.ToLower().Contains(SearchValue) 
             || item.Address.ToLower().Contains(SearchValue) || item.UniqOrderId.ToLower().Contains(SearchValue)) &&( StatusTrack==0 || item.Status==StatusTrack) ).ToList();
-            if (boolValue)
+            if (BoolValue)
             {
 
-                switch (change)
+                switch (Change)
                 {
                     case "OrderId":
                         ordersDetail = ordersDetail.OrderBy(p => p.UniqOrderId).ToList();
@@ -60,7 +60,7 @@ namespace BAL.Repositry
             }
             else
             {
-                switch (change)
+                switch (Change)
                 {
                     case "OrderId":
                         ordersDetail = ordersDetail.OrderByDescending(p => p.OrderId).ToList();
@@ -83,23 +83,25 @@ namespace BAL.Repositry
                    
                 }
             }
-            foreach (var order in ordersDetail)
+            foreach (var Order in ordersDetail)
             {
-                if (order.Status != null)
+                if (Order.Status != null)
                 {
-                    var status = _context.OrderStatuses.FirstOrDefault(s => s.StatusId == order.Status);
+                    var status = _context.OrderStatuses.FirstOrDefault(s => s.StatusId == Order.Status);
                     if (status != null)
                     {
-                        order.CureentStatus = status.StatusName;
+                        Order.CureentStatus = status.StatusName;
                     }
                 }
             }
-                return ordersDetail;
+            _context.Dispose();
+
+            return ordersDetail;
         }
 
         public List<OrderVM> OrderDetailsById(string OrderId)
         {
-            var a = _context.Orders.Include(item => item.Product).Include(item => item.Customer).Where(item => item.UniqOrderId == OrderId).Select(item => new OrderVM
+            var OrderDetails = _context.Orders.Include(item => item.Product).Include(item => item.Customer).Where(item => item.UniqOrderId == OrderId).Select(item => new OrderVM
             {
                 OrderId = item.OrderId,
                 OrderDate = item.OrderDate,
@@ -117,7 +119,9 @@ namespace BAL.Repositry
                 CustomerCity = item.Customer.City,
                 StatusLog = _context.OrderStatusLogs.Where(item => item.UniqOrderId == OrderId).ToList()
             }).ToList();
-            return a;
+            _context.Dispose();
+
+            return OrderDetails;
         }
 
         public List<OrderStatus> GetAllStatus()
@@ -151,6 +155,7 @@ namespace BAL.Repositry
                 orderStatusLog.UpDatedDate = DateTime.Now;
                 _context.OrderStatusLogs.Add(orderStatusLog);
                 _context.SaveChanges();
+                _context.Dispose();
 
                 return true;
             }
@@ -166,21 +171,25 @@ namespace BAL.Repositry
 
         public void ReadOrderNotification(string OrderUniqId)
         {
-            var orderProduct = _context.OrderProducts.FirstOrDefault(item => item.OrderUniqId == OrderUniqId);
-            orderProduct.NotificationBool= false;
-            _context.OrderProducts.Update(orderProduct);
+            var OrderProduct = _context.OrderProducts.FirstOrDefault(item => item.OrderUniqId == OrderUniqId);
+            OrderProduct.NotificationBool= false;
+            _context.OrderProducts.Update(OrderProduct);
             _context.SaveChanges();
+            _context.Dispose();
+
         }
 
         public void ReadAllNotification()
         {
             var UnReadNotification = _context.OrderProducts.Where(item => item.OrderDate > DateTime.Now.AddHours(-2) && item.NotificationBool);
-            foreach(var item in UnReadNotification)
+            foreach(var Item in UnReadNotification)
             {
-                item.NotificationBool= false;
-                _context.OrderProducts.Update(item); 
+                Item.NotificationBool= false;
+                _context.OrderProducts.Update(Item); 
             }
             _context.SaveChanges();
+            _context.Dispose();
+
         }
     }
 }

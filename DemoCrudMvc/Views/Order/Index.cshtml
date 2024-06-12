@@ -93,13 +93,13 @@
     }, 500));
 
     function filterTable(currentPage, pageSize) {
-        var searchValue = $("#searchInput").val();
+        var SearchValue = $("#searchInput").val();
         var StatusTrack = $("#StatusTrack").val();
         $.ajax({
             type: "GET",
             url: "/Order/GetOrderDetail",
             traditional: true,
-            data: { searchValue, currentPage, pageSize, Change, boolvalue, StatusTrack },
+            data: { SearchValue, CurrentPage:currentPage,PageSize:pageSize, Change, BoolValue:boolvalue, StatusTrack },
             success: function (data) {
                 $('#OrderPartial').html(data);
             }

@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProduct,ProductRepo>();
 builder.Services.AddScoped<ICategory,CategoryRepo>();	
 builder.Services.AddScoped<IEmailService,EmailRepo>();
+builder.Services.AddScoped<IUploadFile,UploadFileRepo>();
 builder.Services.AddScoped<IOrder,OrderRepo>();
 builder.Services.AddControllersWithViews()
                 .AddJsonOptions(options =>
@@ -28,7 +29,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseNpgsql(builder.Configuration.GetConnectionString("ProductManagementDatabase"));
 });
 var app = builder.Build();
 

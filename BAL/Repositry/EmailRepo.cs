@@ -18,28 +18,28 @@ namespace BAL.Repositry
         public EmailRepo(IConfiguration configuration) { 
             _configuration = configuration;
         }
-        public bool IsSendEmail(string toEmail, string subject, string body)
+        public bool IsSendEmail(string ToEmail, string Subject, string Body)
         {
             try
             {
-                var emailSettings = _configuration.GetSection("EmailSettings");
-                var message = new MimeMessage();
-                var from = new MailboxAddress(emailSettings["SenderName"], emailSettings["SenderEmail"]);
-                var to = new MailboxAddress("", toEmail);
-                message.From.Add(from);
-                message.To.Add(to);
-                message.Subject = subject;
+                var EmailSetting = _configuration.GetSection("EmailSettings");
+                var Message = new MimeMessage();
+                var From = new MailboxAddress(EmailSetting["SenderName"], EmailSetting["SenderEmail"]);
+                var To = new MailboxAddress("", ToEmail);
+                Message.From.Add(From);
+                Message.To.Add(To);
+                Message.Subject = Subject;
 
                 var bodyBuilder = new BodyBuilder();
-                bodyBuilder.HtmlBody = body;
+                bodyBuilder.HtmlBody = Body;
 
-                message.Body = bodyBuilder.ToMessageBody();
+                Message.Body = bodyBuilder.ToMessageBody();
 
                 using (var client = new MailKit.Net.Smtp.SmtpClient())
                 {
-                    client.Connect(emailSettings["SmtpServer"], int.Parse(emailSettings["SmtpPort"]));
-                    client.Authenticate(emailSettings["SmtpUsername"], emailSettings["SmtpPassword"]);
-                    client.Send(message);
+                    client.Connect(EmailSetting["SmtpServer"], int.Parse(EmailSetting["SmtpPort"]));
+                    client.Authenticate(EmailSetting["SmtpUsername"], EmailSetting["SmtpPassword"]);
+                    client.Send(Message);
                     client.Disconnect(true);
                 }
                 return true;

@@ -17,33 +17,33 @@ namespace BAL.Interface
 
         public bool IsAddTheProduct(ProductVM    product); 
 
-        public Product GetProductById(int id);  
+        public Product GetProductById(int Id);  
 
-        public bool UpdateProduct(int id, ProductVM product);
+        public bool UpdateProduct(int Id, ProductVM Product);
 
-        public bool DeleteProduct(int id);
+        public bool DeleteProduct(int Id);
 
-        public User GetUser(string email);
+        public User GetUser(string Email);
 
-        public void AddUser(RegistrationVM registration);
+        public void AddUser(RegistrationVM Registration);
 
-        public bool IsLoginValid(loginVM login);
+        public bool IsLoginValid(loginVM Login);
 
-        public List<ProductPhoto> getProductPhoto(int id);
+        public List<ProductPhoto> GetProductPhoto(int Id);
 
-        public bool DeletePhoto(string photoId);
+        public bool DeletePhoto(string PhotoId);
 
-        public bool IsRestore(int id);
+        public bool IsRestore(int Id);
 
-        public IEnumerable<Product> GetAllProducts(string searchValue,int? maxValue,int? minValue);
+        public IEnumerable<Product> GetAllProducts(string SearchValue,int? MaxValue,int? MinValue);
 
-        public List<CartItems> GetCartItems(Dictionary<string, int> cart);
+        public List<CartItems> GetCartItems(Dictionary<string, int> Cart);
 
         public Customer AddCustomerDetaile(string FirstName, string LastName, string Email, string Address, int ZipCode, string City);
 
-        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string uniqNumber, string? razorpay_payment_id, string? razorpay_signature,int pType);
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string UniqNumber, string? RazorPayPaymentId, string? RazorpaySignature,int PayType);
 
-        public int ProductCountSevenDay(int id);
+        public int ProductCountSevenDay(int Id);
 
         public List<OrderProduct> OrderLastTwoHors();
 

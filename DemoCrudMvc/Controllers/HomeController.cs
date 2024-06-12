@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Razorpay.Api;
+using DAL.DataModels;
 //using System.Web.Mvc;
 
 namespace DemoCrudMvc.Controllers
@@ -18,12 +19,14 @@ namespace DemoCrudMvc.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProduct _product;
         private readonly IOrder _order;
+        private readonly IUploadFile _uploadFile;
         private readonly IEmailService _emailService;
 
-        public HomeController(ILogger<HomeController> logger, IProduct product, IEmailService emailService,IOrder order)
+        public HomeController(ILogger<HomeController> logger, IProduct product, IEmailService emailService,IOrder order,IUploadFile uploadFile)
         {
             _logger = logger;
             _order= order;  
+            _uploadFile=uploadFile; 
             _emailService = emailService;
             _product = product;
         }
@@ -31,13 +34,13 @@ namespace DemoCrudMvc.Controllers
         public IActionResult Index()
         {
 
-            var email = HttpContext.Session.GetString("email");
-            if (email != null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email != null)
             {
                 return RedirectToAction("Product");
             }
-            var product = _product.GetAllProducts("", null, null);
-            ViewBag.Count = product.Count();
+            var Product = _product.GetAllProducts("", null, null);
+            ViewBag.Count = Product.Count();
             var a = HttpContext.Session.GetInt32("CurrentCart");
             if (a == null)
             {
@@ -51,60 +54,60 @@ namespace DemoCrudMvc.Controllers
         {
             if (selectedPrices.Length == 0)
             {
-                var productes = _product.GetAllProducts(searchValue, null, null);
-                return PartialView("ProductListingPartial", productes);
+                var Productes = _product.GetAllProducts(searchValue, null, null);
+                return PartialView("ProductListingPartial", Productes);
             }
 
-            int minPrice = int.MaxValue;
-            int maxPrice = int.MinValue;
+            int MinPrice = int.MaxValue;
+            int MaxPrice = int.MinValue;
 
-            foreach (var priceRange in selectedPrices)
+            foreach (var PriceRange in selectedPrices)
             {
-                var parts = priceRange.Split('-');
-                int min = int.Parse(parts[0]);
-                int max = int.Parse(parts[1]);
+                var Parts = PriceRange.Split('-');
+                int Min = int.Parse(Parts[0]);
+                int Max = int.Parse(Parts[1]);
 
-                if (min < minPrice)
+                if (Min < MinPrice)
                 {
-                    minPrice = min;
+                    MinPrice = Min;
                 }
 
-                if (max > maxPrice)
+                if (Max > MaxPrice)
                 {
-                    maxPrice = max;
+                    MaxPrice = Max;
                 }
             }
 
-            var products = _product.GetAllProducts(searchValue, minPrice, maxPrice);
+            var Products = _product.GetAllProducts(searchValue, MinPrice, MaxPrice);
 
             if (HttpContext.Session.GetInt32("CurrentCart") == null)
             {
                 HttpContext.Session.SetInt32("CurrentCart", 0);
             }
 
-            return PartialView("ProductListingPartial", products);
+            return PartialView("ProductListingPartial", Products);
         }
 
         public IActionResult GetProductData(string searchValue, int currentPage, int pageSize, string change, bool boolvalue)
         {
 
             ViewBag.Categorys = _product.GetAllCategories();
-            var data = _product.GetProductList(searchValue, change, boolvalue);
-            int totalItems = data.Count();
+            var Data = _product.GetProductList(searchValue, change, boolvalue);
+            int TotalItems = Data.Count();
             //Count TotalPage
-            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            List<ProductVM> paginatedData = data.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.totalPages = totalPages;
+            int TotalPages = (int)Math.Ceiling((double)TotalItems / pageSize);
+            List<ProductVM> PaginatedData = Data.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            ViewBag.totalPages = TotalPages;
 
             ViewBag.CurrentPage = currentPage;
             ViewBag.PageSize = pageSize;
-            ViewBag.TotalEntries = totalItems;
+            ViewBag.TotalEntries = TotalItems;
 
-            return PartialView("productPartial", paginatedData);
+            return PartialView("productPartial", PaginatedData);
         }
 
 
-        public IActionResult delete(int id)
+        public IActionResult Delete(int id)
         {
             if (_product.DeleteProduct(id))
             {
@@ -115,8 +118,8 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult AddTask()
         {
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
@@ -127,8 +130,8 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult Product()
         {
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
@@ -151,27 +154,21 @@ namespace DemoCrudMvc.Controllers
                     return View("AddTask", product);
                 }
 
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                var UploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
                 // Ensure the uploads folder exists
-                if (!Directory.Exists(uploadsFolder))
+                if (!Directory.Exists(UploadsFolder))
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    Directory.CreateDirectory(UploadsFolder);
                 }
 
-                foreach (var file in product.Files)
+                foreach (var File in product.Files)
                 {
-                    if (file != null && file.Length > 0)
+                    if (File != null && File.Length > 0)
                     {
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                      var UniqueFileName= _uploadFile.UploadFile(File);
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        product.FileNames.Add(uniqueFileName);
+                        product.FileNames.Add(UniqueFileName);
                     }
                 }
                 if (_product.IsAddTheProduct(product))
@@ -184,64 +181,64 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult updateProduct(int id)
+        public IActionResult UpdateProduct(int Id)
         {
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            string Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
-            var getProduct = _product.GetProductById(id);
-            var getProductFile = _product.getProductPhoto(id); ;
+            var GetProduct = _product.GetProductById(Id);
+            var GetProductFile = _product.GetProductPhoto(Id); ;
             ViewBag.Categorys = _product.GetAllCategories();
-            var product = new ProductVM();
-            product.ProductId = id;
-            product.UniqueNo = getProduct.UniqueNo;
-            product.ProductName = getProduct.ProductName;
-            product.DatePicker = getProduct.DateTimePicker.Value;
-            product.Quantity = (int)getProduct.Quantity;
-            product.featurePhoto = getProduct.FeaturePhoto;
-            foreach (var file in getProductFile)
+            var Product = new ProductVM();
+            Product.ProductId = Id;
+            Product.UniqueNo = GetProduct.UniqueNo;
+            Product.ProductName = GetProduct.ProductName;
+            Product.DatePicker = GetProduct.DateTimePicker.Value;
+            Product.Quantity = (int)GetProduct.Quantity;
+            Product.FeaturePhoto = GetProduct.FeaturePhoto;
+            foreach (var File in GetProductFile)
             {
-                product.FileNames.Add(file.PhotoName);
+                Product.FileNames.Add(File.PhotoName);
             }
-            product.ProductDescription = getProduct.Description;
-            product.CategoryName = getProduct.Category.CategoryName;
-            product.Price = (int)getProduct.Price;
-            return View(product);
+            Product.ProductDescription = GetProduct.Description;
+            Product.CategoryName = GetProduct.Category.CategoryName;
+            Product.Price = (int)GetProduct.Price;
+            return View(Product);
         }
 
-        public async Task<IActionResult> ProductUpdateAsync(int id, ProductVM product, string featurePhoto)
+        public async Task<IActionResult> ProductUpdateAsync(int Id, ProductVM Product, string FeaturePhoto)
         {
-            if (featurePhoto == null)
+            if (FeaturePhoto == null)
             {
-                product.featurePhoto = product.Files.FirstOrDefault().FileName;
+                Product.FeaturePhoto = Product.Files.FirstOrDefault().FileName;
             }
             else
             {
 
-                product.featurePhoto = featurePhoto;
+                Product.FeaturePhoto = FeaturePhoto;
             }
             ViewBag.Categorys = _product.GetAllCategories();
             if (!ModelState.IsValid)
             {
-                product.ProductId = id;
-                var getProductFile = _product.getProductPhoto(id); ;
-                foreach (var file in getProductFile)
+                Product.ProductId = Id;
+                var GetProductFile = _product.GetProductPhoto(Id); ;
+                foreach (var file in GetProductFile)
                 {
-                    product.FileNames.Add(file.PhotoName);
+                    Product.FileNames.Add(file.PhotoName);
                 }
-                return View("updateProduct", product);
+                return View("UpdateProduct", Product);
             }
             else
             {
 
-                if (product.Files == null || !product.Files.Any())
+                if (Product.Files == null || !Product.Files.Any())
                 {
-                    if (_product.UpdateProduct(id, product))
+                    if (_product.UpdateProduct(Id, Product))
                     {
                         TempData["SuccessMessage"] = "Product Update Succefully!!!";
-                        return RedirectToAction("updateProduct", new { id = id });
+                        return RedirectToAction("updateProduct", new { id = Id });
                     }
                 }
 
@@ -253,25 +250,19 @@ namespace DemoCrudMvc.Controllers
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                foreach (var file in product.Files)
+                foreach (var File in Product.Files)
                 {
-                    if (file != null && file.Length > 0)
+                    if (File != null && File.Length > 0)
                     {
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        var UniqueFileName = _uploadFile.UploadFile(File);
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        product.FileNames.Add(uniqueFileName);
+                        Product.FileNames.Add(UniqueFileName);
                     }
                 }
-                if (_product.UpdateProduct(id, product))
+                if (_product.UpdateProduct(Id, Product))
                 {
                     TempData["SuccessMessage"] = "Product Update Succefully!!!";
-                    return RedirectToAction("updateProduct", new { id = id });
+                    return RedirectToAction("updateProduct", new { id = Id });
                 }
 
                 return View("updateProduct");
@@ -301,9 +292,9 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult restore(int id)
+        public IActionResult Restore(int Id)
         {
-            if (_product.IsRestore(id))
+            if (_product.IsRestore(Id))
             {
                 return Ok();
             }
@@ -313,12 +304,11 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult ProductDetails(int id)
+        public IActionResult ProductDetails(int Id)
         {
-            var productDetails = _product.GetProductById(id);
-            ViewBag.ProductCount = _product.ProductCountSevenDay(id);
-            ProductVM vm = new ProductVM();
-            return View(productDetails);
+            var ProductDetails = _product.GetProductById(Id);
+            ViewBag.ProductCount = _product.ProductCountSevenDay(Id);
+            return View(ProductDetails);
         }
         public IActionResult AddToCart()
         {
@@ -338,19 +328,19 @@ namespace DemoCrudMvc.Controllers
         [HttpPost]
         public IActionResult CheckOut(List<int> productID, List<int> CartPrice, List<int> CartQuantity, List<string> Cartname, List<int> quantity)
         {
-            List<CartItems> cartItems = new List<CartItems>();
+            List<CartItems> CartItems = new List<CartItems>();
             for (int i = 0; i < productID.Count; i++)
             {
-                CartItems cartItem = new CartItems(); // Instantiate a new CartItems object
-                cartItem.ProductId = productID[i];
-                cartItem.CartItemQuantity = quantity[i];
-                cartItem.CartItemName = Cartname[i];
-                cartItem.CartItemPrice = CartPrice[i];
-                cartItem.CartFileName = _product.getProductPhoto(productID[i]).FirstOrDefault().PhotoName;
+                CartItems CartItem = new CartItems(); // Instantiate a new CartItems object
+                CartItem.ProductId = productID[i];
+                CartItem.CartItemQuantity = quantity[i];
+                CartItem.CartItemName = Cartname[i];
+                CartItem.CartItemPrice = CartPrice[i];
+                CartItem.CartFileName = _product.GetProductPhoto(productID[i]).FirstOrDefault().PhotoName;
 
-                cartItems.Add(cartItem);
+                CartItems.Add(CartItem);
             }
-            return View(cartItems);
+            return View(CartItems);
         }
         public IActionResult PlaceOrder(string FirstName, string LastName, string Email, string Address, int ZipCode, string City, List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int flexRadioDefault, string razorpay_payment_id, string razorpay_order_id, string razorpay_signature)
         {
@@ -368,8 +358,8 @@ namespace DemoCrudMvc.Controllers
                     try
                     {
                         Utils.verifyPaymentSignature(attributes);
-                        var customerId1 = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
-                        var orderDetails1 = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId1.CustomerId,razorpay_order_id, razorpay_payment_id,razorpay_signature,flexRadioDefault);
+                        var CustomerDetails1 = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
+                        var OrderDetails1 = _product.OrderDetails(CartQuantity, CartPrice, ProductId, CustomerDetails1.CustomerId,razorpay_order_id, razorpay_payment_id,razorpay_signature,flexRadioDefault);
                         return RedirectToAction("OrderSuccessful", "Order", new { OrderUniqId = razorpay_order_id });
                     }
                     catch (Exception ex)
@@ -378,51 +368,51 @@ namespace DemoCrudMvc.Controllers
                         return RedirectToAction("CheckOut");
                     }
                 }
-                var amount = 0;
+                var Amount = 0;
                 for (int i = 0; i < CartPrice.Count; i++)
                 {
-                    amount += CartPrice[i] * CartQuantity[i];
+                    Amount += CartPrice[i] * CartQuantity[i];
                 }
-                Dictionary<string, object> input = new Dictionary<string, object>();
-                input.Add("amount", amount*100); // this amount should be same as transaction amount
-                input.Add("currency", "INR");
-                input.Add("receipt", "12121");
+                Dictionary<string, object> Input = new Dictionary<string, object>();
+                Input.Add("amount", Amount*100); // this amount should be same as transaction amount
+                Input.Add("currency", "INR");
+                Input.Add("receipt", "12121");
 
-                string key = "rzp_test_QhgKuwa09iAtCQ";
-                string secret = "EPN5K5oBZerW2xhW103kenEQ";
+                string Key = "rzp_test_QhgKuwa09iAtCQ";
+                string Secret = "EPN5K5oBZerW2xhW103kenEQ";
 
-                RazorpayClient client = new RazorpayClient(key, secret);
+                RazorpayClient client = new RazorpayClient(Key, Secret);
 
-                Razorpay.Api.Order order = client.Order.Create(input);
-                var OrderId = order["id"].ToString();
-                MerchantOrder merchant = new MerchantOrder();
-                merchant.FirstName = FirstName;
-                merchant.LastName = LastName;
-                merchant.Address = Address;
-                merchant.Email= Email;
-                merchant.OrderId = OrderId;
-                merchant.ProductId = ProductId;
-                merchant.CartPrice = CartPrice;
-                merchant.Amount = amount;
-                merchant.CartQuantity = CartQuantity;
+                Razorpay.Api.Order Order = client.Order.Create(Input);
+                var OrderId = Order["id"].ToString();
+                MerchantOrder Merchant = new MerchantOrder();
+                Merchant.FirstName = FirstName;
+                Merchant.LastName = LastName;
+                Merchant.Address = Address;
+                Merchant.Email= Email;
+                Merchant.OrderId = OrderId;
+                Merchant.ProductId = ProductId;
+                Merchant.CartPrice = CartPrice;
+                Merchant.Amount = Amount;
+                Merchant.CartQuantity = CartQuantity;
                 var options = new JsonSerializerOptions
                 {
                     ReferenceHandler = ReferenceHandler.Preserve,
                     MaxDepth = 128 // Optionally increase the max depth if needed
                 };
-                var jsonData = JsonSerializer.Serialize(new { data = merchant }, options);
+                var jsonData = JsonSerializer.Serialize(new { data = Merchant }, options);
                 return Content(jsonData, "application/json");
             }
             else
             {
 
-                var customerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
-                var uniqNumber = Guid.NewGuid().ToString();
-                var orderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, customerId.CustomerId, uniqNumber,null,null,1);
+                var CustomerId = _product.AddCustomerDetaile(FirstName, LastName, Email, Address, ZipCode, City);
+                var UniqNumber = Guid.NewGuid().ToString();
+                var OrderDetails = _product.OrderDetails(CartQuantity, CartPrice, ProductId, CustomerId.CustomerId, UniqNumber,null,null,1);
 
-                if (orderDetails)
+                if (OrderDetails)
                 {
-                    var orderTrackingUrl = Url.Action("TrackOrder", "Order", new { id = uniqNumber }, protocol: HttpContext.Request.Scheme);
+                    var orderTrackingUrl = Url.Action("TrackOrder", "Order", new { id = UniqNumber }, protocol: HttpContext.Request.Scheme);
 
                     var body = $@"
                              <h1>Thank you for your order!</h1>
@@ -431,9 +421,9 @@ namespace DemoCrudMvc.Controllers
                              <p>Thank you for shopping with us!</p>
                              <p>Best regards,</p>
                              <p>Your Company Name</p>";
-                    if (_emailService.IsSendEmail(customerId.Email, "Thank You For Order", body))
+                    if (_emailService.IsSendEmail(CustomerId.Email, "Thank You For Order", body))
                     {
-                        return RedirectToAction("OrderSuccessful", "Order", new { OrderUniqId = uniqNumber });
+                        return RedirectToAction("OrderSuccessful", "Order", new { OrderUniqId = UniqNumber });
                     }
                     else
                     {
@@ -449,9 +439,9 @@ namespace DemoCrudMvc.Controllers
 
         public IActionResult CartViewBag()
         {
-            var currentCount = HttpContext.Session.GetInt32("CurrentCart");
-            ViewBag.CartCount = currentCount + 1;
-            HttpContext.Session.SetInt32("CurrentCart", (int)(currentCount + 1));
+            var CurrentCount = HttpContext.Session.GetInt32("CurrentCart");
+            ViewBag.CartCount = CurrentCount + 1;
+            HttpContext.Session.SetInt32("CurrentCart", (int)(CurrentCount + 1));
             return Json(new { newCount = ViewBag.CartCount });
         }
         public IActionResult GetNotificationData()
@@ -461,11 +451,11 @@ namespace DemoCrudMvc.Controllers
             HttpContext.Session.SetInt32("CountNotify", 1);
 
 
-            var orderLastTwoHours = _product.OrderLastTwoHors();
-            var notificationData = orderLastTwoHours.Select(item => new
+            var OrderLastTwoHours = _product.OrderLastTwoHors();
+            var NotificationData = OrderLastTwoHours.Select(item => new
             {
 
-                product = _order.OrderDetailsById(item.OrderUniqId).First().ProductName.Split(new char[] {' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                Product = _order.OrderDetailsById(item.OrderUniqId).First().ProductName.Split(new char[] {' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)[0],
             item.OrderProductId,
                 
                 Customer = new
@@ -478,12 +468,12 @@ namespace DemoCrudMvc.Controllers
                    ? DateTime.Now.TimeOfDay - item.OrderDate.Value.TimeOfDay
                    : TimeSpan.Zero
             }).ToList();
-            var options = new JsonSerializerOptions
+            var Options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
                 MaxDepth = 128 // Optionally increase the max depth if needed
             };
-            var jsonData = JsonSerializer.Serialize(new { data = notificationData }, options);
+            var jsonData = JsonSerializer.Serialize(new { data = NotificationData }, Options);
             return Content(jsonData, "application/json");
 
 
@@ -491,15 +481,15 @@ namespace DemoCrudMvc.Controllers
         }
         public IActionResult GetNotification()
         {
-            List<NotificationVM> lstDataSubmit = new List<NotificationVM>();
-            var options = new JsonSerializerOptions
+            List<NotificationVM> LstDataSubmit = new List<NotificationVM>();
+            var Options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
                 MaxDepth = 128 // Optionally increase the max depth if needed
             };
-            lstDataSubmit = _product.GetNotificationTwoHours();
-            var jsonData = JsonSerializer.Serialize(new { data = lstDataSubmit }, options);
-            return Content(jsonData, "application/json");
+            LstDataSubmit = _product.GetNotificationTwoHours();
+            var JsonData = JsonSerializer.Serialize(new { data = LstDataSubmit }, Options);
+            return Content(JsonData, "application/json");
 
         }
     }

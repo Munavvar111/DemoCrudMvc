@@ -30,7 +30,7 @@ namespace DAL.ViewModals
 		[FromForm]
         public List<IFormFile> Files { get; set; }=new List<IFormFile> { };	
 
-        public string? filename { get; set; }
+        public string? FileName { get; set; }
         public List<string> FileNames { get; set; } = new List<string>();
 
 		public bool IsDeleted { get; set; }
@@ -39,6 +39,6 @@ namespace DAL.ViewModals
 
 		public DateTime DatePicker { get;set; }
 
-		public string? featurePhoto { get;set; }
+		public string? FeaturePhoto { get;set; }
     }
 }

@@ -22,12 +22,12 @@ namespace DemoCrudMvc.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Registration(RegistrationVM registration)
+        public IActionResult Registration(RegistrationVM Registration)
         {
-            var user = _product.GetUser(registration.Email);
-            if (user == null)
+            var User = _product.GetUser(Registration.Email);
+            if (User == null)
             {
-                _product.AddUser(registration);
+                _product.AddUser(Registration);
                 TempData["SuccessMessage"] = "Create Succefully";
             }
             else
@@ -37,12 +37,12 @@ namespace DemoCrudMvc.Controllers
             return RedirectToAction("Registration", "Login");
         }
 
-        public IActionResult Login(loginVM loginVM)
+        public IActionResult Login(loginVM LoginVM)
         {
-            if(_product.IsLoginValid(loginVM))
+            if(_product.IsLoginValid(LoginVM))
             {
                 TempData["SuccessMessage"] = "Login Succefully";
-                HttpContext.Session.SetString("email",loginVM.Email);
+                HttpContext.Session.SetString("email",LoginVM.Email);
                 return RedirectToAction("Product", "Home");
             }
             else

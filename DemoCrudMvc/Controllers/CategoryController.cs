@@ -17,48 +17,48 @@ namespace DemoCrudMvc.Controllers
         public IActionResult Index()
         {
             ViewBag.Categories = _product.GetAllCategories();
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
             return View();
         }
 
-        public IActionResult GetCategory(string searchValue, int currentPage, int pageSize, string change, bool boolvalue)
+        public IActionResult GetCategory(string SearchValue, int CurrentPage, int PageSize, string Change, bool Boolvalue)
         {
             ViewBag.Categories = _product.GetAllCategories();
 
-            var data = _category.GetCategories(searchValue, change, boolvalue);
-            int totalItems = data.Count();
+            var Data = _category.GetCategories(SearchValue, Change, Boolvalue);
+            int TotalItems = Data.Count();
             //Count TotalPage
-            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            List<CategoryVM> paginatedData = data.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.totalPages = totalPages;
+            int TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+            List<CategoryVM> paginatedData = Data.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToList();
+            ViewBag.totalPages = TotalPages;
 
-            ViewBag.CurrentPage = currentPage;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalEntries = totalItems;
+            ViewBag.CurrentPage = CurrentPage;
+            ViewBag.PageSize = PageSize;
+            ViewBag.TotalEntries = TotalItems;
 
             return PartialView("CategoryPartial", paginatedData);
         }
 
         public IActionResult AddCategory()
         {
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
             return View();
         }
 
-        public IActionResult IsCategoryUsedInProduct(int categoryId)
+        public IActionResult IsCategoryUsedInProduct(int CategoryId)
         {
-            ViewBag.CategoryId = categoryId;
-            if (_category.IsCategoryUsedInProduct(categoryId))
+            ViewBag.CategoryId = CategoryId;
+            if (_category.IsCategoryUsedInProduct(CategoryId))
             {
-                return Ok(new { message = "good", categoryId = categoryId, isUsed = true });
+                return Ok(new { message = "good", categoryId = CategoryId, isUsed = true });
             }
             else
             {
@@ -68,9 +68,9 @@ namespace DemoCrudMvc.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCategory(CategoryVM category)
+        public IActionResult AddCategory(CategoryVM Category)
         {
-            if (_category.AddCategory(category))
+            if (_category.AddCategory(Category))
             {
                 return RedirectToAction("Index");
             }
@@ -81,9 +81,9 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult DeleteCategory(int categoryId)
+        public IActionResult DeleteCategory(int CategoryId)
         {
-            if (_category.RemoveCategory(categoryId))
+            if (_category.RemoveCategory(CategoryId))
             {
                 return Ok();
             }
@@ -92,9 +92,9 @@ namespace DemoCrudMvc.Controllers
                 return BadRequest();
             }
         }
-        public IActionResult SetNewCategory(int categoryId,int newCategoryId)
+        public IActionResult SetNewCategory(int CategoryId,int NewCategoryId)
         {
-            if (_category.SetNetCategory(categoryId,newCategoryId))
+            if (_category.SetNetCategory(CategoryId,NewCategoryId))
             {
                 return Ok();
             }
@@ -104,7 +104,7 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult restoreCategory(int id)
+        public IActionResult RestoreCategory(int id)
         {
             if (_category.RestoreCategory(id))
             {
@@ -116,21 +116,21 @@ namespace DemoCrudMvc.Controllers
             }
         }
 
-        public IActionResult UpdateCategory(int id)
+        public IActionResult UpdateCategory(int Id)
         {
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
-            var getCategoryFromId=_category.GetCategoryById(id);
-            return View(getCategoryFromId);
+            var GetCategoryFromId=_category.GetCategoryById(Id);
+            return View(GetCategoryFromId);
         }
 
         [HttpPost]
-        public IActionResult UpdateCategory(int id,CategoryVM category)
+        public IActionResult UpdateCategory(int Id,CategoryVM Category)
         {
-            if (_category.UpdateCategory(id, category))
+            if (_category.UpdateCategory(Id, Category))
             {
                 return RedirectToAction("index");
             }

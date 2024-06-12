@@ -20,7 +20,7 @@ namespace BAL.Repositry
         }
         public List<CategoryVM> GetCategories(string categorySearch, string change, bool boolvalue)
         {
-            var category = _context.Categories.Select(item => new CategoryVM
+            var Category = _context.Categories.Select(item => new CategoryVM
             {
                 CategoriesName = item.CategoryName,
                 CategoriesDescription = item.CategoryDesc,
@@ -34,14 +34,14 @@ namespace BAL.Repositry
                 switch (change)
                 {
                     case "CategoryId":
-                        category = category.OrderBy(p => p.CategoriesID).ToList();
+                        Category = Category.OrderBy(p => p.CategoriesID).ToList();
                         break;
                     case "CategoryName":
-                        category = category.OrderBy(p => p.CategoriesName).ToList();
+                        Category = Category.OrderBy(p => p.CategoriesName).ToList();
                         break;
 
                     case "Description":
-                        category = category.OrderBy(p => p.CategoriesDescription).ToList();
+                        Category = Category.OrderBy(p => p.CategoriesDescription).ToList();
                         break;
 
                 }
@@ -51,61 +51,61 @@ namespace BAL.Repositry
                 switch (change)
                 {
                     case "CategoryId":
-                        category = category.OrderByDescending(p => p.CategoriesID).ToList();
+                        Category = Category.OrderByDescending(p => p.CategoriesID).ToList();
                         break;
 
                     case "CategoryName":
-                        category = category.OrderByDescending(p => p.CategoriesName).ToList();
+                        Category = Category.OrderByDescending(p => p.CategoriesName).ToList();
                         break;
                     case "Description   ":
-                        category = category.OrderByDescending(p => p.CategoriesDescription).ToList();
+                        Category = Category.OrderByDescending(p => p.CategoriesDescription).ToList();
                         break;
 
 
                 }
             }
-            return category;
+            return Category;
         }
 
 
         public bool AddCategory(CategoryVM category)
         {
-            Category category1 = new Category();
-            category1.CategoryDesc = category.CategoriesDescription;
-            category1.CategoryName=category.CategoriesName;
-            category1.IsDeleted = false;
-            _context.Categories.Add(category1);
+            Category CategoryData = new Category();
+            CategoryData.CategoryDesc = category.CategoriesDescription;
+            CategoryData.CategoryName=category.CategoriesName;
+            CategoryData.IsDeleted = false;
+            _context.Categories.Add(CategoryData);
             _context.SaveChanges();
             return true;
         }
 
         public bool IsCategoryUsedInProduct(int categoryId)
         {
-            var isUsed = _context.Products.Any(item=>item.CategoryId==categoryId); return isUsed;   
+            var IsUsed = _context.Products.Any(item=>item.CategoryId==categoryId); return IsUsed;   
 
 
         }
         public bool RemoveCategory(int categoryId)
         {
-            var category = _context.Categories.Where(item=>item.CategoryId == categoryId).FirstOrDefault();
-            category.IsDeleted = true;
-            _context.Categories.Update(category);
+            var Categogy = _context.Categories.Where(item=>item.CategoryId == categoryId).FirstOrDefault();
+            Categogy.IsDeleted = true;
+            _context.Categories.Update(Categogy);
             _context.SaveChanges();
             return true;    
         }
 
         public bool SetNetCategory(int CategoryId, int netCategoryId)
         {
-            var products = _context.Products.Where(item => item.CategoryId == CategoryId).ToList();
-            var category=_context.Categories.Where(item=>item.CategoryId==CategoryId).FirstOrDefault();
-            category.IsDeleted = true;
-            _context.Categories.Update(category);   
-            if (products.Any())
+            var Products = _context.Products.Where(item => item.CategoryId == CategoryId).ToList();
+            var Category=_context.Categories.Where(item=>item.CategoryId==CategoryId).FirstOrDefault();
+            Category.IsDeleted = true;
+            _context.Categories.Update(Category);   
+            if (Products.Any())
             {
-                foreach (var product in products)
+                foreach (var Product in Products)
                 {
-                    product.CategoryId = netCategoryId;
-                    _context.Products.Update(product);  
+                    Product.CategoryId = netCategoryId;
+                    _context.Products.Update(Product);  
                 }
 
                 _context.SaveChanges();
@@ -116,28 +116,28 @@ namespace BAL.Repositry
         }
         public bool RestoreCategory(int id)
         {
-            var category = _context.Categories.FirstOrDefault(item => item.CategoryId == id);
-            category.IsDeleted = false;
-            _context.Categories.Update(category);   
+            var Category = _context.Categories.FirstOrDefault(item => item.CategoryId == id);
+            Category.IsDeleted = false;
+            _context.Categories.Update(Category);   
             _context.SaveChanges();
             return true;
         }
         public CategoryVM GetCategoryById(int id)
         {
-            var category=_context.Categories.FirstOrDefault(item=>item.CategoryId == id);
+            var Category=_context.Categories.FirstOrDefault(item=>item.CategoryId == id);
             var CategoryVm = new CategoryVM();
-            CategoryVm.CategoriesID = category.CategoryId;
-            CategoryVm.CategoriesName = category.CategoryName;
-            CategoryVm.CategoriesDescription = category.CategoryDesc;
+            CategoryVm.CategoriesID = Category.CategoryId;
+            CategoryVm.CategoriesName = Category.CategoryName;
+            CategoryVm.CategoriesDescription = Category.CategoryDesc;
             return CategoryVm;
         }
 
         public bool UpdateCategory(int id, CategoryVM category)
         {
-            var updateCategory = _context.Categories.FirstOrDefault(item => item.CategoryId == id);
-            updateCategory.CategoryDesc=category.CategoriesDescription;
-            updateCategory.CategoryName = category.CategoriesName;
-            _context.Categories.Update(updateCategory);
+            var UpdateCategory = _context.Categories.FirstOrDefault(item => item.CategoryId == id);
+            UpdateCategory.CategoryDesc=category.CategoriesDescription;
+            UpdateCategory.CategoryName = category.CategoriesName;
+            _context.Categories.Update(UpdateCategory);
             _context.SaveChanges();
             return true;
         }
