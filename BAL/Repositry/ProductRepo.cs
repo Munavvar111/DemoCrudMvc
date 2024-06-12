@@ -301,7 +301,7 @@ namespace BAL.Repositry
                 return email;
             }
         }
-        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId,string uniqNumber )
+        public bool OrderDetails(List<int> CartQuantity, List<int> CartPrice, List<int> ProductId, int CustomerId, string uniqNumber, string? razorpay_payment_id, string? razorpay_signature, int pType)
         {
    
             for (int i = 0; i < CartQuantity.Count; i++)
@@ -328,11 +328,20 @@ namespace BAL.Repositry
             _context.OrderStatusLogs.Add(orderStatusLog);
             _context.SaveChanges();
 
+            Payment payment=new Payment();
+            payment.PaymentOrderId= uniqNumber;
+            payment.PaymentType = pType;
+            payment.RazorPaymentId = razorpay_payment_id;
+            payment.RazorSignature=razorpay_signature;
+            _context.Payments.Add(payment); 
+            _context.SaveChanges();
+
             OrderProduct orderProduct= new OrderProduct();
             orderProduct.CustomerId = CustomerId;
             orderProduct.OrderUniqId = uniqNumber;
             orderProduct.OrderDate = DateTime.Now;
             orderProduct.NotificationBool = true;
+            orderProduct.PaymentId=payment.PaymentId;
             _context.OrderProducts.Add(orderProduct);
             _context.SaveChanges();     
             return true;

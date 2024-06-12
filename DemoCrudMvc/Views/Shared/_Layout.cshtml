@@ -90,11 +90,11 @@
 
 
 <body class="bg-light">
-    <div id="loader">
+    @* <div id="loader">
         <div class="spinner-border text-info" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-    </div>
+    </div> *@
     <div class="">
         <nav class="navbar navbar-expand-sm navbar-light" id="neubar">
             <div class="container">
@@ -274,7 +274,7 @@
         function displayNotifications() {
             if (notifications.length > 0) {
                 let notification = notifications[currentNotificationIndex];
-                let message = `OrderProductId: ${notification.OrderProductId}, Customer: ${notification.Customer.FirstName} ${notification.Customer.LastName}, Order: ${formatTimeDifference(notification.OrderTime)}`;
+                let message = ` ${notification.Customer.FirstName} ${notification.Customer.LastName},Purchaded: ${notification.product}, Order: ${formatTimeDifference(notification.OrderTime)}`;
                 toastr.info(message);
                 currentNotificationIndex++;
 
@@ -293,7 +293,7 @@
             hours = parseInt(hours, 10);
             minutes = parseInt(minutes, 10);
             seconds = parseInt(seconds, 10);
-            return ` ${minutes}m ${seconds}s`;
+            return ` ${minutes}m ago`;
         }
 
         fetchNotificationsToaster();

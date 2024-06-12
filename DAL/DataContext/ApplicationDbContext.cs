@@ -28,6 +28,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<OrderStatusLog> OrderStatusLogs { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<PaymentType> PaymentTypes { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductPhoto> ProductPhotos { get; set; }
@@ -78,10 +82,15 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.OrderProductId).HasName("OrderProduct_pkey");
 
             entity.Property(e => e.OrderProductId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.PaymentId).HasDefaultValueSql("1");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.OrderProducts)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("OrderProduct_CustomerId_fkey");
+
+            entity.HasOne(d => d.Payment).WithMany(p => p.OrderProducts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("OrderProduct_PaymentId_fkey");
         });
 
         modelBuilder.Entity<OrderStatus>(entity =>
@@ -96,6 +105,24 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.StatusLogId).HasName("OrderStatusLog_pkey");
 
             entity.Property(e => e.StatusLogId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("Payment_pkey");
+
+            entity.Property(e => e.PaymentId).UseIdentityAlwaysColumn();
+
+            entity.HasOne(d => d.PaymentTypeNavigation).WithMany(p => p.Payments)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Payment_PaymentType_fkey");
+        });
+
+        modelBuilder.Entity<PaymentType>(entity =>
+        {
+            entity.HasKey(e => e.PaymentTypeId).HasName("PaymentType_pkey");
+
+            entity.Property(e => e.PaymentTypeId).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<Product>(entity =>

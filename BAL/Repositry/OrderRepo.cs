@@ -20,7 +20,7 @@ namespace BAL.Repositry
             _context = context;
         }
         public List<OrderVM> GetOrderDetails(string SearchValue, string change, bool boolValue,int StatusTrack)
-        {
+            {
 
             var ordersDetail = _context.OrderProducts.Include(item => item.Customer).Select(item => new OrderVM
             {

@@ -12,14 +12,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
         color: #657380; /* Text color */
-
     }
 
     .payment-method {
-        border: 1px solid #ddd;
         padding: 10px;
         border-radius: 5px;
-        background-color: #f9f9f9;
     }
 
     .form-check {
@@ -133,16 +130,17 @@
                             </div>
                         </div>
                         <div class="payment-method">
-                            <div class="form-check">
+                            <h4>Select Payment Mode</h4>
+                            <div class="form-check d-flex">
                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="1">
                                 <label class="form-check-label" for="flexRadioDefault1">
-                                    <img src="https://img.freepik.com/free-vector/flat-design-cash-delivery_23-2148808917.jpg?w=740&t=st=1718126619~exp=1718127219~hmac=d672e59fd0e3f99b19920d1a10140f073aabd1e58dcd6f7a1cb7586d0f3c479c" alt="Cash on Delivery" class="payment-logo"> Cash on Delivery
+                                     Cash on Delivery
                                 </label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check d-flex">
                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked value="2">
                                 <label class="form-check-label" for="flexRadioDefault2">
-                                    <img src="https://img.freepik.com/free-vector/flat-design-cash-delivery_23-2148808917.jpg?w=740&t=st=1718126619~exp=1718127219~hmac=d672e59fd0e3f99b19920d1a10140f073aabd1e58dcd6f7a1cb7586d0f3c479c" alt="Online Payment" class="payment-logo"> Online Payment
+                                     Online Payment
                                 </label>
                             </div>
                         </div>
@@ -240,124 +238,168 @@
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 <script>
-$(document).ready(function() {
-    // Initialize the validator
-    $('#CheckoutForm').validate({
-        rules: {
-            FirstName: {
-                required: true,
-                minlength: 2
+    $(document).ready(function () {
+        // Initialize the validator
+        $('#CheckoutForm').validate({
+            rules: {
+                FirstName: {
+                    required: true,
+                    minlength: 2
+                },
+                LastName: {
+                    required: true,
+                    minlength: 2
+                }, 
+                Address: {
+                    required: true,
+                    minlength: 2
+                },
+                ZipCode: {
+                    required: true,
+                    minlength: 2
+                },
+                City: {
+                    required: true,
+                    minlength: 2
+                },
+                Email: {
+                    email: true,
+                    required: true,
+                    minlength: 2
+                },
+                RadioSelection: {
+                    required: true
+                }
             },
-            LastName: {
-                required: true,
-                minlength: 2
+            messages: {
+                FirstName: {
+                    required: "Please enter your first name",
+                    minlength: "Your first name must consist of at least 2 characters"
+                },
+                LastName: {
+                    required: "Please enter your last name",
+                    minlength: "Your last name must consist of at least 2 characters"
+                },
+                Email: {
+                    required: "Please enter your Email",
+                    minlength: "Your last name must consist of at least 2 characters"
+                },
+                Address: {
+                    required: "Please enter your Address",
+                    minlength: "Your last name must consist of at least 2 characters"
+                },
+                ZipCode: {
+                    required: "Please enter your ZipCode",
+                    minlength: "Your last name must consist of at least 2 characters"
+                },
+                City: {
+                    required: "Please enter your City",
+                    minlength: "Your last name must consist of at least 2 characters"
+                },
+                RadioSelection: {
+                    required: "Please select an option"
+                }
             },
-            RadioSelection: {
-                required: true
+            errorElement: 'span',
+            errorClass: 'text-danger',
+            errorPlacement: function (error, element) {
+                if (element.attr("type") == "radio") {
+                    error.appendTo(element.parent().parent());
+                } else {
+                    error.insertAfter(element);
+                }
             }
-        },
-        messages: {
-            FirstName: {
-                required: "Please enter your first name",
-                minlength: "Your first name must consist of at least 2 characters"
-            },
-            LastName: {
-                required: "Please enter your last name",
-                minlength: "Your last name must consist of at least 2 characters"
-            },
-            RadioSelection: {
-                required: "Please select an option"
-            }
-        },
-        errorElement: 'span',
-        errorClass: 'text-danger',
-        errorPlacement: function(error, element) {
-            if (element.attr("type") == "radio") {
-                error.appendTo(element.parent().parent());
-            } else {
-                error.insertAfter(element);
-            }
-        }
+        });
     });
-});
 
-function RemoveCartItem() {
-    var form = $('#CheckoutForm');
+    function RemoveCartItem() {
+        var form = $('#CheckoutForm');
 
-    // Check if the form is valid
-    if (form.valid()) {
-        console.log("gii")
+        // Check if the form is valid
+        if (form.valid()) {
+            console.log("gii")
 
             var selectedRadio = $('input[name="flexRadioDefault"]:checked').val();
             console.log("gii")
-        if (selectedRadio == "2") {
-            console.log(selectedRadio)
-            var formData = new FormData(form[0]);
+            if (selectedRadio == "2") {
+                console.log(selectedRadio)
+                var formData = new FormData(form[0]);
+                if (true) {
 
-            $.ajax({
-                url: '@Url.Action("PlaceOrder", "Home")',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    console.log(response);
-                    var orderId = response.data.OrderId; // Fetch the order ID from response
+                $.ajax({
+                    url: '@Url.Action("PlaceOrder", "Home")',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log(response);
+                            var orderId = response.data.OrderId; // Fetch the order ID from response
 
-                    var options = {
-                        "key": "rzp_test_QhgKuwa09iAtCQ",
-                        "name": response.data.FirstName + " " + response.data.LastName,
-                        "description": "Buy A Product",
-                        "order_id": orderId,
-                        "image": "https://example.com/your_logo",
-                        "prefill": {
-                            "name": "Gaurav Kumar",
-                            "email": "gaurav.kumar@example.com",
-                            "contact": "+919000090000",
-                        },
-                        "notes": {
-                            "address": "Hello World"
-                        },
-                        "theme": {
-                            "color": "#3399cc",
-                            "image_padding": false
-                        },
-                        "handler": function (response) {
-                            console.log(response);
-                            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-                            document.getElementById('razorpay_order_id').value = orderId;
-                            document.getElementById('razorpay_signature').value = response.razorpay_signature;
-                            form[0].submit();
-                        },
-                        "modal": {
-                            "ondismiss": function () {
-                                console.log("This code runs when the popup is closed");
+                        var options = {
+                            "key": "rzp_test_QhgKuwa09iAtCQ",
+                            "name": response.data.FirstName + " " + response.data.LastName,
+                            "description": "Buy A Product",
+                            "order_id": orderId,
+                            "image": "https://example.com/your_logo",
+                            "prefill": {
+                                "name": response.data.FirstName + " "+ response.data.LastName,
+                                "email": response.data.Email,
+                                "contact": "9157120511",
                             },
-                            "escape": true,
-                            "backdropclose": true
-                        }
-                    };
+                            "notes": {
+                                    "address": response.data.Address
+                            },
+                            "theme": {
+                                "color": "#3399cc",
+                                "image_padding": false
+                            },
+                            "handler": function (response) {
+                                console.log(response);
+                                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                                document.getElementById('razorpay_order_id').value = orderId;
+                                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                                form[0].submit();
+                                localStorage.clear("cart")
+                            },
 
-                    var rzp = new Razorpay(options);
-                    rzp.open();
-                },
-                error: function (response) {
-                    console.log(response);
+                            "modal": {
+                                "ondismiss": function () {
+                                    console.log("This code runs when the popup is closed");
+                                },
+                                "escape": true,
+                                "backdropclose": true
+                            }
+                        };
+
+                        var rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function (response) {
+                             alert(response.error.code);
+                            // alert(response.error.description);
+                            // alert(response.error.source);
+                            // alert(response.error.step);
+                            // alert(response.error.reason);
+                            // alert(response.error.metadata.order_id);
+                            // alert(response.error.metadata.payment_id);
+
+                        });
+                        rzp.open();
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
                 }
-            });
-        }
+
+            }
             else {
+                localStorage.clear("cart")
                 form.submit(); // This will trigger validation and show error messages
             }
+        }
     }
-}
 </script>
 
-<form action="Charge.aspx" method="post" name="razorpayForm">
-    <input id="razorpay_payment_id" type="hidden" name="razorpay_payment_id" />
-    <input id="razorpay_order_id" type="hidden" name="razorpay_order_id" />
-    <input id="razorpay_signature" type="hidden" name="razorpay_signature" />
-</form>
 
-<button id="rzp-button1">Pay with Razorpay</button>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

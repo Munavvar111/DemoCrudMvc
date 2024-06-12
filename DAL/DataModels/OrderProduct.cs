@@ -22,7 +22,13 @@ public partial class OrderProduct
 
     public bool NotificationBool { get; set; }
 
+    public int PaymentId { get; set; }
+
     [ForeignKey("CustomerId")]
     [InverseProperty("OrderProducts")]
     public virtual Customer Customer { get; set; } = null!;
+
+    [ForeignKey("PaymentId")]
+    [InverseProperty("OrderProducts")]
+    public virtual Payment Payment { get; set; } = null!;
 }
