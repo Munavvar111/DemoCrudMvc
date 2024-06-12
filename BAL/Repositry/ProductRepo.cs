@@ -209,10 +209,13 @@ namespace BAL.Repositry
             var User = _context.Users.Where(item => item.Email == Login.Email).FirstOrDefault();
             if (User == null || !BC.Verify(Login.Passwordhash, User.Password))
             {
+                _context.Dispose();
                 return false;
             }
             else
             {
+                _context.Dispose();
+
                 return true;
             }
 
@@ -221,6 +224,8 @@ namespace BAL.Repositry
         public List<ProductPhoto> GetProductPhoto(int Id)
         {
             var photo = _context.ProductPhotos.Where(item => item.ProductId == Id).ToList();
+            _context.Dispose();
+
             return photo;
         }
 

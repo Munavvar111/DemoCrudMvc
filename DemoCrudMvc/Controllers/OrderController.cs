@@ -53,13 +53,13 @@ namespace DemoCrudMvc.Controllers
                 return RedirectToAction("Index", "Home");
 
             }
-            var order = _order.OrderDetailsById(Id);
-            if (order == null)
+            var Order = _order.OrderDetailsById(Id);
+            if (Order == null)
             {
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index","Home");
             }
-            return View(order);
+            return View(Order);
         }
 
         public IActionResult OrderDetails(string Id)
@@ -69,8 +69,8 @@ namespace DemoCrudMvc.Controllers
                 TempData["Error"] = "Something Is Wrong";
                 return RedirectToAction("Index");
             }
-            var email = HttpContext.Session.GetString("email");
-            if (email == null)
+            var Email = HttpContext.Session.GetString("email");
+            if (Email == null)
             {
                 return RedirectToAction("index", "login");
             }
